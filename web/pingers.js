@@ -37,13 +37,17 @@ function mysqlPinger(uri, info) {
   }
 }
 
-exports.mysql_main = mysqlPinger('mysql://user:password@dig-mysql:3307/*', {
-  name: 'Mysql ~ Main', info: 'MySQL for our websites', link: null
-})
+if (process.env.MYSQL_MAIN) {
+  exports.mysql_main = mysqlPinger(process.env.MYSQL_MAIN, {
+    name: 'Mysql ~ Main', info: 'MySQL for our websites', link: null
+  })
+}
 
-exports.mysql_shared = mysqlPinger('mysql://user:password@dig-mysql:3306/*', {
-  name: 'Mysql ~ Shared', info: 'MySQL for internal projects', link: null
-})
+if (process.env.MYSQL_SHARED) {
+  exports.mysql_shared = mysqlPinger(process.env.MYSQL_SHARED, {
+    name: 'Mysql ~ Shared', info: 'MySQL for internal projects', link: null
+  })
+}
 
 exports.openlab = httpPinger('https://openlab.ncl.ac.uk', {
   name: 'Main Site', info: 'OpenLab Wordpress', link: 'https://openlab.ncl.ac.uk'

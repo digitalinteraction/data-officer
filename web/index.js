@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const api = require('api-formatter').Api
 
@@ -5,8 +7,7 @@ const pingers = require('./pingers')
 
 ;(async () => {
   
-  let app = express()
-    .use(api.middleware())
+  let app = express().use(api.middleware())
   
   // Add an endpoint for all infos
   app.get('/all', async (req, res) => {
@@ -30,6 +31,8 @@ const pingers = require('./pingers')
     res.api.sendData('ok')
   })
   
+  // Add docs
+  app.use('/docs', express.static('docs'))
   
   // Listen on 3000
   await new Promise(resolve => app.listen(3000, resolve))
