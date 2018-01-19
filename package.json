@@ -1,0 +1,35 @@
+{
+  "name": "test",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "coverage": "nyc --reporter=html mocha test/unit",
+    "coverage-summary": "nyc --reporter=text-summary mocha test/unit",
+    "lint": "eslint web test",
+    "push-image": "node tools/buildAndPush.js",
+    "start": "node web",
+    "test": "mocha test/unit",
+    "watch": "nodemon web --watch web"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "api-formatter": "^0.3.0",
+    "axios": "^0.17.1",
+    "express": "^4.16.2",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.14.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "mocha": "^4.1.0",
+    "nodemon": "^1.14.7",
+    "nyc": "^11.4.1"
+  }
+}
