@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "success": true,
+    "messages": [],
+    "status": 400,
+    "name": "pinger",
+    "version": "0.1.0"
+  },
+  "data": {
+    "name": "Dokku",
+    "info": "Shared Application Server",
+    "link": null,
+    "state": {
+      "online": false,
+      "status": 400,
+      "messages": [
+        "Cannot connect to dig-civics generator endpoint (:1090)",
+        "Cannot connect to dig-gateway reload endpoint (:27123)"
+      ]
+    }
+  }
+}

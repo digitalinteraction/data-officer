@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "success": true,
+    "messages": [],
+    "status": 200,
+    "name": "pinger",
+    "version": "0.1.0"
+  },
+  "data": {
+    "name": "GitLab",
+    "info": "Git projects repository",
+    "link": "https://openlab.ncl.ac.uk/gitlab",
+    "state": {
+      "online": true,
+      "status": 200,
+      "messages": []
+    }
+  }
+}

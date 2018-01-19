@@ -1,13 +1,15 @@
 {
-  "name": "test",
-  "version": "0.0.1",
+  "name": "pinger",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "coverage": "nyc --reporter=html mocha test/unit",
     "coverage-summary": "nyc --reporter=text-summary mocha test/unit",
+    "docs-dev": "ocedocs -w",
     "lint": "eslint web test",
-    "push-image": "node tools/buildAndPush.js",
+    "push-image": "ocedocs && node tools/buildAndPush.js latest",
+    "postversion": "ocedocs && node tools/buildAndPush.js latest",
     "start": "node web",
     "test": "mocha test/unit",
     "watch": "nodemon web --watch web"
@@ -30,6 +32,7 @@
     "eslint-plugin-standard": "^3.0.1",
     "mocha": "^4.1.0",
     "nodemon": "^1.14.7",
-    "nyc": "^11.4.1"
+    "nyc": "^11.4.1",
+    "ocelot-docs": "^0.1.9"
   }
 }

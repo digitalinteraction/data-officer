@@ -1,0 +1,10 @@
+{
+  "meta": {
+    "success": true,
+    "messages": [],
+    "status": 200,
+    "name": "pinger",
+    "version": "0.1.0"
+  },
+  "data": "ok"
+}

@@ -1,0 +1,27 @@
+---
+version: 0.1.0
+groups:
+  - states
+---
+
+states:
+  name: Services States
+  endpoints:
+    
+  - get: / helloWorld
+    info: An endpoint to check the api is all working correctly
+    responses:
+    - 200: Success helloWorld.json
+    
+  - get: /all allStates
+    info: Gets the status of all services, each service comes back with information about it and whether it is currently live or not. If a service is down it may also add messages to ellude to why it isn't working.
+    responses:
+    - 200: Success allStates.json
+  
+  - get: /service/:name serviceState
+    info: Gets the state of a specific service, available services can be found from /all. The response comes with information about the service and whether the service is running or not.
+    params:
+      name: string - The service to request
+    responses:
+    - 200: Up up.json
+    - 400: Down down.json
