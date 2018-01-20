@@ -16,16 +16,6 @@ function httpPinger(url, info) {
   }
 }
 
-function makeState(info, status, messages = []) {
-  return Object.assign({}, info, {
-    state: {
-      online: status === 200,
-      status,
-      messages: Array.isArray(messages) ? messages : messages
-    }
-  })
-}
-
 function mysqlPinger(uri, info) {
   
   let connection = mysql.createConnection(uri)
@@ -35,6 +25,16 @@ function mysqlPinger(uri, info) {
     let error = await new Promise(resolve => connection.ping(resolve))
     return makeState(info, error ? 400 : 200)
   }
+}
+
+function makeState(info, status, messages = []) {
+  return Object.assign({}, info, {
+    state: {
+      online: status === 200,
+      status,
+      messages: Array.isArray(messages) ? messages : messages
+    }
+  })
 }
 
 if (process.env.MYSQL_MAIN) {
@@ -75,8 +75,8 @@ exports.dokku = async () => {
   
   try {
     [dokku, gateway] = await Promise.all([
-      axios.get('dig-civics:1090/nginx'),
-      axios.get('dig-gateway:27123')
+      axios.get('http://dig-civics.ncl.ac.uk:1090/nginx'),
+      axios.get('http://dig-gateway.ncl.ac.uk:27123')
     ])
   }
   catch (error) { }
