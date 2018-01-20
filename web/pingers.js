@@ -1,11 +1,14 @@
 const axios = require('axios')
 const mysql = require('mysql')
 
+let agent = axios.create()
+agent.defaults.timeout = 5000
+
 function httpPinger(url, info) {
   return async () => {
     let status = null
     try {
-      let res = await axios.get(url)
+      let res = await agent.get(url)
       status = res.status
     }
     catch (error) {
@@ -75,8 +78,8 @@ exports.dokku = async () => {
   
   try {
     [dokku, gateway] = await Promise.all([
-      axios.get('http://dig-civics.ncl.ac.uk:1090/nginx'),
-      axios.get('http://dig-gateway.ncl.ac.uk:27123')
+      agent.get('http://dig-civics.ncl.ac.uk:1090/nginx'),
+      agent.get('http://dig-gateway.ncl.ac.uk:27123')
     ])
   }
   catch (error) { }
