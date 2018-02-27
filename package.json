@@ -34,6 +34,6 @@
     "mocha": "^4.1.0",
     "nodemon": "^1.14.7",
     "nyc": "^11.4.1",
-    "ocelot-docs": "^0.1.9"
+    "ocelot-docs": "^0.2.0"
   }
 }
