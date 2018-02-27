@@ -26,9 +26,27 @@ const pingers = require('./pingers')
     })
   })
   
+  // Add an enpoint to return all services which are down
+  app.get('/down', async (req, res) => {
+    let down = {}
+    await Promise.all(Object.keys(pingers).map(async name => {
+      let pong = await pingers[name]()
+      if (pong.state.online) return
+      down[name] = pong
+    }))
+    res.api.sendData(down)
+  })
+  
   // Add a state endpoint
   app.get('/', (req, res) => {
-    res.api.sendData('ok')
+    res.api.sendData({
+      msg: 'ok',
+      endpoints: {
+        '/all': 'Get the status of all services',
+        '/down': 'Get the services which are down',
+        '/service/:name': 'Get the status of all services, where :name is the key of the service from /all'
+      }
+    })
   })
   
   // Add docs

@@ -64,14 +64,6 @@ exports.digital_civics = httpPinger('https://digitalcivics.io', {
   name: 'Digital Civics', info: 'Digital Civics Site', link: 'https://digitalcivics.io'
 })
 
-exports.owncloud = httpPinger('https://openlab.ncl.ac.uk/owncloud', {
-  name: 'OwnCloud', info: 'Shared file storage', link: 'https://openlab.ncl.ac.uk/owncloud'
-})
-
-exports.svn = httpPinger('https://openlab.ncl.ac.uk/csvn', {
-  name: 'Subversion', info: 'Svn projects repository', link: null
-})
-
 exports.dokku = async () => {
   
   let dokku, gateway
@@ -93,4 +85,29 @@ exports.dokku = async () => {
   return makeState({
     name: 'Dokku', info: 'Shared Application Server', link: null
   }, status, messages)
+}
+
+exports.svn = async () => {
+  let status
+  let succeeded = false
+  try {
+    let res = await agent.get('https://openlab.ncl.ac.uk/svn/repos/')
+    status = res.status
+    succeeded = true
+  }
+  catch (error) {
+    status = error.response.status
+    succeeded = status === 401
+  }
+  
+  return {
+    name: 'svg',
+    info: 'Svn projects repository',
+    link: 'https://openlab.ncl.ac.uk/svn/repos/',
+    state: {
+      online: succeeded,
+      status,
+      messages: []
+    }
+  }
 }
