@@ -25,3 +25,8 @@ states:
     responses:
     - 200: Up up.json
     - 400: Down down.json
+  
+  - get: /down downServices
+    info: Pings all services and returns the ones that are down
+    responses:
+    - 200: Success allDown.json

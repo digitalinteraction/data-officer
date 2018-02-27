@@ -44,7 +44,8 @@ const pingers = require('./pingers')
       endpoints: {
         '/all': 'Get the status of all services',
         '/down': 'Get the services which are down',
-        '/service/:name': 'Get the status of all services, where :name is the key of the service from /all'
+        '/service/:name': 'Get the status of all services, where :name is the key of the service from /all',
+        '/docs': 'More detailed api docs'
       }
     })
   })
