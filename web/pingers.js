@@ -42,7 +42,7 @@ function makeState(info, status, messages = []) {
 
 if (process.env.MYSQL_MAIN) {
   exports.mysql_main = mysqlPinger(process.env.MYSQL_MAIN, {
-    name: 'Mysql ~ Main', info: 'MySQL for our websites', link: null
+    name: 'Mysql ~ Main', info: 'MySQL for our websites (openlab.ncl.ac.uk & digitalcivics.io)', link: null
   })
 }
 
@@ -101,7 +101,7 @@ exports.svn = async () => {
   }
   
   return {
-    name: 'svg',
+    name: 'svn',
     info: 'Svn projects repository',
     link: 'https://openlab.ncl.ac.uk/svn/repos/',
     state: {
@@ -111,3 +111,11 @@ exports.svn = async () => {
     }
   }
 }
+
+exports.mysql_hosted_backup = httpPinger('http://dig-wing:8086', {
+  name: 'Mainsite MySql Backup', info: 'Automated MySQL backup for our hosted databases', link: null
+})
+
+exports.mysql_main_backup = httpPinger('http://dig-wing:8087', {
+  name: 'Mainsite MySql Backup', info: 'Automated MySQL backup for the mainsite databases', link: null
+})
