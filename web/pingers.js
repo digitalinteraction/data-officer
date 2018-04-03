@@ -112,10 +112,10 @@ exports.svn = async () => {
   }
 }
 
-exports.mysql_hosted_backup = httpPinger('http://dig-wing:8086', {
+exports.mysql_hosted_backup = httpPinger('http://dig-wing.ncl.ac.uk:8086', {
   name: 'Mainsite MySql Backup', info: 'Automated MySQL backup for our hosted databases', link: null
 })
 
-exports.mysql_main_backup = httpPinger('http://dig-wing:8087', {
+exports.mysql_main_backup = httpPinger('http://dig-wing.ncl.ac.uk:8087', {
   name: 'Mainsite MySql Backup', info: 'Automated MySQL backup for the mainsite databases', link: null
 })
