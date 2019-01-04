@@ -2,7 +2,7 @@ const axios = require('axios')
 const mysql = require('mysql')
 
 let agent = axios.create()
-agent.defaults.timeout = 5000
+agent.defaults.timeout = 3000
 
 function httpPinger(url, info) {
   return async () => {
@@ -68,13 +68,10 @@ exports.dokku = async () => {
   
   let dokku, gateway
   
-  try {
-    [dokku, gateway] = await Promise.all([
-      agent.get('http://dig-civics.ncl.ac.uk:1090/nginx'),
-      agent.get('http://dig-gateway.ncl.ac.uk:27123')
-    ])
-  }
-  catch (error) { }
+  [dokku, gateway] = await Promise.all([
+    agent.get('http://dig-civics.ncl.ac.uk:8083/').catch(_ => null),
+    agent.get('http://dig-gateway.ncl.ac.uk:8095/ping').catch(_ => null)
+  ])
   
   let messages = []
   if (!dokku) messages.push('Cannot connect to dig-civics generator endpoint (:1090)')
