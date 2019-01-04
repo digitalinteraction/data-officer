@@ -1,7 +1,7 @@
 {
   "name": "Openlab Services Api",
   "description": "An api for the status of our services. All responses come in a data envelope which means that you get 2 root level objects. The 'data' section contains the payload of your request and 'meta' contains information about your request itself.\n",
-  "template": "/Users/rob/Sites/lab/systems/ol-status/node_modules/ocelot-template/template",
+  "template": "node_modules/ocelot-template/template",
   "versions": [
     {
       "name": "0.1.0",
