@@ -1,5 +1,6 @@
 # Node Sample Project
-> A project to kickstart a node app, with the common things already setup.  
+
+> A project to kickstart a node app, with the common things already setup.
 
 ```bash
 
