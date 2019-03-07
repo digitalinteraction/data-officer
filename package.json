@@ -6,12 +6,12 @@
   "scripts": {
     "coverage": "jest --coverage",
     "docs-dev": "ocedocs -w",
-    "lint": "eslint web test",
-    "postversion": "ocedocs && node tools/buildAndPush.js",
+    "lint": "eslint web",
+    "preversion": "eslint web && ocedocs && git add docs",
     "prettier": "prettier --write ./**/*.{js,json,css,md}",
-    "start": "node web",
+    "start": "NODE_ENV=production node web",
     "test": "jest",
-    "watch": "nodemon web --watch web"
+    "dev": "NODE_ENV=development nodemon web --watch web"
   },
   "author": "Rob Anderson (https://r0b.io)",
   "license": "ISC",
