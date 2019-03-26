@@ -80,10 +80,14 @@ exports.dokku = async () => {
 
   let messages = []
   if (!dokku) {
-    messages.push('Cannot connect to dig-civics generator endpoint (:1090)')
+    messages.push(
+      'Cannot connect to dig-civics generator endpoint: http://dig-civics.ncl.ac.uk:8083'
+    )
   }
   if (!gateway) {
-    messages.push('Cannot connect to dig-gateway reload endpoint (:27123)')
+    messages.push(
+      'Cannot connect to dig-gateway reload endpoint: http://dig-gateway.ncl.ac.uk:8095/ping'
+    )
   }
 
   let status = dokku && gateway ? 200 : 400
