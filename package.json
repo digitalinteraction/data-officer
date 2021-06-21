@@ -31,11 +31,11 @@
     ]
   },
   "dependencies": {
-    "api-formatter": "^1.0.0",
-    "axios": "^0.18.0",
-    "dotenv": "^6.2.0",
-    "express": "^4.16.4",
-    "mysql": "^2.16.0"
+    "api-formatter": "^1.0.2",
+    "axios": "^0.21.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "eslint": "^5.15.1",
@@ -49,7 +49,7 @@
     "jest": "^24.1.0",
     "lint-staged": "^8.1.5",
     "nodemon": "^1.18.10",
-    "prettier": "^1.16.4",
-    "ocelot-docs": "^0.4.0"
+    "ocelot-docs": "^0.4.0",
+    "prettier": "^1.16.4"
   }
 }
