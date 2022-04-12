@@ -2,8 +2,9 @@ import fs from 'fs/promises'
 import { createTerminus } from '@godaddy/terminus'
 import { create } from 'superstruct'
 
-import { createDebug, EnvStruct } from '../lib/module.js'
+import { createDebug, EnvStruct, PostgresService } from '../lib/module.js'
 import { createServer } from '../server.js'
+import { JwtService } from '../auth/jwt.js'
 
 const debug = createDebug('app:command:serve')
 
@@ -16,9 +17,14 @@ export async function serveCommand(options: ServeCommandOptions) {
 
   const env = create(process.env, EnvStruct)
   const pkg = JSON.parse(await fs.readFile('package.json', 'utf8'))
+  const pg = new PostgresService({ connectionString: env.DATABASE_URL })
+  const jwt = new JwtService({
+    secretKey: env.JWT_SECRET,
+    issuer: 'data-diaries-01',
+  })
 
   debug('creating server')
-  const { server } = createServer({ env, pkg })
+  const { server } = createServer({ env, pkg, pg, jwt })
 
   createTerminus(server, {
     signals: ['SIGINT', 'SIGTERM'],

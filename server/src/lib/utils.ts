@@ -1,4 +1,7 @@
 import KoaRouter from '@koa/router'
+import { Struct, validate } from 'superstruct'
+import { JwtService } from '../auth/jwt'
+import { PostgresService } from './postgres'
 import { EnvRecord } from './structs'
 
 export { default as createDebug } from 'debug'
@@ -18,7 +21,8 @@ export class ApiError extends Error {
   static notFound() {
     return trimStack(new this(404, ['general.notFound']))
   }
-  static internalServerError() {
+  static internalServerError(error?: unknown) {
+    console.error('InternalServerError', error)
     return trimStack(new this(500, ['general.internalServerError']))
   }
   static notImplemented() {
@@ -42,4 +46,12 @@ export interface AppRouter {
 export interface AppContext {
   env: EnvRecord
   pkg: { name: string; version: string }
+  pg: PostgresService
+  jwt: JwtService
+}
+
+export function validateStruct<T>(value: unknown, struct: Struct<T>): T {
+  const result = validate(value, struct)
+  if (result[0]) throw ApiError.badRequest()
+  return result[1]
 }
