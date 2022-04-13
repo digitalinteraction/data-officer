@@ -11,6 +11,7 @@ import ms from 'ms'
 
 import { ApiError, AppContext, AppRouter, createDebug } from './lib/module.js'
 import { GeneralRouter } from './general/general-router.js'
+import { AuthRouter } from './auth/auth-router.js'
 
 const debug = createDebug('app:server')
 
@@ -48,23 +49,16 @@ function httpErrorHandler(isProduction: boolean): Koa.Middleware {
     try {
       await next()
     } catch (error) {
-      if (error instanceof ApiError) {
-        ctx.status = error.status
-        ctx.body = {
-          error: error.message,
-          codes: error.codes,
-          stack: error.stack,
-        }
-      } else if (error instanceof Error) {
-        ctx.status = 500
-        ctx.body = {
-          error: isProduction ? 'Something went wrong' : error.message,
-          stack: isProduction ? null : error.stack,
-        }
-      } else {
-        console.error('A non-Error was thrown')
-        console.error(error)
-        process.exit(1)
+      if (!(error instanceof ApiError)) {
+        error = ApiError.internalServerError(error)
+      }
+      const apiError = error as ApiError
+
+      ctx.status = apiError.status
+      ctx.body = {
+        error: apiError.message,
+        codes: apiError.codes,
+        stack: apiError.stack?.split('\n').map((l) => l.trim()),
       }
     }
   }
@@ -73,7 +67,10 @@ function httpErrorHandler(isProduction: boolean): Koa.Middleware {
 export function createServer(context: AppContext) {
   const router = new KoaRouter()
 
-  const routers: AppRouter[] = [new GeneralRouter(context)]
+  const routers: AppRouter[] = [
+    new GeneralRouter(context),
+    new AuthRouter(context),
+  ]
   routers.forEach((r) => r.apply(router))
 
   const app = new Koa()

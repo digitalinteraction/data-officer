@@ -2,9 +2,14 @@ import fs from 'fs/promises'
 import { createTerminus } from '@godaddy/terminus'
 import { create } from 'superstruct'
 
-import { createDebug, EnvStruct, PostgresService } from '../lib/module.js'
+import {
+  createDebug,
+  EnvStruct,
+  PostgresService,
+  JwtService,
+  EmailService,
+} from '../lib/module.js'
 import { createServer } from '../server.js'
-import { JwtService } from '../auth/jwt.js'
 
 const debug = createDebug('app:command:serve')
 
@@ -22,9 +27,15 @@ export async function serveCommand(options: ServeCommandOptions) {
     secretKey: env.JWT_SECRET,
     issuer: 'data-diaries-01',
   })
+  const email = new EmailService({
+    apiKey: env.SENDGRID_API_TOKEN,
+    fromEmail: 'noreply@openlab.dev',
+    replyToEmail: 'openlab@ncl.ac.uk',
+    templateId: '',
+  })
 
   debug('creating server')
-  const { server } = createServer({ env, pkg, pg, jwt })
+  const { server } = createServer({ env, pkg, pg, jwt, email })
 
   createTerminus(server, {
     signals: ['SIGINT', 'SIGTERM'],
@@ -42,6 +53,7 @@ export async function serveCommand(options: ServeCommandOptions) {
       '/healthz': async () => {
         try {
           // TODO ...
+          await pg.checkHealth()
         } catch (error) {
           debug('check failed', error)
           throw error

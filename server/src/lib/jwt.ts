@@ -17,7 +17,7 @@ export interface AppToken {
   }
 }
 
-const bearerRegex = () => /^bearer\s+/i
+export const bearerRegex = () => /^bearer\s+/i
 
 export interface JwtServiceOptions {
   secretKey: string | Buffer | { key: string | Buffer; passphrase: string }
@@ -31,20 +31,24 @@ export const AppTokenStruct = type({
   }),
 })
 
+export interface JwtSignOptions {
+  expiresIn?: string | number
+}
+
 export class JwtService {
   constructor(private options: JwtServiceOptions) {}
 
-  sign<T extends object>(payload: T, expiresIn: string | undefined): string {
+  sign(payload: AppToken, options: JwtSignOptions = {}): string {
     return jwt.sign(payload, this.options.secretKey, {
+      ...options,
       issuer: this.options.issuer,
-      expiresIn,
     })
   }
 
-  verify<T extends object>(token: string, struct: Struct<T>): T | null {
+  verify(token: string): AppToken | null {
     try {
       const payload = jwt.verify(token, this.options.secretKey)
-      assert(payload, struct)
+      assert(payload, AppTokenStruct)
       return payload
     } catch (error) {
       return null
@@ -59,6 +63,14 @@ export class JwtService {
       return null
     }
     const auth = headers.authorization.replace(bearerRegex(), '')
-    return this.verify(auth, AppTokenStruct)
+    const payload = this.verify(auth)
+    if (
+      !payload ||
+      !payload.app.roles.includes('user') ||
+      !payload.app.roles.includes('admin')
+    ) {
+      return null
+    }
+    return payload
   }
 }

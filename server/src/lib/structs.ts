@@ -6,6 +6,7 @@ export const EnvStruct = type({
   DATABASE_URL: string(),
   JWT_SECRET: string(),
   NODE_ENV: defaulted(string(), 'production'),
+  SENDGRID_API_TOKEN: string(),
 })
 
 export type EnvRecord = Infer<typeof EnvStruct>

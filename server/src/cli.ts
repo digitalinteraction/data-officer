@@ -8,8 +8,6 @@ import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { serveCommand } from './commands/serve.js'
 
-// commands ...
-
 const cli = yargs(hideBin(process.argv))
   .help()
   .demandCommand(1, 'A command is required')

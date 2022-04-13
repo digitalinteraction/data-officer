@@ -1,8 +1,9 @@
 import KoaRouter from '@koa/router'
 import { Struct, validate } from 'superstruct'
-import { JwtService } from '../auth/jwt'
-import { PostgresService } from './postgres'
-import { EnvRecord } from './structs'
+import type { JwtService } from './jwt.js'
+import type { PostgresService } from './postgres.js'
+import type { EmailService } from './sendgrid.js'
+import type { EnvRecord } from './structs.js'
 
 export { default as createDebug } from 'debug'
 
@@ -29,11 +30,7 @@ export class ApiError extends Error {
     return trimStack(new this(501, ['general.notImplemented']))
   }
   constructor(public status: number, public codes: string[]) {
-    super(
-      `There were error(s) with your request: ${codes
-        .map((c) => `"${c}"`)
-        .join('\n')}`
-    )
+    super(`There were error(s) with your request: ${codes.join(', ')}`)
     this.name = 'ApiError'
     Error.captureStackTrace(this, ApiError)
   }
@@ -48,6 +45,7 @@ export interface AppContext {
   pkg: { name: string; version: string }
   pg: PostgresService
   jwt: JwtService
+  email: EmailService
 }
 
 export function validateStruct<T>(value: unknown, struct: Struct<T>): T {

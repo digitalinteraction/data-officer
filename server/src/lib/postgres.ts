@@ -1,4 +1,7 @@
 import pg from 'pg'
+import { createDebug } from './utils.js'
+
+const debug = createDebug('app:lib:postgres')
 
 export interface PostgresClient {
   release(): void
@@ -17,10 +20,11 @@ export function composeSql(strings: TemplateStringsArray, ...values: any[]) {
     }
   }
 
-  return {
-    text: parts.join(''),
-    values,
-  }
+  const output = { text: parts.join(''), values }
+
+  debug(`SQL %o %O`, output.text.trim().replace(/\s+/g, ' '), output.values)
+
+  return output
 }
 
 export interface PostgresServiceOptions {
