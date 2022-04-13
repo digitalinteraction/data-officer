@@ -4,7 +4,7 @@ export class GeneralRouter implements AppRouter {
   constructor(private context: AppContext) {}
 
   apply(router: KoaRouter) {
-    router.get('general.index', '/', (ctx) => {
+    router.get('/', (ctx) => {
       ctx.body = {
         msg: 'ok',
         pkg: {

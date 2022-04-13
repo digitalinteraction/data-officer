@@ -13,6 +13,7 @@ import { ApiError, AppContext, AppRouter, createDebug } from './lib/module.js'
 import { GeneralRouter } from './general/general-router.js'
 import { AuthRouter } from './auth/auth-router.js'
 import { LinkRouter } from './links/links-router.js'
+import { EntriesRouter } from './entries/entries-router.js'
 
 const debug = createDebug('app:server')
 
@@ -72,6 +73,7 @@ export function createServer(context: AppContext) {
     new GeneralRouter(context),
     new AuthRouter(context),
     new LinkRouter(context),
+    new EntriesRouter(context),
   ]
   routers.forEach((r) => r.apply(router))
 

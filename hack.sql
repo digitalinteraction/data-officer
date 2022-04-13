@@ -23,6 +23,38 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: entries; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.entries (
+    id integer NOT NULL,
+    created timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    response jsonb NOT NULL,
+    "user" integer NOT NULL
+);
+
+
+--
+-- Name: entries_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.entries_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.entries_id_seq OWNED BY public.entries.id;
+
+
+--
 -- Name: links; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -92,6 +124,13 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: entries id; Type: DEFAULT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.entries ALTER COLUMN id SET DEFAULT nextval('public.entries_id_seq'::regclass);
+
+
+--
 -- Name: links id; Type: DEFAULT; Schema: public; Owner: user
 --
 
@@ -103,6 +142,14 @@ ALTER TABLE ONLY public.links ALTER COLUMN id SET DEFAULT nextval('public.links_
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: entries entries_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.entries
+    ADD CONSTRAINT entries_pkey PRIMARY KEY (id);
 
 
 --
@@ -133,6 +180,14 @@ CREATE UNIQUE INDEX links_code ON public.links USING btree (code);
 --
 
 CREATE UNIQUE INDEX users_email ON public.users USING btree (email);
+
+
+--
+-- Name: entries entries_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.entries
+    ADD CONSTRAINT entries_user_fkey FOREIGN KEY ("user") REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --

@@ -37,7 +37,7 @@ export class AuthRouter implements AppRouter {
   constructor(private context: AppContext) {}
 
   apply(router: KoaRouter) {
-    router.get('auth.profile', '/auth/me', async (ctx) => {
+    router.get('/auth/me', async (ctx) => {
       const auth = this.context.jwt.getRequestAuth(ctx.headers)
       if (!auth) throw ApiError.unauthorized()
 
@@ -53,7 +53,7 @@ export class AuthRouter implements AppRouter {
       ctx.body = user
     })
 
-    router.post('auth.register', '/auth/register', async (ctx) => {
+    router.post('/auth/register', async (ctx) => {
       const request = validateStruct(ctx.request.body, UserRequestStruct)
       const email = sanitizeEmail(request.email)
 
@@ -114,7 +114,7 @@ export class AuthRouter implements AppRouter {
       }
     })
 
-    router.post('auth.startLogin', '/auth/login', async (ctx) => {
+    router.post('/auth/login', async (ctx) => {
       const request = validateStruct(ctx.request.body, LoginRequestStruct)
       const email = sanitizeEmail(request.email)
 
@@ -149,7 +149,7 @@ export class AuthRouter implements AppRouter {
       return
     })
 
-    router.get('auth.finishLogin', '/auth/login/:token', async (ctx) => {
+    router.get('/auth/login/:token', async (ctx) => {
       let userId: number
 
       try {
@@ -189,5 +189,7 @@ export class AuthRouter implements AppRouter {
 
       ctx.redirect(link.toString())
     })
+
+    // TODO: endpoint to update profile
   }
 }

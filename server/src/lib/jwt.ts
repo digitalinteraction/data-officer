@@ -64,9 +64,9 @@ export class JwtService {
     }
     const auth = headers.authorization.replace(bearerRegex(), '')
     const payload = this.verify(auth)
+    if (!payload) return null
     if (
-      !payload ||
-      !payload.app.roles.includes('user') ||
+      !payload.app.roles.includes('user') &&
       !payload.app.roles.includes('admin')
     ) {
       return null
