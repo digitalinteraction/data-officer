@@ -5,6 +5,7 @@ import type { PostgresService } from './postgres.js'
 import type { EmailService } from './sendgrid.js'
 import type { EnvRecord } from './structs.js'
 
+export { KoaRouter }
 export { default as createDebug } from 'debug'
 
 function trimStack(error: Error) {

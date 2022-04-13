@@ -1,5 +1,4 @@
-import KoaRouter from '@koa/router'
-import { AppContext, AppRouter } from '../lib/utils.js'
+import { AppContext, AppRouter, KoaRouter } from '../lib/utils.js'
 
 export class GeneralRouter implements AppRouter {
   constructor(private context: AppContext) {}

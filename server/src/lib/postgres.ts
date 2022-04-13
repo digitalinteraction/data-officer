@@ -55,20 +55,17 @@ export class PostgresService {
     await this.run((c) => c.sql`SELECT 1;`)
   }
 
-  async run<T>(
-    block: (client: PostgresClient) => Promise<T>,
-    previousClient?: PostgresClient
-  ) {
+  async run<T>(block: (client: PostgresClient) => Promise<T>) {
     let client: PostgresClient | undefined
 
     try {
-      client = previousClient ?? (await this.getClient())
+      client = await this.getClient()
 
       const result = await block(client)
 
       return result
     } finally {
-      previousClient?.release()
+      client?.release()
     }
   }
 }

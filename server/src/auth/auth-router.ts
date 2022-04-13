@@ -1,4 +1,3 @@
-import KoaRouter from '@koa/router'
 import { assert, nullable, object, string } from 'superstruct'
 import jwt from 'jsonwebtoken'
 
@@ -8,6 +7,7 @@ import {
   AppRouter,
   AppTokenStruct,
   validateStruct,
+  KoaRouter,
 } from '../lib/module.js'
 
 interface UserRecord {
