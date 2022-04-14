@@ -78,7 +78,7 @@ export function createServer(context: AppContext) {
   routers.forEach((r) => r.apply(router))
 
   const app = new Koa()
-    .use(koaHelmet())
+    .use(koaHelmet({ hsts: context.env.NODE_ENV !== 'development' }))
     .use(koaCors({ origin: context.env.CLIENT_URL }))
     .use(koaJson())
     .use(koaBodyParser())

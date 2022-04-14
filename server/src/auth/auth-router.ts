@@ -1,4 +1,4 @@
-import { assert, nullable, object, string, type } from 'superstruct'
+import { assert, boolean, nullable, object, string, type } from 'superstruct'
 import jwt from 'jsonwebtoken'
 
 import {
@@ -10,12 +10,17 @@ import {
   KoaRouter,
 } from '../lib/module.js'
 
+interface IdRecord {
+  id: number
+}
+
 interface UserRecord {
   id: number
   fullName: string
   email: string
   phoneNumber?: string
   reminderSchedule: string
+  reminders: { email?: boolean; sms?: boolean }
 }
 
 const UserRequestStruct = object({
@@ -23,6 +28,10 @@ const UserRequestStruct = object({
   email: string(),
   phoneNumber: nullable(string()),
   reminderSchedule: string(),
+  reminders: object({
+    email: boolean(),
+    sms: boolean(),
+  }),
 })
 
 const LoginRequestStruct = type({
@@ -43,7 +52,7 @@ export class AuthRouter implements AppRouter {
 
       const [user] = await this.context.pg.run(
         (c) => c.sql<UserRecord>`
-          SELECT "id", "fullName", "email", "phoneNumber", "reminderSchedule"
+          SELECT "id", "fullName", "email", "phoneNumber", "reminderSchedule", "reminders"
           FROM "users"
           WHERE "id" = ${auth.sub}
         `
@@ -64,7 +73,7 @@ export class AuthRouter implements AppRouter {
 
       try {
         // Check user already exists ...
-        const [existingUser] = await client.sql<{ id: number }>`
+        const [existingUser] = await client.sql<IdRecord>`
           SELECT "id"
           FROM "users"
           WHERE "email" = ${email}
@@ -75,9 +84,9 @@ export class AuthRouter implements AppRouter {
         if (existingUser) {
           userId = existingUser.id
         } else {
-          const [newUser] = await client.sql<{ id: number }>`
-            INSERT INTO "users" ("fullName", "email", "phoneNumber", "reminderSchedule")
-            VALUES (${request.fullName}, ${email}, ${request.phoneNumber}, ${request.reminderSchedule})
+          const [newUser] = await client.sql<IdRecord>`
+            INSERT INTO "users" ("fullName", "email", "phoneNumber", "reminderSchedule", "reminders")
+            VALUES (${request.fullName}, ${email}, ${request.phoneNumber}, ${request.reminderSchedule}, ${request.reminders})
             RETURNING "id"
           `
           userId = newUser.id
@@ -120,7 +129,8 @@ export class AuthRouter implements AppRouter {
         const email = sanitizeEmail(request.email)
 
         const [user] = await this.context.pg.run(
-          (c) => c.sql`SELECT "id" FROM "users" WHERE email = ${email}`
+          (c) =>
+            c.sql<IdRecord>`SELECT "id" FROM "users" WHERE email = ${email}`
         )
 
         if (!user) throw ApiError.badRequest()

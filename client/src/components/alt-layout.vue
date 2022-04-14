@@ -9,7 +9,13 @@ import MainFooter from './main-footer.vue'
       <MainBrand />
     </header>
     <main class="altLayout-main">
-      <slot></slot>
+      <center-layout>
+        <box-layout borderWidth="0" padding="var(--s0)">
+          <stack-layout space="var(--s0)">
+            <slot></slot>
+          </stack-layout>
+        </box-layout>
+      </center-layout>
     </main>
     <MainFooter />
   </div>
@@ -23,7 +29,7 @@ import MainFooter from './main-footer.vue'
 }
 .altLayout-header {
   padding: var(--s-2) var(--s-1);
-  border-bottom: 2px solid #ccd9cc;
+  border-bottom: 2px solid var(--borderColor);
 }
 .altLayout-main {
   flex: 1;

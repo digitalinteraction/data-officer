@@ -6,6 +6,7 @@
 @import '@openlab/alembic/reset.css';
 @import '@openlab/alembic/layouts.css';
 @import './assets/inter/inter.css';
+@import './assets/forms.css';
 
 :root {
   /* @openlab/alembic axioms */
@@ -18,6 +19,7 @@
   --primary-alt: white;
   --secondary: #21accd;
   --secondary-alt: white;
+  --borderColor: #708090;
 }
 
 html {
@@ -27,7 +29,6 @@ html {
     'Segoe UI Emoji';
   font-size: calc(0.333vw + 1em);
 }
-
 h1 {
   font-size: var(--s2);
 }
@@ -36,6 +37,9 @@ h2 {
 }
 h3 {
   font-size: var(--s0);
+}
+a {
+  color: #2076ff;
 }
 
 .primaryButton,
@@ -62,44 +66,5 @@ h3 {
 }
 .secondaryButton:hover {
   filter: brightness(1.1);
-}
-
-/* .accent\:primary {
-  --backgroundColor: var(--primary);
-  --foregroundColor: var(--primary-alt);
-}
-.accent\:secondary {
-  --backgroundColor: var(--secondary);
-  --foregroundColor: var(--secondary-alt);
-} */
-
-.field {
-  max-width: 22em;
-}
-.field:not(:last-child) {
-  margin-bottom: var(--s0);
-}
-.field label {
-  margin-bottom: var(--s-4);
-  display: block;
-  line-height: 1.25;
-}
-.field-label {
-  font-weight: 600;
-  display: block;
-}
-.field-hint {
-  font-weight: 400;
-  display: block;
-  margin-bottom: var(--s-4);
-  color: #708090;
-  font-size: 0.9em;
-}
-.field input {
-  border: 2px solid #708090;
-  margin: 0;
-  border-radius: 2px;
-  padding: 0.25em;
-  width: 100%;
 }
 </style>

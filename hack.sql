@@ -99,7 +99,8 @@ CREATE TABLE public.users (
     "reminderSchedule" character varying,
     created timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     consented timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "lastLogin" timestamp without time zone
+    "lastLogin" timestamp without time zone,
+    reminders jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 
 

@@ -1,0 +1,109 @@
+/*
+  General
+ */
+fieldset > * + * + *,
+form > * + * {
+  margin-top: var(--s0);
+}
+.field,
+.checkboxGroup,
+.checkbox {
+  max-width: 22em;
+}
+
+/*
+  Field
+ */
+.field label {
+  margin-bottom: var(--s-4);
+  display: block;
+  line-height: 1.25;
+}
+.field-label {
+  font-weight: 600;
+  display: block;
+}
+.field-hint {
+  font-weight: 400;
+  display: block;
+  margin-bottom: var(--s-4);
+  color: var(--borderColor);
+  font-size: 0.9em;
+}
+.field input {
+  border: 2px solid var(--borderColor);
+  margin: 0;
+  border-radius: 2px;
+  padding: 0.25em;
+  width: 100%;
+}
+.field input[type='checkbox'] {
+  width: initial;
+}
+.field input[type='submit'] {
+  align-self: flex-start;
+}
+
+/*
+  Fieldset
+ */
+fieldset {
+  border: 2px dashed var(--borderColor);
+}
+fieldset legend {
+  font-size: var(--s1);
+  font-weight: 600;
+}
+.fieldset-hint {
+  font-weight: 400;
+  display: block;
+  font-size: 0.9em;
+}
+
+/*
+  Checkbox group
+ */
+.checkboxGroup {
+}
+.checkboxGroup-label {
+  font-weight: 600;
+  display: block;
+}
+
+/*
+  Checkbox
+ */
+.checkbox {
+  padding: 0.25em 0.5em;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  gap: 25px;
+}
+.checkbox:hover {
+  border: 2px solid var(--borderColor);
+}
+.checkbox input {
+  font-size: 1rem;
+  margin: 0;
+  transform: scale(1.5);
+  transform-origin: center left;
+  flex: 0;
+}
+
+/*
+  Messages
+ */
+.formErrorMessage {
+  border-radius: 5px;
+  border: 5px solid rgba(255, 0, 0, 0.7);
+  background: rgba(255, 0, 0, 0.1);
+  padding: 0.5rem;
+}
+.formSuccessMessage {
+  border-radius: 5px;
+  border: 5px solid rgba(0, 200, 0, 0.9);
+  background: rgba(0, 255, 0, 0.1);
+  padding: 0.5rem;
+}

@@ -12,6 +12,10 @@ function toggleMenu() {
 }
 
 const showMobileMenu = ref(false)
+
+function logout() {
+  auth.unauthenticate()
+}
 </script>
 
 <template>
@@ -41,6 +45,13 @@ const showMobileMenu = ref(false)
           </router-link>
           <router-link :to="Routes.newEntry" class="mainLayout-navItem">
             New Entry
+          </router-link>
+          <router-link
+            :to="Routes.home"
+            @click="logout"
+            class="mainLayout-navItem"
+          >
+            Log out
           </router-link>
         </template>
 
@@ -73,7 +84,7 @@ const showMobileMenu = ref(false)
 }
 .mainLayout-header {
   padding: var(--s-2) var(--s-1);
-  border-bottom: 2px solid #ccd9cc;
+  border-bottom: 2px solid var(--borderColor);
 
   display: flex;
   justify-content: space-between;
@@ -86,6 +97,8 @@ const showMobileMenu = ref(false)
 }
 .mainLayout-navToggle {
   border: 1px solid black;
+  border-radius: 4px;
+  padding: 4px 6px;
   display: none;
   text-align: center;
   background-color: transparent;
