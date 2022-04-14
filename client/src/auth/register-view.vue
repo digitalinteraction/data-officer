@@ -14,20 +14,20 @@ const reminderHours = ref<string[]>([])
 const consent = ref(false)
 
 const allDays = [
-  { value: '1', name: 'Monday' },
-  { value: '2', name: 'Tuesday' },
-  { value: '3', name: 'Wednesday' },
-  { value: '4', name: 'Thursday' },
-  { value: '5', name: 'Friday' },
-  { value: '6', name: 'Saturday' },
-  { value: '0', name: 'Sunday' },
+  { value: '1', id: 'mon', name: 'Monday' },
+  { value: '2', id: 'tue', name: 'Tuesday' },
+  { value: '3', id: 'wed', name: 'Wednesday' },
+  { value: '4', id: 'thur', name: 'Thursday' },
+  { value: '5', id: 'fri', name: 'Friday' },
+  { value: '6', id: 'sat', name: 'Saturday' },
+  { value: '0', id: 'sun', name: 'Sunday' },
 ]
 
 const allTimes = [
-  { value: '8', name: '8am' },
-  { value: '12', name: '12pm' },
-  { value: '15', name: '3pm' },
-  { value: '18', name: '6pm' },
+  { value: '8', id: '8am', name: '8am' },
+  { value: '12', id: '12pm', name: '12pm' },
+  { value: '15', id: '3pm', name: '3pm' },
+  { value: '18', id: '6pm', name: '6pm' },
 ]
 
 const action = ref('none')
@@ -198,7 +198,7 @@ function startAgain() {
             <label class="checkbox" v-for="item in allDays" :for="item.id">
               <input
                 type="checkbox"
-                :id="item.value"
+                :id="item.id"
                 name="reminderDays"
                 v-model="reminderDays"
                 :value="item.value"
@@ -212,7 +212,7 @@ function startAgain() {
             <label class="checkbox" v-for="item in allTimes" :for="item.id">
               <input
                 type="checkbox"
-                :id="item.value"
+                :id="item.id"
                 name="reminderHours"
                 v-model="reminderHours"
                 :value="item.value"
