@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../auth/auth-store'
 import { SvgIcon, Routes } from '../utils'
+import MainBrand from './main-brand.vue'
+import MainFooter from './main-footer.vue'
 
 const auth = useAuthStore()
 
@@ -16,9 +18,7 @@ const showMobileMenu = ref(false)
   <div class="mainLayout">
     <!-- HEADER -->
     <header class="mainLayout-header">
-      <router-link :to="Routes.home" class="mainLayout-brand"
-        >DataDiaries</router-link
-      >
+      <MainBrand />
       <button
         class="mainLayout-navToggle"
         :aria-expanded="showMobileMenu"
@@ -39,33 +39,29 @@ const showMobileMenu = ref(false)
           <router-link :to="Routes.entries" class="mainLayout-navItem">
             My Entries
           </router-link>
-          <router-link :to="Routes.newEntry" class="mainLayout-navButton">
+          <router-link :to="Routes.newEntry" class="mainLayout-navItem">
             New Entry
           </router-link>
         </template>
 
         <template v-else>
-          <router-link :to="Routes.register" class="mainLayout-navButton">
+          <router-link :to="Routes.register" class="mainLayout-navItem">
             Register
+          </router-link>
+          <router-link :to="Routes.login" class="mainLayout-navItem">
+            Log in
           </router-link>
         </template>
       </nav>
     </header>
 
     <!-- MAIN -->
-    <div class="mainLayout-main">
+    <main class="mainLayout-main">
       <slot></slot>
-    </div>
+    </main>
 
     <!-- FOOTER -->
-    <footer class="mainLayout-footer">
-      <p>
-        Made by
-        <a href="https://openlab.ncl.ac.uk" target="_blank" rel="noopener"
-          >Open Lab</a
-        >
-      </p>
-    </footer>
+    <MainFooter />
   </div>
 </template>
 
@@ -86,8 +82,10 @@ const showMobileMenu = ref(false)
 .mainLayout-nav {
   display: flex;
   gap: var(--s0);
+  align-items: center;
 }
 .mainLayout-navToggle {
+  border: 1px solid black;
   display: none;
   text-align: center;
   background-color: transparent;
@@ -100,15 +98,15 @@ const showMobileMenu = ref(false)
   color: black;
 }
 .mainLayout-navButton {
-  color: black;
-  font-weight: bold;
-}
-.mainLayout-brand {
-  color: black;
-  text-decoration: underline;
-  font-style: italic;
-  font-size: 22px;
-  font-weight: 800;
+  background-color: var(--backgroundColor);
+  color: var(--foregroundColor);
+  font-size: 16px;
+  padding: 0.25em 0.75em;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: inset 3px 3px 3px rgba(255, 255, 255, 0.2),
+    inset -3px -3px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
 }
 
 .mainLayout-main {
@@ -124,6 +122,7 @@ const showMobileMenu = ref(false)
     width: 100%;
     flex-direction: column;
     display: none;
+    align-items: stretch;
   }
   [aria-expanded='true'] + .mainLayout-nav {
     display: flex;
@@ -134,9 +133,6 @@ const showMobileMenu = ref(false)
 }
 
 .mainLayout-footer {
-  text-align: center;
-  padding: var(--s3) var(--s0) var(--s1);
-  background: #f3f3f3;
 }
 .mainLayout-footer a {
   color: black;

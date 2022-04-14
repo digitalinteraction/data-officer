@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import MainLayout from '../components/MainLayout.vue'
+import MainLayout from '../components/main-layout.vue'
 import { SvgIcon, Routes } from '../utils'
 </script>
 
@@ -51,16 +51,13 @@ import { SvgIcon, Routes } from '../utils'
           </section>
           <section>
             <cluster-layout space="var(--s-1)">
-              <router-link
-                class="button homeView-register"
-                :to="Routes.register"
-              >
+              <router-link class="primaryButton" :to="Routes.register">
                 <icon-layout>
                   Register
                   <SvgIcon name="right" />
                 </icon-layout>
               </router-link>
-              <router-link class="button homeView-login" :to="Routes.login">
+              <router-link class="secondaryButton" :to="Routes.login">
                 <icon-layout>
                   Sign in
                   <SvgIcon name="right" />
@@ -79,17 +76,17 @@ import { SvgIcon, Routes } from '../utils'
 }
 .homeView-register,
 .homeView-login {
-  font-size: var(--s1);
-  padding: 0.2em 0.8em;
+  /* font-size: var(--s1);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  font-weight: 600;
+  padding: 0.2em 0.8em;
+  font-weight: 600; */
 }
 .homeView-register {
-  color: white;
-  background: #238fef;
+  /* color: white;
+  background: #238fef; */
 }
 .homeView-login {
-  color: white;
-  background: #20accd;
+  /* color: white;
+  background: #20accd; */
 }
 </style>

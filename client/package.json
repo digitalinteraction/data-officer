@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "serve": "vite",
+    "serve": "vite --port 8080",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },

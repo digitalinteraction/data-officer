@@ -1,4 +1,4 @@
-import { assert, nullable, object, string } from 'superstruct'
+import { assert, nullable, object, string, type } from 'superstruct'
 import jwt from 'jsonwebtoken'
 
 import {
@@ -25,7 +25,7 @@ const UserRequestStruct = object({
   reminderSchedule: string(),
 })
 
-const LoginRequestStruct = object({
+const LoginRequestStruct = type({
   email: string(),
 })
 
@@ -115,38 +115,44 @@ export class AuthRouter implements AppRouter {
     })
 
     router.post('/auth/login', async (ctx) => {
-      const request = validateStruct(ctx.request.body, LoginRequestStruct)
-      const email = sanitizeEmail(request.email)
+      try {
+        const request = validateStruct(ctx.request.body, LoginRequestStruct)
+        const email = sanitizeEmail(request.email)
 
-      const [user] = await this.context.pg.run(
-        (c) => c.sql`SELECT "id" FROM "users" WHERE email = ${email}`
-      )
+        const [user] = await this.context.pg.run(
+          (c) => c.sql`SELECT "id" FROM "users" WHERE email = ${email}`
+        )
 
-      if (!user) throw ApiError.badRequest()
+        if (!user) throw ApiError.badRequest()
 
-      const token = this.context.jwt.sign(
-        {
-          sub: user.id,
-          app: {
-            roles: ['login'],
+        const token = this.context.jwt.sign(
+          {
+            sub: user.id,
+            app: {
+              roles: ['login'],
+            },
           },
-        },
-        { expiresIn: '1h' }
-      )
-      const link = new URL(`auth/login/${token}`, this.context.env.SELF_URL)
+          { expiresIn: '1h' }
+        )
+        const link = new URL(`auth/login/${token}`, this.context.env.SELF_URL)
 
-      await this.context.email.sendEmail({
-        to: email,
-        subject: 'Log in to DataDiaries',
-        html: `
-          <h1>Log in to DataDiaries</h1>
-          <p>Click the link below to log in to your DataDiaries account. It will expire in 30 minutes.</p>
-          <p><a href="${link}">Log in</a></p>
-        `,
-      })
+        await this.context.email.sendEmail({
+          to: email,
+          subject: 'Log in to DataDiaries',
+          html: `
+            <h1>Log in to DataDiaries</h1>
+            <p>Click the link below to log in to your DataDiaries account. It will expire in 30 minutes.</p>
+            <p><a href="${link}">Log in</a></p>
+          `,
+        })
 
-      ctx.body = 'ok'
-      return
+        const url = new URL('login?success', this.context.env.CLIENT_URL)
+        ctx.redirect(url.toString())
+      } catch (error) {
+        const url = new URL('login?error', this.context.env.CLIENT_URL)
+        ctx.redirect(url.toString())
+        return
+      }
     })
 
     router.get('/auth/login/:token', async (ctx) => {
