@@ -1,11 +1,13 @@
 import KoaRouter from '@koa/router'
+import { Server as SocketIoServer } from 'socket.io'
+
 import { Struct, validate } from 'superstruct'
 import type { JwtService } from './jwt.js'
 import type { PostgresService } from './postgres.js'
 import type { EmailService } from './sendgrid.js'
 import type { EnvRecord } from './structs.js'
 
-export { KoaRouter }
+export { KoaRouter, SocketIoServer }
 export { default as createDebug } from 'debug'
 
 function trimStack(error: Error) {
@@ -38,7 +40,11 @@ export class ApiError extends Error {
 }
 
 export interface AppRouter {
-  apply(router: KoaRouter): void
+  applyRoutes(router: KoaRouter): void
+}
+
+export interface AppBroker {
+  applyIo(io: SocketIoServer): void
 }
 
 export interface AppContext {

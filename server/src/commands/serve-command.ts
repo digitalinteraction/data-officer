@@ -1,6 +1,8 @@
 import fs from 'fs/promises'
 import { createTerminus } from '@godaddy/terminus'
-import { create } from 'superstruct'
+import { mask } from 'superstruct'
+import { createClient as createRedisClient } from 'redis'
+import { createAdapter as createRedisAdapter } from '@socket.io/redis-adapter'
 
 import {
   createDebug,
@@ -20,7 +22,9 @@ export interface ServeCommandOptions {
 export async function serveCommand(options: ServeCommandOptions) {
   debug('creating context')
 
-  const env = create(process.env, EnvStruct)
+  const toDispose: (() => Promise<unknown>)[] = []
+
+  const env = mask(process.env, EnvStruct)
   const pkg = JSON.parse(await fs.readFile('package.json', 'utf8'))
   const pg = new PostgresService({ connectionString: env.DATABASE_URL })
   const jwt = new JwtService({
@@ -34,12 +38,25 @@ export async function serveCommand(options: ServeCommandOptions) {
     templateId: '',
   })
 
-  debug('creating server')
-  const { server } = createServer({ env, pkg, pg, jwt, email })
-
-  createTerminus(server, {
-    signals: ['SIGINT', 'SIGTERM'],
+  toDispose.push(() => {
+    debug('closing pg')
+    return pg.close()
   })
+
+  debug('creating server')
+  const { server, io } = await createServer({ env, pkg, pg, jwt, email })
+
+  if (env.REDIS_URL) {
+    debug('using redis')
+    const pub = createRedisClient({ url: env.REDIS_URL })
+    const sub = createRedisClient({ url: env.REDIS_URL })
+    await Promise.all([pub.connect(), sub.connect()])
+    io.adapter(createRedisAdapter(pub, sub))
+    toDispose.push(() => {
+      debug('closing redis')
+      return Promise.all([pub.quit(), sub.quit()])
+    })
+  }
 
   debug('starting server')
   server.listen(options.port, () => {
@@ -64,12 +81,12 @@ export async function serveCommand(options: ServeCommandOptions) {
       // Wait 5s more to shutdown when in production
       // to give loadbalancers time to update
       const wait = env.NODE_ENV !== 'development' ? 5000 : 0
-      debug('beforeShutdown wait=%dms', wait)
+      debug('terminus@beforeShutdown wait=%dms', wait)
       return new Promise((resolve) => setTimeout(resolve, wait))
     },
     onSignal: async () => {
-      debug('onSignal')
-      // TODO ...
+      debug('terminus@onSignal')
+      await Promise.all(toDispose.map((d) => d()))
     },
   })
 }

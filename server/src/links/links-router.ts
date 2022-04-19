@@ -9,7 +9,7 @@ import { LinkRecord } from './link-record.js'
 export class LinkRouter implements AppRouter {
   constructor(private context: AppContext) {}
 
-  apply(router: KoaRouter): void {
+  applyRoutes(router: KoaRouter): void {
     router.get('/l/:code', async (ctx) => {
       const client = await this.context.pg.getClient()
 

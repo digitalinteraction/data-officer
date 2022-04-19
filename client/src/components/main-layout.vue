@@ -21,7 +21,7 @@ function logout() {
 <template>
   <div class="mainLayout">
     <!-- HEADER -->
-    <header class="mainLayout-header">
+    <header class="mainLayout-header" aria-label="header">
       <MainBrand />
       <button
         class="mainLayout-navToggle"
@@ -84,7 +84,7 @@ function logout() {
 }
 .mainLayout-header {
   padding: var(--s-2) var(--s-1);
-  border-bottom: 2px solid var(--borderColor);
+  border-bottom-width: var(--border-thin);
 
   display: flex;
   justify-content: space-between;
@@ -111,8 +111,8 @@ function logout() {
   color: black;
 }
 .mainLayout-navButton {
-  background-color: var(--backgroundColor);
-  color: var(--foregroundColor);
+  background-color: var(--color-light);
+  color: var(--color-dark);
   font-size: 16px;
   padding: 0.25em 0.75em;
   font-weight: 500;

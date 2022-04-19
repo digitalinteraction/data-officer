@@ -6,7 +6,7 @@
 
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { serveCommand } from './commands/serve.js'
+import { serveCommand } from './commands/serve-command.js'
 
 const cli = yargs(hideBin(process.argv))
   .help()

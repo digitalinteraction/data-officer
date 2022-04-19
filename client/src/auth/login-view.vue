@@ -3,17 +3,17 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AltLayout from '../components/alt-layout.vue'
 import { useAuthStore } from '../auth/auth-store'
-import { Routes, config } from '../utils'
+import { Routes, config, FormState } from '../utils'
 
+const formState = ref<FormState>('pending')
 const formAction = new URL('auth/login', config.SERVER_URL).toString()
 
 const route = useRoute()
 const router = useRouter()
-const action = ref('none')
 const auth = useAuthStore()
 
-if (route.query.error !== undefined) action.value = 'error'
-if (route.query.success !== undefined) action.value = 'success'
+if (route.query.error !== undefined) formState.value = 'error'
+if (route.query.success !== undefined) formState.value = 'success'
 
 if (route.hash) {
   const params = new URLSearchParams(route.hash.slice(1))
@@ -38,11 +38,11 @@ if (route.hash) {
       magic link in it. Click that link to log in.
     </p>
 
-    <p class="formErrorMessage" v-if="action === 'error'">
+    <p class="formErrorMessage" v-if="formState === 'error'">
       Something went wrong, please try again
     </p>
 
-    <p class="formSuccessMessage" v-if="action === 'success'">
+    <p class="formSuccessMessage" v-if="formState === 'success'">
       Magic link sent, please check your email.
     </p>
 
@@ -54,12 +54,18 @@ if (route.hash) {
         </label>
         <input type="email" id="email" name="email" />
       </div>
-      <input
-        type="submit"
-        class="primaryButton"
-        name="login"
-        value="Send magic link"
-      />
+      <cluster-layout space="var(--s-1)">
+        <input
+          type="submit"
+          :disabled="formState === 'loading'"
+          class="primaryButton"
+          name="login"
+          value="Send magic link"
+        />
+        <router-link :to="Routes.home" class="secondaryButton">
+          Cancel
+        </router-link>
+      </cluster-layout>
     </form>
   </AltLayout>
 </template>

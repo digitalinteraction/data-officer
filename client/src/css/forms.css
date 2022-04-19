@@ -27,28 +27,28 @@ form > * + * {
   font-weight: 400;
   display: block;
   margin-bottom: var(--s-4);
-  color: var(--borderColor);
+  color: var(--color-darkish);
   font-size: 0.9em;
 }
 .field input {
-  border: 2px solid var(--borderColor);
+  border-width: var(--border-thin);
   margin: 0;
-  border-radius: 2px;
+  border-radius: var(--border-thin);
   padding: 0.25em;
   width: 100%;
 }
 .field input[type='checkbox'] {
   width: initial;
 }
-.field input[type='submit'] {
-  align-self: flex-start;
-}
 
 /*
   Fieldset
  */
 fieldset {
-  border: 2px dashed var(--borderColor);
+  border-style: dashed;
+  border-width: var(--border-thin);
+  padding: var(--s-1);
+  padding-top: 0;
 }
 fieldset legend {
   font-size: var(--s1);
@@ -75,20 +75,19 @@ fieldset legend {
  */
 .checkbox {
   padding: 0.25em 0.5em;
-  border: 2px solid transparent;
+  border-width: var(--border-thin);
+  border-radius: var(--border-thin);
   display: flex;
   align-items: center;
   justify-content: stretch;
-  gap: 25px;
+  gap: var(--s-2);
 }
-.checkbox:hover {
-  border: 2px solid var(--borderColor);
+.checkbox:not(:hover) {
+  border-color: transparent;
 }
 .checkbox input {
   font-size: 1rem;
   margin: 0;
-  transform: scale(1.5);
-  transform-origin: center left;
   flex: 0;
 }
 
@@ -96,14 +95,14 @@ fieldset legend {
   Messages
  */
 .formErrorMessage {
-  border-radius: 5px;
-  border: 5px solid rgba(255, 0, 0, 0.7);
+  border-radius: var(--border-thick);
+  border: var(--border-thick) solid #ce4760;
   background: rgba(255, 0, 0, 0.1);
   padding: 0.5rem;
 }
 .formSuccessMessage {
-  border-radius: 5px;
-  border: 5px solid rgba(0, 200, 0, 0.9);
+  border-radius: var(--border-thick);
+  border: var(--border-thick) solid var(--color-kellyGreen);
   background: rgba(0, 255, 0, 0.1);
   padding: 0.5rem;
 }

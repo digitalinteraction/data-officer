@@ -3,7 +3,9 @@ import { Routes } from '../utils'
 </script>
 
 <template>
-  <router-link :to="Routes.home" class="mainBrand">DataDiaries</router-link>
+  <router-link :to="Routes.home" class="mainBrand" aria-label="Home"
+    >DataDiaries</router-link
+  >
 </template>
 
 <style>

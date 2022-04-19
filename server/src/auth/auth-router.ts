@@ -94,7 +94,7 @@ export class AuthRouter implements AppRouter {
     `
   }
 
-  apply(router: KoaRouter) {
+  applyRoutes(router: KoaRouter) {
     router.get('/auth/me', async (ctx) => {
       const auth = this.context.jwt.getRequestAuth(ctx.headers)
       if (!auth) throw ApiError.unauthorized()

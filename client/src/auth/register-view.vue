@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import AltLayout from '../components/alt-layout.vue'
-import { Routes, config } from '../utils'
+import { Routes, config, FormState } from '../utils'
 
-const formState = ref('pending')
+const formState = ref<FormState>('pending')
 const formAction = new URL('auth/register', config.SERVER_URL).toString()
 
 function blankSubmission() {
@@ -98,7 +98,7 @@ function startAgain() {
 </script>
 
 <template>
-  <AltLayout>
+  <AltLayout class="registerView">
     <h1>Register</h1>
     <p>
       Already have an account?
@@ -109,8 +109,8 @@ function startAgain() {
     </p>
     <div class="formSuccessMessage" v-if="formState === 'success'">
       <p>
-        Registration submitted! Please check your email for a verification
-        email.
+        Thank you for taking part, your registration has been submitted. Please
+        check your email for a verification email.
       </p>
       <p>
         <a href="#" @click.prevent="startAgain">Start again?</a>
@@ -253,7 +253,7 @@ function startAgain() {
           </label>
         </fieldset>
 
-        <div>
+        <cluster-layout space="var(--s-1)">
           <input
             type="submit"
             :disabled="formState === 'loading'"
@@ -261,8 +261,17 @@ function startAgain() {
             name="register"
             value="Register"
           />
-        </div>
+          <router-link :to="Routes.home" class="secondaryButton">
+            Cancel
+          </router-link>
+        </cluster-layout>
       </stack-layout>
     </form>
   </AltLayout>
 </template>
+
+<style>
+.registerView label[for='consent'] {
+  max-width: unset;
+}
+</style>

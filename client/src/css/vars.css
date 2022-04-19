@@ -1,0 +1,36 @@
+:root {
+  /* @openlab/alembic axioms */
+  --foregroundColor: #2a2e35;
+  --backgroundColor: white;
+  --measure: 60ch;
+
+  --border-thin: var(--s-5);
+  --border-thick: var(--s-3);
+
+  /* custom */
+
+  --color-dark: #2a2e35;
+  --color-darkish: #5a6878;
+  --color-mid: #70869c;
+  /* --color-lightish: ; */
+  --color-light: white;
+
+  --color-bleu: #238fef;
+  --color-pacific: #21accd;
+  --color-orange: #ff9b00;
+  --color-brick: #ce4760;
+  --color-kellyGreen: #43b92a;
+
+  /* Unused */
+  --color-apple: #8fb339;
+  --color-hunter: #33673b;
+  --color-munsel: #01a676;
+  --color-frenchViolet: #7a28cb;
+  --color-brilliantRose: #fc60a8;
+
+  --font-main: 'Inter var', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  --font-mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+    Liberation Mono, monospace;
+}

@@ -29,7 +29,7 @@ import MainFooter from './main-footer.vue'
 }
 .altLayout-header {
   padding: var(--s-2) var(--s-1);
-  border-bottom: 2px solid var(--borderColor);
+  border-bottom-width: var(--border-thin);
 }
 .altLayout-main {
   flex: 1;

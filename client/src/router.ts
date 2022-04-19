@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import { Routes } from './utils'
+import { Routes, emitMetric } from './utils'
+
 import HomeView from './home/home-view.vue'
 import LoginView from './auth/login-view.vue'
 import RegisterView from './auth/register-view.vue'
@@ -16,4 +17,13 @@ const routes = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.beforeEach((to, from, next) => {
+  emitMetric('pageView', {
+    name: to.name,
+    path: to.path,
+    params: to.params,
+  })
+  next()
 })

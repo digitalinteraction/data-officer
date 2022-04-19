@@ -1,0 +1,33 @@
+.primaryButton,
+.secondaryButton {
+  padding: 0.4em 0.8em;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: inset 3px 3px 3px rgba(255, 255, 255, 0.2),
+    inset -3px -3px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  outline-offset: 2px;
+  cursor: pointer;
+}
+.primaryButton {
+  background-color: var(--color-bleu);
+  color: var(--color-light);
+}
+.primaryButton:hover {
+  filter: brightness(1.2);
+}
+.primaryButton:disabled {
+  filter: brightness(0.7);
+  cursor: not-allowed;
+}
+.secondaryButton {
+  background-color: var(--color-pacific);
+  color: var(--color-light);
+}
+.secondaryButton:hover {
+  filter: brightness(1.1);
+}
+.secondaryButton:disabled {
+  filter: brightness(0.7);
+  cursor: not-allowed;
+}

@@ -1,0 +1,43 @@
+:root {
+  line-height: var(--ratio);
+  font-size: calc(0.2vw + 1em);
+  font-family: var(--font-main);
+  background-color: var(--color-light);
+  color: var(--color-dark);
+}
+
+/* move this to @openlab/alembic ? */
+*,
+*:before,
+*:after {
+  border: 0 solid;
+  background-color: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+  overflow-wrap: break-word;
+
+  /* Don't move this bit */
+  border-color: var(--color-mid);
+}
+
+h1 {
+  font-size: var(--s2);
+}
+h2 {
+  font-size: var(--s1);
+}
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--s0);
+}
+a {
+  color: #2076ff;
+}
+
+:focus {
+  outline: var(--s-4) solid var(--color-orange);
+  outline-offset: var(--border-thin);
+}

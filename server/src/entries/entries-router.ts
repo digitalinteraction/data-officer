@@ -23,7 +23,7 @@ const EntryStruct = object({
 export class EntriesRouter implements AppRouter {
   constructor(private context: AppContext) {}
 
-  apply(router: KoaRouter): void {
+  applyRoutes(router: KoaRouter): void {
     router.get('/entries', async (ctx) => {
       const auth = this.context.jwt.getRequestAuth(ctx.request.headers)
       if (!auth) throw ApiError.unauthorized()

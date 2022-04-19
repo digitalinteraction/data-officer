@@ -7,13 +7,22 @@ import koaJson from 'koa-json'
 import koaBodyParser from 'koa-bodyparser'
 import koaHelmet from 'koa-helmet'
 
+import { Server as SocketIoServer } from 'socket.io'
+
 import ms from 'ms'
 
-import { ApiError, AppContext, AppRouter, createDebug } from './lib/module.js'
+import {
+  ApiError,
+  AppBroker,
+  AppContext,
+  AppRouter,
+  createDebug,
+} from './lib/module.js'
 import { GeneralRouter } from './general/general-router.js'
 import { AuthRouter } from './auth/auth-router.js'
 import { LinkRouter } from './links/links-router.js'
 import { EntriesRouter } from './entries/entries-router.js'
+import { MetricsBroker } from './general/metrics-broker.js'
 
 const debug = createDebug('app:server')
 
@@ -66,7 +75,7 @@ function httpErrorHandler(isProduction: boolean): Koa.Middleware {
   }
 }
 
-export function createServer(context: AppContext) {
+export async function createServer(context: AppContext) {
   const router = new KoaRouter()
 
   const routers: AppRouter[] = [
@@ -75,7 +84,9 @@ export function createServer(context: AppContext) {
     new LinkRouter(context),
     new EntriesRouter(context),
   ]
-  routers.forEach((r) => r.apply(router))
+  const brokers: AppBroker[] = [new MetricsBroker(context)]
+
+  routers.forEach((r) => r.applyRoutes(router))
 
   const app = new Koa()
     .use(koaHelmet({ hsts: context.env.NODE_ENV !== 'development' }))
@@ -89,5 +100,8 @@ export function createServer(context: AppContext) {
 
   const server = http.createServer(app.callback())
 
-  return { app, server, router }
+  const io = new SocketIoServer(server, {})
+  brokers.forEach((b) => b.applyIo(io))
+
+  return { app, server, router, io }
 }

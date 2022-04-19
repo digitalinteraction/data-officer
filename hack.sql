@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.5
--- Dumped by pg_dump version 12.5
+-- Dumped from database version 12.8
+-- Dumped by pg_dump version 12.8
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -88,6 +88,39 @@ ALTER SEQUENCE public.links_id_seq OWNED BY public.links.id;
 
 
 --
+-- Name: logs; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.logs (
+    id integer NOT NULL,
+    created timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    session character varying NOT NULL,
+    metric character varying NOT NULL,
+    payload jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+--
+-- Name: logs_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.logs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.logs_id_seq OWNED BY public.logs.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -139,6 +172,13 @@ ALTER TABLE ONLY public.links ALTER COLUMN id SET DEFAULT nextval('public.links_
 
 
 --
+-- Name: logs id; Type: DEFAULT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.logs ALTER COLUMN id SET DEFAULT nextval('public.logs_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: user
 --
 
@@ -162,6 +202,14 @@ ALTER TABLE ONLY public.links
 
 
 --
+-- Name: logs logs_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.logs
+    ADD CONSTRAINT logs_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: user
 --
 
@@ -174,6 +222,20 @@ ALTER TABLE ONLY public.users
 --
 
 CREATE UNIQUE INDEX links_code ON public.links USING btree (code);
+
+
+--
+-- Name: logs_metric; Type: INDEX; Schema: public; Owner: user
+--
+
+CREATE INDEX logs_metric ON public.logs USING btree (metric);
+
+
+--
+-- Name: logs_session; Type: INDEX; Schema: public; Owner: user
+--
+
+CREATE INDEX logs_session ON public.logs USING btree (session);
 
 
 --
