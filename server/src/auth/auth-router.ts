@@ -1,4 +1,12 @@
-import { assert, boolean, nullable, object, string, type } from 'superstruct'
+import {
+  assert,
+  boolean,
+  Infer,
+  nullable,
+  object,
+  string,
+  type,
+} from 'superstruct'
 import jwt from 'jsonwebtoken'
 
 import {
@@ -8,6 +16,7 @@ import {
   AppTokenStruct,
   validateStruct,
   KoaRouter,
+  PostgresClient,
 } from '../lib/module.js'
 
 interface IdRecord {
@@ -23,15 +32,25 @@ interface UserRecord {
   reminders: { email?: boolean; sms?: boolean }
 }
 
+const userReminders = () =>
+  object({
+    email: boolean(),
+    sms: boolean(),
+  })
+
 const UserRequestStruct = object({
   fullName: string(),
   email: string(),
   phoneNumber: nullable(string()),
   reminderSchedule: string(),
-  reminders: object({
-    email: boolean(),
-    sms: boolean(),
-  }),
+  reminders: userReminders(),
+})
+
+const UserUpdateStruct = object({
+  fullName: string(),
+  phoneNumber: nullable(string()),
+  reminderSchedule: string(),
+  reminders: userReminders(),
 })
 
 const LoginRequestStruct = type({
@@ -42,8 +61,38 @@ function sanitizeEmail(input: string) {
   return input.trim().toLowerCase()
 }
 
+const queries = (client: PostgresClient) => ({
+  async updateUser(id: number, update: Infer<typeof UserUpdateStruct>) {
+    await client.sql`
+      UPDATE "users"
+      SET 
+        "fullName" = ${update.fullName},
+        "phoneNumber" = ${update.phoneNumber},
+        "reminderSchedule" = ${update.reminderSchedule},
+        "reminders" = ${update.reminders}
+      WHERE "id" = ${id}
+    `
+  },
+})
+
 export class AuthRouter implements AppRouter {
   constructor(private context: AppContext) {}
+
+  updateUser(
+    client: PostgresClient,
+    id: number,
+    update: Infer<typeof UserUpdateStruct>
+  ) {
+    return client.sql`
+      UPDATE "users"
+      SET 
+        "fullName" = ${update.fullName},
+        "phoneNumber" = ${update.phoneNumber},
+        "reminderSchedule" = ${update.reminderSchedule},
+        "reminders" = ${update.reminders}
+      WHERE "id" = ${id}
+    `
+  }
 
   apply(router: KoaRouter) {
     router.get('/auth/me', async (ctx) => {
@@ -83,6 +132,8 @@ export class AuthRouter implements AppRouter {
         // Re-use the existing user or create a new one
         if (existingUser) {
           userId = existingUser.id
+
+          await this.updateUser(client, existingUser.id, request)
         } else {
           const [newUser] = await client.sql<IdRecord>`
             INSERT INTO "users" ("fullName", "email", "phoneNumber", "reminderSchedule", "reminders")

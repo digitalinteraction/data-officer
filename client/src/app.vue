@@ -2,6 +2,17 @@
   <router-view></router-view>
 </template>
 
+<script lang="ts" setup>
+import { onMounted } from 'vue'
+import { useAuthStore } from './auth/auth-store'
+
+const auth = useAuthStore()
+
+onMounted(() => {
+  auth.setup()
+})
+</script>
+
 <style>
 @import '@openlab/alembic/reset.css';
 @import '@openlab/alembic/layouts.css';
@@ -60,11 +71,19 @@ a {
 .primaryButton:hover {
   filter: brightness(1.2);
 }
+.primaryButton:disabled {
+  filter: brightness(0.7);
+  cursor: not-allowed;
+}
 .secondaryButton {
   background-color: var(--secondary);
   color: var(--secondary-alt);
 }
 .secondaryButton:hover {
   filter: brightness(1.1);
+}
+.secondaryButton:disabled {
+  filter: brightness(0.7);
+  cursor: not-allowed;
 }
 </style>

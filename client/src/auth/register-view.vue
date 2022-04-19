@@ -3,15 +3,22 @@ import { ref } from 'vue'
 import AltLayout from '../components/alt-layout.vue'
 import { Routes, config } from '../utils'
 
+const formState = ref('pending')
 const formAction = new URL('auth/register', config.SERVER_URL).toString()
 
-const fullName = ref('')
-const email = ref('')
-const phoneNumber = ref('')
-const reminders = ref<string[]>([])
-const reminderDays = ref<string[]>([])
-const reminderHours = ref<string[]>([])
-const consent = ref(false)
+function blankSubmission() {
+  return {
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    reminders: [] as string[],
+    reminderDays: [] as string[],
+    reminderHours: [] as string[],
+    consent: false,
+  }
+}
+
+const submission = ref(blankSubmission())
 
 const allDays = [
   { value: '1', id: 'mon', name: 'Monday' },
@@ -30,8 +37,6 @@ const allTimes = [
   { value: '18', id: '6pm', name: '6pm' },
 ]
 
-const action = ref('none')
-
 function buildCron(days: string[], hours: string[]) {
   return `0 ${hours.join(',')} * * ${days.join(',')}`
 }
@@ -40,14 +45,25 @@ async function onSubmit(event: Event) {
   event.preventDefault()
 
   const noReminders =
-    reminders.value.length < 1 ||
-    reminderDays.value.length < 1 ||
-    reminderHours.value.length < 1
+    submission.value.reminders.length < 1 ||
+    submission.value.reminderDays.length < 1 ||
+    submission.value.reminderHours.length < 1
 
   const msg = `
     You have not selected any reminders, are you sure you want to continue?
   `.trim()
   if (noReminders && !confirm(msg)) return
+
+  formState.value = 'loading'
+
+  const {
+    fullName,
+    email,
+    phoneNumber,
+    reminderDays,
+    reminderHours,
+    reminders,
+  } = submission.value
 
   await fetch(formAction, {
     method: 'post',
@@ -55,35 +71,29 @@ async function onSubmit(event: Event) {
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      fullName: fullName.value,
-      email: email.value,
-      phoneNumber: phoneNumber.value ? phoneNumber.value : null,
-      reminderSchedule: buildCron(reminderDays.value, reminderHours.value),
+      fullName: fullName,
+      email: email,
+      phoneNumber: phoneNumber ? phoneNumber : null,
+      reminderSchedule: buildCron(reminderDays, reminderHours),
       reminders: {
-        email: reminders.value.includes('email'),
-        sms: reminders.value.includes('sms'),
+        email: reminders.includes('email'),
+        sms: reminders.includes('sms'),
       },
     }),
   }).then(
     (res) => {
-      action.value = res.ok ? 'success' : 'error'
+      formState.value = res.ok ? 'success' : 'error'
     },
     (error) => {
       console.error(error)
-      action.value = 'error'
+      formState.value = 'error'
+      window.scrollTo({ top: 0 })
     }
   )
 }
-
 function startAgain() {
-  fullName.value = ''
-  email.value = ''
-  phoneNumber.value = ''
-  reminders.value = []
-  reminderDays.value = []
-  reminderHours.value = []
-  consent.value = false
-  action.value = 'none'
+  submission.value = blankSubmission()
+  formState.value = 'pending'
 }
 </script>
 
@@ -94,10 +104,10 @@ function startAgain() {
       Already have an account?
       <router-link :to="Routes.login">Log in</router-link>
     </p>
-    <p class="formErrorMessage" v-if="action === 'error'">
+    <p class="formErrorMessage" v-if="formState === 'error'">
       Something went wrong, please check your form and try again
     </p>
-    <div class="formSuccessMessage" v-if="action === 'success'">
+    <div class="formSuccessMessage" v-if="formState === 'success'">
       <p>
         Registration submitted! Please check your email for a verification
         email.
@@ -128,7 +138,7 @@ function startAgain() {
               id="fullName"
               name="fullName"
               required
-              v-model="fullName"
+              v-model="submission.fullName"
             />
           </div>
 
@@ -144,7 +154,7 @@ function startAgain() {
               id="email"
               name="email"
               required
-              v-model="email"
+              v-model="submission.email"
             />
           </div>
 
@@ -159,7 +169,7 @@ function startAgain() {
               type="tel"
               id="phoneNumber"
               name="phoneNumber"
-              v-model="phoneNumber"
+              v-model="submission.phoneNumber"
             />
           </div>
         </fieldset>
@@ -178,7 +188,7 @@ function startAgain() {
                 type="checkbox"
                 id="emailReminders"
                 value="email"
-                v-model="reminders"
+                v-model="submission.reminders"
               />
               <span>Notify me by email</span>
             </label>
@@ -187,7 +197,7 @@ function startAgain() {
                 type="checkbox"
                 id="smsReminders"
                 value="sms"
-                v-model="reminders"
+                v-model="submission.reminders"
               />
               <span>Notify me by SMS</span>
             </label>
@@ -200,7 +210,7 @@ function startAgain() {
                 type="checkbox"
                 :id="item.id"
                 name="reminderDays"
-                v-model="reminderDays"
+                v-model="submission.reminderDays"
                 :value="item.value"
               />
               <span>{{ item.name }}</span>
@@ -214,7 +224,7 @@ function startAgain() {
                 type="checkbox"
                 :id="item.id"
                 name="reminderHours"
-                v-model="reminderHours"
+                v-model="submission.reminderHours"
                 :value="item.value"
               />
               <span>{{ item.name }}</span>
@@ -235,7 +245,7 @@ function startAgain() {
               id="consent"
               name="consent"
               required
-              v-model="consent"
+              v-model="submission.consent"
             />
             <span
               >I have read and agree to take part in the DataDiaries study</span
@@ -243,12 +253,15 @@ function startAgain() {
           </label>
         </fieldset>
 
-        <input
-          type="submit"
-          class="primaryButton"
-          name="register"
-          value="Register"
-        />
+        <div>
+          <input
+            type="submit"
+            :disabled="formState === 'loading'"
+            class="primaryButton"
+            name="register"
+            value="Register"
+          />
+        </div>
       </stack-layout>
     </form>
   </AltLayout>

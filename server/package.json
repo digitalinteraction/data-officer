@@ -2,7 +2,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "cli": "node --loader=ts-node/esm --require=dotenv/config src/cli.ts"
+    "cli": "node --loader=ts-node/esm --require=dotenv/config src/cli.ts",
+    "serve": "npm -s run -- cli serve"
   },
   "dependencies": {
     "@godaddy/terminus": "^4.10.2",

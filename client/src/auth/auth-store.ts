@@ -19,7 +19,7 @@ interface AuthState {
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    authToken: localStorage.getItem('authToken'),
+    authToken: null,
   }),
   getters: {
     isLoggedIn: (state): Boolean => Boolean(state.authToken),
@@ -28,6 +28,15 @@ export const useAuthStore = defineStore('auth', {
     },
   },
   actions: {
+    /** Initially look for the localStorage auth token, or clear it if invalid */
+    setup() {
+      const token = localStorage.getItem('authToken')
+      if (token) {
+        this.authenticate(token)
+        if (!this.authToken) localStorage.removeItem('authToken')
+      }
+    },
+    /** Authenticate the store if an auth token is valid */
     authenticate(token: string) {
       const payload = decodeJwt(token) as AppToken
       if (payload.iss !== config.JWT_ISSUER) return

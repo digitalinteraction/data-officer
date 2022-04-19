@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import { useAuthStore } from '../auth/auth-store'
 import MainLayout from '../components/main-layout.vue'
 import { SvgIcon, Routes } from '../utils'
+
+const auth = useAuthStore()
 </script>
 
 <template>
@@ -49,7 +52,7 @@ import { SvgIcon, Routes } from '../utils'
               machine?
             </p>
           </section>
-          <section>
+          <section v-if="!auth.isLoggedIn">
             <cluster-layout space="var(--s-1)">
               <router-link class="primaryButton" :to="Routes.register">
                 <icon-layout>
