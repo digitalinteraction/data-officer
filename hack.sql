@@ -121,6 +121,39 @@ ALTER SEQUENCE public.logs_id_seq OWNED BY public.logs.id;
 
 
 --
+-- Name: reminders; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.reminders (
+    id integer NOT NULL,
+    type character varying NOT NULL,
+    created timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "user" integer NOT NULL,
+    link integer NOT NULL
+);
+
+
+--
+-- Name: reminders_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.reminders_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: reminders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.reminders_id_seq OWNED BY public.reminders.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -133,7 +166,8 @@ CREATE TABLE public.users (
     created timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     consented timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     "lastLogin" timestamp without time zone,
-    reminders jsonb DEFAULT '{}'::jsonb NOT NULL
+    reminders jsonb DEFAULT '{}'::jsonb NOT NULL,
+    "lastReminder" timestamp without time zone
 );
 
 
@@ -179,6 +213,13 @@ ALTER TABLE ONLY public.logs ALTER COLUMN id SET DEFAULT nextval('public.logs_id
 
 
 --
+-- Name: reminders id; Type: DEFAULT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.reminders ALTER COLUMN id SET DEFAULT nextval('public.reminders_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: user
 --
 
@@ -207,6 +248,14 @@ ALTER TABLE ONLY public.links
 
 ALTER TABLE ONLY public.logs
     ADD CONSTRAINT logs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: reminders reminders_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.reminders
+    ADD CONSTRAINT reminders_pkey PRIMARY KEY (id);
 
 
 --
@@ -239,6 +288,13 @@ CREATE INDEX logs_session ON public.logs USING btree (session);
 
 
 --
+-- Name: reminders_user; Type: INDEX; Schema: public; Owner: user
+--
+
+CREATE INDEX reminders_user ON public.reminders USING btree ("user");
+
+
+--
 -- Name: users_email; Type: INDEX; Schema: public; Owner: user
 --
 
@@ -251,6 +307,22 @@ CREATE UNIQUE INDEX users_email ON public.users USING btree (email);
 
 ALTER TABLE ONLY public.entries
     ADD CONSTRAINT entries_user_fkey FOREIGN KEY ("user") REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: reminders reminders_link_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.reminders
+    ADD CONSTRAINT reminders_link_fkey FOREIGN KEY (link) REFERENCES public.links(id);
+
+
+--
+-- Name: reminders reminders_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.reminders
+    ADD CONSTRAINT reminders_user_fkey FOREIGN KEY ("user") REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
