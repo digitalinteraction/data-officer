@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import fs from 'fs'
 
 const layoutNames = [
   'stack-layout',
@@ -16,6 +17,8 @@ const layoutNames = [
   'icon-layout',
 ]
 
+const pkg = JSON.parse(fs.readFileSync('../package.json', 'utf8'))
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -27,4 +30,7 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    __APP_VERSION__: `"${pkg.version}"`,
+  },
 })

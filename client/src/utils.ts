@@ -1,14 +1,17 @@
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, PropType } from 'vue'
 import io from 'socket.io-client'
 
+export type IconName = 'up' | 'right' | 'menu' | 'left' | 'down' | 'cross'
+/** An icon using a reference to public/icons.svg */
 export const SvgIcon = defineComponent({
   name: 'SvgIcon',
-  props: { name: { type: String, required: true } },
+  props: { name: { type: String as PropType<IconName>, required: true } },
   render() {
     return h('svg', null, h('use', { href: `/icons.svg#${this.name}` }))
   },
 })
 
+/** The vue-router routes */
 export const Routes = {
   home: { name: 'home' },
   register: { name: 'register' },

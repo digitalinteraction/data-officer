@@ -4,18 +4,15 @@
 
 <script lang="ts" setup>
 import { onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from './auth/auth-store'
-import { emitMetric } from './utils'
 
 const auth = useAuthStore()
 const router = useRouter()
 
 onMounted(() => {
   auth.setup()
-  emitMetric('hello', { message: 'world' })
 
-  // Only run once?
   if (location.hash) {
     const params = new URLSearchParams(location.hash.slice(1))
 
@@ -23,7 +20,7 @@ onMounted(() => {
     if (token) auth.authenticate(token)
 
     const next = params.get('next')
-    if (next) router.replace(next)
+    if (next && auth.isLoggedIn) router.replace(next)
   }
 })
 </script>

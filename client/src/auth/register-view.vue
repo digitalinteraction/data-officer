@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from '@vue/reactivity'
 import { ref } from 'vue'
 import AltLayout from '../components/alt-layout.vue'
 import { Routes, config, FormState } from '../utils'
@@ -37,13 +38,13 @@ const allTimes = [
   { value: '18', id: '6pm', name: '6pm' },
 ]
 
+const isLoading = computed(() => formState.value === 'loading')
+
 function buildCron(days: string[], hours: string[]) {
   return `0 ${hours.join(',')} * * ${days.join(',')}`
 }
 
-async function onSubmit(event: Event) {
-  event.preventDefault()
-
+async function onSubmit() {
   const noReminders =
     submission.value.reminders.length < 1 ||
     submission.value.reminderDays.length < 1 ||
@@ -116,7 +117,7 @@ function startAgain() {
         <a href="#" @click.prevent="startAgain">Start again?</a>
       </p>
     </div>
-    <form v-else @submit="onSubmit">
+    <form v-else @submit.prevent="onSubmit">
       <p>
         Use this form to sign up for the DataDiaries study. Lorem ipsum sil dor
         amet...
@@ -139,6 +140,7 @@ function startAgain() {
               name="fullName"
               required
               v-model="submission.fullName"
+              :disabled="isLoading"
             />
           </div>
 
@@ -155,6 +157,7 @@ function startAgain() {
               name="email"
               required
               v-model="submission.email"
+              :disabled="isLoading"
             />
           </div>
 
@@ -170,6 +173,7 @@ function startAgain() {
               id="phoneNumber"
               name="phoneNumber"
               v-model="submission.phoneNumber"
+              :disabled="isLoading"
             />
           </div>
         </fieldset>
@@ -189,6 +193,7 @@ function startAgain() {
                 id="emailReminders"
                 value="email"
                 v-model="submission.reminders"
+                :disabled="isLoading"
               />
               <span>Notify me by email</span>
             </label>
@@ -198,6 +203,7 @@ function startAgain() {
                 id="smsReminders"
                 value="sms"
                 v-model="submission.reminders"
+                :disabled="isLoading"
               />
               <span>Notify me by SMS</span>
             </label>
@@ -212,6 +218,7 @@ function startAgain() {
                 name="reminderDays"
                 v-model="submission.reminderDays"
                 :value="item.value"
+                :disabled="isLoading"
               />
               <span>{{ item.name }}</span>
             </label>
@@ -226,6 +233,7 @@ function startAgain() {
                 name="reminderHours"
                 v-model="submission.reminderHours"
                 :value="item.value"
+                :disabled="isLoading"
               />
               <span>{{ item.name }}</span>
             </label>
@@ -246,6 +254,7 @@ function startAgain() {
               name="consent"
               required
               v-model="submission.consent"
+              :disabled="isLoading"
             />
             <span
               >I have read and agree to take part in the DataDiaries study</span

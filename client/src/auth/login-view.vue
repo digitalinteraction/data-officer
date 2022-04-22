@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AltLayout from '../components/alt-layout.vue'
 import { Routes, config, FormState } from '../utils'
 
@@ -38,7 +38,6 @@ if (route.query.success !== undefined) formState.value = 'success'
       <div class="field">
         <label for="email">
           <span class="field-label">Email address</span>
-          <!-- <span class="field-hint">And some help</span> -->
         </label>
         <input type="email" id="email" name="email" />
       </div>

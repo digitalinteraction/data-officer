@@ -73,23 +73,3 @@ const auth = useAuthStore()
     </center-layout>
   </MainLayout>
 </template>
-
-<style>
-.homeView {
-}
-.homeView-register,
-.homeView-login {
-  /* font-size: var(--s1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  padding: 0.2em 0.8em;
-  font-weight: 600; */
-}
-.homeView-register {
-  /* color: white;
-  background: #238fef; */
-}
-.homeView-login {
-  /* color: white;
-  background: #20accd; */
-}
-</style>

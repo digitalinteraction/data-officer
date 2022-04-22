@@ -10,3 +10,6 @@ declare module '*.vue' {
 declare module '@openlab/alembic' {
   export function defineLayoutElements(): void
 }
+
+// https://vitejs.dev/config/#define
+declare const __APP_VERSION__: string
