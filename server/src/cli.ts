@@ -6,6 +6,7 @@
 
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
+import { remindersCommand } from './commands/reminders-command.js'
 import { serveCommand } from './commands/serve-command.js'
 
 const cli = yargs(hideBin(process.argv))
@@ -27,6 +28,13 @@ cli.command(
       .option('port', { type: 'number', default: 3000 })
       .option('migrate', { type: 'boolean', default: false }),
   (args) => serveCommand(args).catch(errorHandler)
+)
+
+cli.command(
+  'reminders',
+  'Process and send user reminders',
+  (yargs) => yargs.option('dryRun', { type: 'boolean', default: false }),
+  (args) => remindersCommand(args).catch(errorHandler)
 )
 
 cli.parse()
