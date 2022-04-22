@@ -15,6 +15,7 @@ export const Routes = {
   login: { name: 'login' },
   entries: { name: 'entries' },
   newEntry: { name: 'newEntry' },
+  verifySms: { name: 'verifySms' },
 }
 
 export interface AppConfig {
@@ -59,8 +60,6 @@ export const socket = createSocket(config.SERVER_URL)
 socket.connect()
 
 export function emitMetric(metric: string, payload: unknown) {
-  console.log(config.ENABLE_METRICS)
-
   if (!config.ENABLE_METRICS) return
   socket.emit('metric', metric, payload)
 }
