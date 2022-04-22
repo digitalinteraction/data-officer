@@ -1,6 +1,7 @@
 import cron from 'cron-parser'
 
 import {
+  AppRoles,
   createDebug,
   EmailService,
   getAppConfig,
@@ -38,7 +39,6 @@ export async function remindersCommand(options: RemindersCommand) {
   debug('start dryRun=%o', options.dryRun)
 
   const env = getEnvRecord()
-  const pkg = getPackageJson()
   const config = getAppConfig()
   const pg = new PostgresService({ connectionString: env.DATABASE_URL })
   const email = new EmailService({
@@ -112,7 +112,7 @@ export async function remindersCommand(options: RemindersCommand) {
       const authToken = jwt.sign(
         {
           sub: user.id,
-          app: { roles: ['user'] },
+          app: { roles: [AppRoles.user] },
         },
         { expiresIn: '7d' }
       )

@@ -55,6 +55,7 @@ function debugMiddleware(): Koa.Middleware {
   }
 }
 
+/** A Koa middleware to handle errors and output them in the response */
 function httpErrorHandler(isProduction: boolean): Koa.Middleware {
   return async (ctx, next) => {
     try {

@@ -18,6 +18,7 @@ function trimStack(error: Error) {
   return error
 }
 
+/** A http-response error for easy `throw`-ing */
 export class ApiError extends Error {
   static badRequest() {
     return trimStack(new this(400, ['general.badRequest']))
@@ -42,14 +43,17 @@ export class ApiError extends Error {
   }
 }
 
+/** Something that provides http routes */
 export interface AppRouter {
   applyRoutes(router: KoaRouter): void
 }
 
+/** Something that provides socket.io messages */
 export interface AppBroker {
   applyIo(io: SocketIoServer): void
 }
 
+/** Shared context for `AppRouter` and `AppBroker` implementors */
 export interface AppContext {
   env: EnvRecord
   pkg: { name: string; version: string }
@@ -60,12 +64,14 @@ export interface AppContext {
   links: LinksService
 }
 
+/** Validate a value agains a struct or throw a ApiError */
 export function validateStruct<T>(value: unknown, struct: Struct<T>): T {
   const result = validate(value, struct)
   if (result[0]) throw ApiError.badRequest()
   return result[1]
 }
 
+/** Synchronously load and validate the app-config.json */
 export function getAppConfig() {
   try {
     return mask(
@@ -79,11 +85,15 @@ export function getAppConfig() {
   }
 }
 
+/** Synchronously load and validate the **root** package.json */
 export function getPackageJson() {
-  const { name, version } = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+  const { name, version } = JSON.parse(
+    fs.readFileSync('../package.json', 'utf8')
+  )
   return { name, version }
 }
 
+/** Synchronously load and validate process.env */
 export function getEnvRecord() {
   try {
     return mask(process.env, EnvRecordStruct)

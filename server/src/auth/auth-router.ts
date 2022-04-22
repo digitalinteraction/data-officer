@@ -19,6 +19,7 @@ import {
   validateStruct,
   KoaRouter,
   PostgresClient,
+  AppRoles,
 } from '../lib/module.js'
 
 interface IdRecord {
@@ -104,7 +105,7 @@ export class AuthRouter implements AppRouter {
   ) {
     const token = this.context.jwt.sign({
       sub: user,
-      app: { roles: ['verify_sms'] },
+      app: { roles: [AppRoles.verifySms] },
     })
 
     const url = new URL('auth/verify/sms', this.context.env.SELF_URL)
@@ -155,9 +156,10 @@ export class AuthRouter implements AppRouter {
         // Re-use the existing user or create a new one
         if (existingUser) {
           userId = existingUser.id
-
-          await this.updateUser(client, existingUser.id, request)
+          // Don't update the user because the requester hasn't proven who they are
+          // MVP — they'll have to use the update profile instead
         } else {
+          // Create a new user
           const [newUser] = await client.sql<IdRecord>`
             INSERT INTO "users" ("fullName", "email", "reminderSchedule", "reminders")
             VALUES (${request.fullName}, ${email}, ${request.reminderSchedule}, ${request.reminders})
@@ -166,12 +168,11 @@ export class AuthRouter implements AppRouter {
           userId = newUser.id
         }
 
+        // Generate a login url for the client
         const token = this.context.jwt.sign(
           {
             sub: userId,
-            app: {
-              roles: ['login'],
-            },
+            app: { roles: [AppRoles.login] },
           },
           { expiresIn: '1h' }
         )
@@ -191,6 +192,7 @@ export class AuthRouter implements AppRouter {
           `,
         })
 
+        // Trigger an sms verification if they sent a phone number
         if (request.phoneNumber) {
           await this.sendSmsVerification(client, userId, request.phoneNumber)
         }
@@ -206,6 +208,7 @@ export class AuthRouter implements AppRouter {
         const request = validateStruct(ctx.request.body, LoginRequestStruct)
         const email = sanitizeEmail(request.email)
 
+        // Find the user in question
         const [user] = await this.context.pg.run(
           (c) =>
             c.sql<IdRecord>`SELECT "id" FROM "users" WHERE email = ${email}`
@@ -213,17 +216,17 @@ export class AuthRouter implements AppRouter {
 
         if (!user) throw ApiError.badRequest()
 
+        // Generate a login url for the client
         const token = this.context.jwt.sign(
           {
             sub: user.id,
-            app: {
-              roles: ['login'],
-            },
+            app: { roles: [AppRoles.login] },
           },
           { expiresIn: '1h' }
         )
         const link = new URL(`auth/login/${token}`, this.context.env.SELF_URL)
 
+        // Send the verification email with their login link in it
         await this.context.email.sendEmail({
           to: email,
           subject: 'Log in to DataDiaries',
@@ -234,6 +237,7 @@ export class AuthRouter implements AppRouter {
           `,
         })
 
+        // Redirect the user back to the login page with success
         const url = new URL('login?success', this.context.env.CLIENT_URL)
         ctx.redirect(url.toString())
       } catch (error) {
@@ -247,21 +251,25 @@ export class AuthRouter implements AppRouter {
       let userId: number
 
       try {
+        // Verify the token
         const payload = jwt.verify(
           ctx.params.token,
           this.context.env.JWT_SECRET
         )
         assert(payload, AppTokenStruct)
 
-        if (!payload.app.roles.includes('login')) {
+        if (!payload.app.roles.includes(AppRoles.login)) {
           throw ApiError.badRequest()
         }
 
         userId = payload.sub
-      } catch (error) {
-        throw ApiError.badRequest()
+      } catch (_error) {
+        const link = new URL('bad-login', this.context.env.CLIENT_URL)
+        ctx.redirect(link.toString())
+        return
       }
 
+      // Update the 'lastLogin' field on the user
       await this.context.pg.run(
         (c) => c.sql`
           UPDATE "users"
@@ -270,11 +278,10 @@ export class AuthRouter implements AppRouter {
         `
       )
 
+      // Generate a login link for the client that takes them to their entries
       const authToken = this.context.jwt.sign({
         sub: userId,
-        app: {
-          roles: ['user'],
-        },
+        app: { roles: [AppRoles.user] },
       })
       const params = new URLSearchParams({
         token: authToken,
@@ -291,12 +298,17 @@ export class AuthRouter implements AppRouter {
         VerifySmsStruct
       )
 
+      // Start building the link to return them to
       const location = new URL('verify-sms', this.context.env.CLIENT_URL)
 
       try {
+        // Check the token passed is authentic
         const payload = this.context.jwt.verify(token)
-        if (!payload) throw new Error('Invalid token')
+        if (!payload || !payload.app.roles.includes(AppRoles.verifySms)) {
+          throw new Error('Invalid token')
+        }
 
+        // Update the user's phone number
         await this.context.pg.run(
           (client) => client.sql`
             UPDATE "users"
@@ -307,6 +319,7 @@ export class AuthRouter implements AppRouter {
 
         location.searchParams.set('success', '')
       } catch (error) {
+        // If something went wrong, redirect the user to an error page
         console.error('Failed to validate phone nuber')
         console.error(error)
         location.searchParams.set('error', '')

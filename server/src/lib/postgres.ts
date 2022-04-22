@@ -38,6 +38,7 @@ export class PostgresService {
     this.pool = new pg.Pool({ connectionString: options.connectionString })
   }
 
+  /** Get a `PostgresClient` from the pool. **You must `release` it** */
   async getClient(): Promise<PostgresClient> {
     const client = await this.pool.connect()
 
@@ -55,6 +56,7 @@ export class PostgresService {
     await this.run((c) => c.sql`SELECT 1;`)
   }
 
+  /** Run a block of code with a new client and immediately `release` it. */
   async run<T>(block: (client: PostgresClient) => Promise<T>) {
     let client: PostgresClient | undefined
 

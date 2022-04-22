@@ -1,14 +1,14 @@
 import { IncomingHttpHeaders } from 'http'
 import jwt from 'jsonwebtoken'
-import {
-  assert,
-  type,
-  Struct,
-  object,
-  array,
-  string,
-  number,
-} from 'superstruct'
+import { assert, type, object, array, string, number } from 'superstruct'
+
+/** The roles an AppToken is allowed to have */
+export const AppRoles = {
+  admin: 'admin',
+  user: 'user',
+  login: 'login',
+  verifySms: 'verify_sms',
+}
 
 export interface AppToken {
   sub: number
@@ -56,21 +56,28 @@ export class JwtService {
   }
 
   getRequestAuth(headers: IncomingHttpHeaders): AppToken | null {
+    // Fail if the authorization header isn't in the form "bearer X"
     if (
       typeof headers.authorization !== 'string' ||
       !bearerRegex().test(headers.authorization)
     ) {
       return null
     }
+
+    // Verify and parse the jwt payload
     const auth = headers.authorization.replace(bearerRegex(), '')
     const payload = this.verify(auth)
     if (!payload) return null
+
+    // Fail if the token doesn't have a user or admin role
     if (
-      !payload.app.roles.includes('user') &&
-      !payload.app.roles.includes('admin')
+      !payload.app.roles.includes(AppRoles.user) &&
+      !payload.app.roles.includes(AppRoles.admin)
     ) {
       return null
     }
+
+    // If it got to hear the token is valid and returned
     return payload
   }
 }

@@ -1,9 +1,4 @@
-import {
-  PostgresClient,
-  AppContext,
-  AppRouter,
-  KoaRouter,
-} from '../lib/module.js'
+import { AppContext, AppRouter, KoaRouter } from '../lib/module.js'
 import { LinkRecord } from './link-record.js'
 
 export class LinkRouter implements AppRouter {
@@ -14,6 +9,7 @@ export class LinkRouter implements AppRouter {
       const client = await this.context.pg.getClient()
 
       try {
+        // Find the corresponding link record
         const [link] = await client.sql<LinkRecord>`
           SELECT "id", "code", "url", "uses"::int
           FROM "links"
@@ -23,15 +19,17 @@ export class LinkRouter implements AppRouter {
         if (!link) {
           ctx.status = 404
           ctx.body = 'Short link not found'
-        } else {
-          await client.sql`
-            UPDATE "links"
-            SET "uses" = ${link.uses + 1}
-            WHERE id = ${link.id}
-          `
-
-          ctx.redirect(link.url)
+          return
         }
+
+        // Update the uses counter
+        await client.sql`
+          UPDATE "links"
+          SET "uses" = ${link.uses + 1}
+          WHERE id = ${link.id}
+        `
+
+        ctx.redirect(link.url)
       } finally {
         client.release()
       }
