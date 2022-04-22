@@ -1,5 +1,6 @@
 export * from './jwt.js'
 export * from './postgres.js'
 export * from './sendgrid.js'
+export * from './sms.js'
 export * from './structs.js'
 export * from './utils.js'

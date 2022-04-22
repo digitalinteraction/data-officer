@@ -1,9 +1,11 @@
+import cron from 'cron-parser'
 import {
   assert,
   boolean,
   Infer,
   nullable,
   object,
+  refine,
   string,
   type,
 } from 'superstruct'
@@ -38,11 +40,21 @@ const userReminders = () =>
     sms: boolean(),
   })
 
+const cronExpression = () =>
+  refine(string(), 'cron expression', (value) => {
+    try {
+      cron.parseExpression(value)
+      return true
+    } catch (_error) {
+      return false
+    }
+  })
+
 const UserRequestStruct = object({
   fullName: string(),
   email: string(),
   phoneNumber: nullable(string()),
-  reminderSchedule: string(),
+  reminderSchedule: cronExpression(),
   reminders: userReminders(),
 })
 
@@ -57,23 +69,14 @@ const LoginRequestStruct = type({
   email: string(),
 })
 
+const VerifySmsStruct = object({
+  phoneNumber: string(),
+  token: string(),
+})
+
 function sanitizeEmail(input: string) {
   return input.trim().toLowerCase()
 }
-
-const queries = (client: PostgresClient) => ({
-  async updateUser(id: number, update: Infer<typeof UserUpdateStruct>) {
-    await client.sql`
-      UPDATE "users"
-      SET 
-        "fullName" = ${update.fullName},
-        "phoneNumber" = ${update.phoneNumber},
-        "reminderSchedule" = ${update.reminderSchedule},
-        "reminders" = ${update.reminders}
-      WHERE "id" = ${id}
-    `
-  },
-})
 
 export class AuthRouter implements AppRouter {
   constructor(private context: AppContext) {}
@@ -92,6 +95,29 @@ export class AuthRouter implements AppRouter {
         "reminders" = ${update.reminders}
       WHERE "id" = ${id}
     `
+  }
+
+  async sendSmsVerification(
+    client: PostgresClient,
+    user: number,
+    phoneNumber: string
+  ) {
+    const token = this.context.jwt.sign({
+      sub: user,
+      app: { roles: ['verify_sms'] },
+    })
+
+    const url = new URL('auth/verify/sms', this.context.env.SELF_URL)
+    url.searchParams.set('phoneNumber', phoneNumber)
+    url.searchParams.set('token', token)
+
+    const link = await this.context.links.createLink(client, url)
+    const shortLink = this.context.links.getLinkUrl(link)
+
+    await this.context.sms.sendSms({
+      to: phoneNumber,
+      body: `Please verify your phone number to recive DataDiaries reminders. ${shortLink}`,
+    })
   }
 
   applyRoutes(router: KoaRouter) {
@@ -115,9 +141,6 @@ export class AuthRouter implements AppRouter {
       const request = validateStruct(ctx.request.body, UserRequestStruct)
       const email = sanitizeEmail(request.email)
 
-      // TODO: check phone number is real
-      // TODO: check schedule is a cron statement
-
       const client = await this.context.pg.getClient()
 
       try {
@@ -136,8 +159,8 @@ export class AuthRouter implements AppRouter {
           await this.updateUser(client, existingUser.id, request)
         } else {
           const [newUser] = await client.sql<IdRecord>`
-            INSERT INTO "users" ("fullName", "email", "phoneNumber", "reminderSchedule", "reminders")
-            VALUES (${request.fullName}, ${email}, ${request.phoneNumber}, ${request.reminderSchedule}, ${request.reminders})
+            INSERT INTO "users" ("fullName", "email", "reminderSchedule", "reminders")
+            VALUES (${request.fullName}, ${email}, ${request.reminderSchedule}, ${request.reminders})
             RETURNING "id"
           `
           userId = newUser.id
@@ -167,6 +190,10 @@ export class AuthRouter implements AppRouter {
             <p><a href="${link}">Verify and log in</a></p>
           `,
         })
+
+        if (request.phoneNumber) {
+          await this.sendSmsVerification(client, userId, request.phoneNumber)
+        }
 
         ctx.body = 'ok'
       } finally {
@@ -249,12 +276,43 @@ export class AuthRouter implements AppRouter {
           roles: ['user'],
         },
       })
-      const link = new URL(
-        `login#token=${authToken}`,
-        this.context.env.CLIENT_URL
-      )
+      const params = new URLSearchParams({
+        token: authToken,
+        next: '/entries',
+      })
+      const link = new URL(`#${params.toString()}`, this.context.env.CLIENT_URL)
 
       ctx.redirect(link.toString())
+    })
+
+    router.get('/auth/verify/sms', async (ctx) => {
+      const { phoneNumber, token } = validateStruct(
+        ctx.request.query,
+        VerifySmsStruct
+      )
+
+      const location = new URL('verify-sms', this.context.env.CLIENT_URL)
+
+      try {
+        const payload = this.context.jwt.verify(token)
+        if (!payload) throw new Error('Invalid token')
+
+        await this.context.pg.run(
+          (client) => client.sql`
+            UPDATE "users"
+            SET "phoneNumber" = ${phoneNumber}
+            WHERE "id" = ${payload.sub}
+          `
+        )
+
+        location.searchParams.set('success', '')
+      } catch (error) {
+        console.error('Failed to validate phone nuber')
+        console.error(error)
+        location.searchParams.set('error', '')
+      } finally {
+        ctx.redirect(location.toString())
+      }
     })
 
     // TODO: endpoint to update profile

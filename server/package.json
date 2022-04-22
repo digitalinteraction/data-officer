@@ -2,8 +2,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "cli": "node --loader=ts-node/esm --require=dotenv/config src/cli.ts",
-    "serve": "npm -s run -- cli serve"
+    "dev": "node --loader=ts-node/esm --require=dotenv/config src/cli.ts",
+    "debug": "node --inspect-brk --loader=ts-node/esm --require=dotenv/config src/cli.ts",
+    "serve": "npm -s run -- dev serve"
   },
   "dependencies": {
     "@godaddy/terminus": "^4.10.2",
@@ -11,6 +12,7 @@
     "@koa/router": "^10.1.1",
     "@sendgrid/mail": "^7.6.2",
     "@socket.io/redis-adapter": "^7.1.0",
+    "cron-parser": "^4.3.0",
     "debug": "^4.3.4",
     "got": "^12.0.3",
     "jsonwebtoken": "^8.5.1",
@@ -23,6 +25,7 @@
     "redis": "^4.0.6",
     "socket.io": "^4.4.1",
     "superstruct": "^0.15.4",
+    "twilio": "^3.76.1",
     "yargs": "^17.4.1"
   },
   "devDependencies": {

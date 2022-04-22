@@ -1,6 +1,7 @@
 import { defaulted, Infer, object, string, optional } from 'superstruct'
 
-export const EnvStruct = object({
+export type EnvRecord = Infer<typeof EnvRecordStruct>
+export const EnvRecordStruct = object({
   SELF_URL: string(),
   CLIENT_URL: string(),
   DATABASE_URL: string(),
@@ -8,6 +9,21 @@ export const EnvStruct = object({
   NODE_ENV: defaulted(string(), 'production'),
   SENDGRID_API_TOKEN: string(),
   REDIS_URL: optional(string()),
+  TWILIO_ACCOUNT_SID: string(),
+  TWILIO_AUTH_TOKEN: string(),
 })
 
-export type EnvRecord = Infer<typeof EnvStruct>
+export type AppConfigRecord = Infer<typeof AppConfigStruct>
+export const AppConfigStruct = object({
+  email: object({
+    fromEmail: string(),
+    replyToEmail: string(),
+    templateId: string(),
+  }),
+  jwt: object({
+    issuer: string(),
+  }),
+  sms: object({
+    fromNumber: string(),
+  }),
+})

@@ -6,12 +6,17 @@ import { createAdapter as createRedisAdapter } from '@socket.io/redis-adapter'
 
 import {
   createDebug,
-  EnvStruct,
+  EnvRecordStruct,
   PostgresService,
   JwtService,
   EmailService,
+  getEnvRecord,
+  getPackageJson,
+  getAppConfig,
 } from '../lib/module.js'
 import { createServer } from '../server.js'
+import { SmsService } from '../lib/sms.js'
+import { LinksService } from '../links/links-service.js'
 
 const debug = createDebug('app:command:serve')
 
@@ -20,22 +25,29 @@ export interface ServeCommandOptions {
 }
 
 export async function serveCommand(options: ServeCommandOptions) {
-  debug('creating context')
+  debug('start port=%o', options.port)
 
   const toDispose: (() => Promise<unknown>)[] = []
 
-  const env = mask(process.env, EnvStruct)
-  const pkg = JSON.parse(await fs.readFile('package.json', 'utf8'))
+  const env = getEnvRecord()
+  const pkg = getPackageJson()
+  const config = getAppConfig()
   const pg = new PostgresService({ connectionString: env.DATABASE_URL })
   const jwt = new JwtService({
+    ...config.jwt,
     secretKey: env.JWT_SECRET,
-    issuer: 'data-diaries-01',
   })
   const email = new EmailService({
+    ...config.email,
     apiKey: env.SENDGRID_API_TOKEN,
-    fromEmail: 'noreply@openlab.dev',
-    replyToEmail: 'openlab@ncl.ac.uk',
-    templateId: '',
+  })
+  const sms = new SmsService({
+    ...config.sms,
+    authToken: env.TWILIO_AUTH_TOKEN,
+    accountSid: env.TWILIO_ACCOUNT_SID,
+  })
+  const links = new LinksService({
+    baseUrl: env.SELF_URL,
   })
 
   toDispose.push(() => {
@@ -44,7 +56,15 @@ export async function serveCommand(options: ServeCommandOptions) {
   })
 
   debug('creating server')
-  const { server, io } = await createServer({ env, pkg, pg, jwt, email })
+  const { server, io } = await createServer({
+    env,
+    pkg,
+    pg,
+    jwt,
+    email,
+    sms,
+    links,
+  })
 
   if (env.REDIS_URL) {
     debug('using redis')

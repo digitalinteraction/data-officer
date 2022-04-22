@@ -1,11 +1,14 @@
+import fs from 'fs'
 import KoaRouter from '@koa/router'
 import { Server as SocketIoServer } from 'socket.io'
 
-import { Struct, validate } from 'superstruct'
+import { mask, Struct, validate } from 'superstruct'
 import type { JwtService } from './jwt.js'
 import type { PostgresService } from './postgres.js'
 import type { EmailService } from './sendgrid.js'
-import type { EnvRecord } from './structs.js'
+import type { SmsService } from './sms.js'
+import type { LinksService } from '../links/links-service.js'
+import { AppConfigStruct, EnvRecord, EnvRecordStruct } from './structs.js'
 
 export { KoaRouter, SocketIoServer }
 export { default as createDebug } from 'debug'
@@ -53,10 +56,40 @@ export interface AppContext {
   pg: PostgresService
   jwt: JwtService
   email: EmailService
+  sms: SmsService
+  links: LinksService
 }
 
 export function validateStruct<T>(value: unknown, struct: Struct<T>): T {
   const result = validate(value, struct)
   if (result[0]) throw ApiError.badRequest()
   return result[1]
+}
+
+export function getAppConfig() {
+  try {
+    return mask(
+      JSON.parse(fs.readFileSync('app-config.json', 'utf8')),
+      AppConfigStruct
+    )
+  } catch (error) {
+    console.error('Failed to load app-config.json:')
+    console.error(error)
+    process.exit(1)
+  }
+}
+
+export function getPackageJson() {
+  const { name, version } = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+  return { name, version }
+}
+
+export function getEnvRecord() {
+  try {
+    return mask(process.env, EnvRecordStruct)
+  } catch (error) {
+    console.error('Failed to load environment variables:')
+    console.error(error)
+    process.exit(1)
+  }
 }

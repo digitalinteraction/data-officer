@@ -1,7 +1,9 @@
 import { PostgresClient } from '../lib/module.js'
 import { LinkRecord } from './link-record.js'
 
-export interface LinksServiceOptions {}
+export interface LinksServiceOptions {
+  baseUrl: string
+}
 
 const alphabet = 'abcdefghijklmnopqrstuvqxyzABCDEFGHIJKLMNOPQRSTUVQXYZ123456789'
 
@@ -25,19 +27,33 @@ function uniqueRandomCode(length: number, previous: Set<string>) {
 export class LinksService {
   constructor(private options: LinksServiceOptions) {}
 
-  async createLink(url: string, client: PostgresClient) {
+  async createLink(client: PostgresClient, url: string | URL) {
     const links = await client.sql<{ code: string }>`
       SELECT "code" FROM "links"
     `
 
     const code = uniqueRandomCode(6, new Set(links.map((l) => l.code)))
 
-    const link = await client.sql<LinkRecord>`
+    const [link] = await client.sql<LinkRecord>`
       INSERT INTO "links" ("code", "url")
-      VALUES ${code} ${url}
+      VALUES (${code}, ${url.toString()})
       RETURNING "id", "code", "url", "uses"
     `
 
     return link
+  }
+
+  async updateLink(client: PostgresClient, id: number, url: string) {
+    const [link] = await client.sql<LinkRecord>`
+      UPDATE "links"
+      SET "url" = ${url}
+      WHERE "id" = ${id}
+      RETURNING "id", "code", "url", "uses"
+    `
+    return link
+  }
+
+  getLinkUrl(link: LinkRecord) {
+    return new URL(`l/${link.code}`, this.options.baseUrl).toString()
   }
 }

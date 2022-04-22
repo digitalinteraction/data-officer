@@ -20,8 +20,6 @@ export class LinkRouter implements AppRouter {
           WHERE "code" = ${ctx.params.code}
         `
 
-        console.log(link)
-
         if (!link) {
           ctx.status = 404
           ctx.body = 'Short link not found'
