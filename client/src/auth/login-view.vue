@@ -2,27 +2,15 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AltLayout from '../components/alt-layout.vue'
-import { useAuthStore } from '../auth/auth-store'
 import { Routes, config, FormState } from '../utils'
 
 const formState = ref<FormState>('pending')
 const formAction = new URL('auth/login', config.SERVER_URL).toString()
 
 const route = useRoute()
-const router = useRouter()
-const auth = useAuthStore()
 
 if (route.query.error !== undefined) formState.value = 'error'
 if (route.query.success !== undefined) formState.value = 'success'
-
-if (route.hash) {
-  const params = new URLSearchParams(route.hash.slice(1))
-  const token = params.get('token')
-  if (token) {
-    auth.authenticate(token)
-    router.push(Routes.home)
-  }
-}
 </script>
 
 <template>
