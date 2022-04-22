@@ -11,7 +11,7 @@
 *:before,
 *:after {
   border: 0 solid;
-  background-color: inherit;
+  /* background-color: inherit; - weird effect with transparent stacking */
   color: inherit;
   margin: 0;
   padding: 0;
