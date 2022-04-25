@@ -1,7 +1,15 @@
 import { defineComponent, h, PropType } from 'vue'
 import io from 'socket.io-client'
 
-export type IconName = 'up' | 'right' | 'menu' | 'left' | 'down' | 'cross'
+export type IconName =
+  | 'up'
+  | 'right'
+  | 'menu'
+  | 'left'
+  | 'down'
+  | 'cross'
+  | 'plus'
+
 /** An icon using a reference to public/icons.svg */
 export const SvgIcon = defineComponent({
   name: 'SvgIcon',
@@ -17,8 +25,11 @@ export const Routes = {
   register: { name: 'register' },
   login: { name: 'login' },
   entries: { name: 'entries' },
-  newEntry: { name: 'newEntry' },
   verifySms: { name: 'verifySms' },
+
+  newEntry: { name: 'newEntry' },
+  newEntryCollect: { name: 'newEntryCollect' },
+  newEntryDetails: { name: 'newEntryDetails' },
 }
 
 export interface AppConfig {
@@ -66,3 +77,6 @@ export function emitMetric(metric: string, payload: unknown) {
   if (!config.ENABLE_METRICS) return
   socket.emit('metric', metric, payload)
 }
+
+let _idCounter = 0
+export const generateId = () => _idCounter++
