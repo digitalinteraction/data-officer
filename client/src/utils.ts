@@ -30,6 +30,7 @@ export const Routes = {
   newEntry: { name: 'newEntry' },
   newEntryCollect: { name: 'newEntryCollect' },
   newEntryDetails: { name: 'newEntryDetails' },
+  newEntryCompare: { name: 'newEntryCompare' },
 }
 
 export interface AppConfig {
@@ -79,4 +80,9 @@ export function emitMetric(metric: string, payload: unknown) {
 }
 
 let _idCounter = 0
-export const generateId = () => _idCounter++
+// export const generateId = () => _idCounter++
+
+export function idFactory() {
+  const id = _idCounter++
+  return (slug: string) => `${slug}-${id}`
+}

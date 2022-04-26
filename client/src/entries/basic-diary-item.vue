@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { DiaryItem } from './entry-store'
-import { SvgIcon, generateId } from '../utils'
+import { SvgIcon, idFactory } from '../utils'
 
 defineProps<{
   item: DiaryItem
@@ -11,10 +10,7 @@ defineEmits<{
   (e: 'remove'): void
 }>()
 
-const _id = generateId()
-function id(slug: string) {
-  return `${slug}-${_id}`
-}
+const getId = idFactory()
 </script>
 
 <template>
@@ -22,39 +18,49 @@ function id(slug: string) {
     <legend>{{ item.origin || 'New diary item' }}</legend>
 
     <div class="field">
-      <label :for="id('origin')">
+      <label :for="getId('origin')">
         <span class="field-label">Where was it from?</span>
       </label>
-      <input type="text" :id="id('origin')" v-model="item.origin" />
+      <input type="text" :id="getId('origin')" v-model="item.origin" required />
     </div>
 
     <div class="field">
-      <label :for="id('organisation')">
+      <label :for="getId('organisation')">
         <span class="field-label">What organisation is it from?</span>
       </label>
-      <input type="text" :id="id('organisation')" v-model="item.organisation" />
+      <input
+        type="text"
+        :id="getId('organisation')"
+        v-model="item.organisation"
+        required
+      />
     </div>
 
     <div class="field">
-      <label :for="id('description')">
+      <label :for="getId('description')">
         <span class="field-label">What was it about?</span>
       </label>
-      <input type="text" :id="id('description')" v-model="item.description" />
+      <input
+        type="text"
+        :id="getId('description')"
+        v-model="item.description"
+        required
+      />
     </div>
 
     <div class="field">
-      <label :for="id('url')">
+      <label :for="getId('url')">
         <span class="field-label">Do you have the URL?</span>
         <span class="field-hint">Optional</span>
       </label>
-      <input type="text" :id="id('url')" v-model="item.url" />
+      <input type="text" :id="getId('url')" v-model="item.url" />
     </div>
 
     <div class="field">
-      <label :for="id('when')">
+      <label :for="getId('when')">
         <span class="field-label">When did you access the information?</span>
       </label>
-      <input type="text" :id="id('when')" v-model="item.when" />
+      <input type="text" :id="getId('when')" v-model="item.when" />
     </div>
 
     <div class="newEntryCollect-itemActions">

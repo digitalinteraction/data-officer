@@ -37,12 +37,12 @@ function removeItem(item: DiaryItem) {
 
 <template>
   <stack-layout v-if="currentSource" class="newEntryCollect">
-    <div>
+    <header>
       <h2>{{ currentSource.name }}</h2>
       <p>
         {{ currentSource.question }}
       </p>
-    </div>
+    </header>
     <BasicDiaryItem
       v-for="item in currentItems"
       :item="item"
@@ -58,7 +58,7 @@ function removeItem(item: DiaryItem) {
     </div>
   </stack-layout>
 
-  <cluster-layout space="var(--s-1)" align="center">
+  <cluster-layout space="var(--s-1)">
     <!--
       Previous button
     -->
@@ -69,14 +69,14 @@ function removeItem(item: DiaryItem) {
     >
       <icon-layout>
         <SvgIcon name="left" />
-        <span> Back</span>
+        Back
       </icon-layout>
     </router-link>
 
     <button v-else @click="sourceIndex--" class="secondaryButton">
       <icon-layout>
         <SvgIcon name="left" />
-        <span> Back</span>
+        Back
       </icon-layout>
     </button>
 
@@ -90,14 +90,14 @@ function removeItem(item: DiaryItem) {
       class="primaryButton"
     >
       <icon-layout>
-        <span>Next </span>
+        Next
         <SvgIcon name="right" />
       </icon-layout>
     </router-link>
 
     <button v-else class="primaryButton" @click="sourceIndex++">
       <icon-layout>
-        <span>Next </span>
+        Next
         <SvgIcon name="right" />
       </icon-layout>
     </button>

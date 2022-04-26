@@ -30,7 +30,8 @@ form > * + * {
   color: var(--color-darkish);
   font-size: 0.9em;
 }
-.field input {
+.field input,
+.field textarea {
   border-width: var(--border-thin);
   margin: 0;
   border-radius: var(--border-thin);
@@ -39,6 +40,10 @@ form > * + * {
 }
 .field input[type='checkbox'] {
   width: initial;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 5em;
 }
 
 /*

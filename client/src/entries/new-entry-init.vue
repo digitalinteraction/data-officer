@@ -36,7 +36,7 @@ const hasNews = computed(() => {
     </div>
   </fieldset>
 
-  <cluster-layout space="var(--s-1)" align="center" v-if="hasNews">
+  <cluster-layout space="var(--s-1)" v-if="hasNews">
     <button class="secondaryButton" @click="onCancel">
       <icon-layout>
         <span> Cancel </span>

@@ -1,5 +1,15 @@
 import { defineStore } from 'pinia'
 
+export interface EntryStore {
+  submission: EntrySubmission
+  reminder: null | number
+}
+
+export interface EntrySubmission {
+  sources: string[]
+  items: DiaryItem[]
+}
+
 export interface DiaryItem {
   source: string
 
@@ -11,17 +21,8 @@ export interface DiaryItem {
 
   trust: number
   importance: number
-  feeling: unknown
+  feeling: string
   nextActions: string
-}
-
-export interface EntrySubmission {
-  sources: string[]
-  items: DiaryItem[]
-}
-
-export interface EntryStore {
-  submission: EntrySubmission
 }
 
 export interface NewsSource {
@@ -48,9 +49,9 @@ function blankItem(): DiaryItem {
     url: '',
     when: '',
 
-    trust: 0.5,
-    importance: 0.5,
-    feeling: null,
+    trust: 50,
+    importance: 50,
+    feeling: '',
     nextActions: '',
   }
 }
@@ -79,6 +80,7 @@ export const entrySources: NewsSource[] = [
 export const useEntryStore = defineStore('entry', {
   state: (): EntryStore => ({
     submission: blankSubmission(),
+    reminder: null,
   }),
   actions: {
     addItem(source: string) {

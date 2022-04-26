@@ -10,11 +10,20 @@ const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
+  const reminder =
+    typeof route.query.reminder === 'string'
+      ? parseInt(route.query.reminder)
+      : null
+
+  if (!Number.isNaN(reminder)) {
+    entry.reminder = reminder
+  }
+
   if (
     entry.submission.sources.length < 1 &&
     route.name !== Routes.newEntry.name
   ) {
-    router.push(Routes.newEntry)
+    router.replace(Routes.newEntry)
     return
   }
 })
