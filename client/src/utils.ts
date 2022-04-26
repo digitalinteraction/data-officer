@@ -31,6 +31,7 @@ export const Routes = {
   newEntryCollect: { name: 'newEntryCollect' },
   newEntryDetails: { name: 'newEntryDetails' },
   newEntryCompare: { name: 'newEntryCompare' },
+  newEntryReview: { name: 'newEntryReview' },
 }
 
 export interface AppConfig {

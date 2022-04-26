@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { DiaryItem, useEntryStore } from './entry-store'
-import { SvgIcon, idFactory } from '../utils'
+import { DiaryItem } from './entry-store'
+import { idFactory } from '../utils'
 
 defineProps<{
   item: DiaryItem
 }>()
 
-// const entry = useEntryStore()
 const getId = idFactory()
 </script>
 

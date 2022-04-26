@@ -15,6 +15,7 @@ const entry = useEntryStore()
         ipsam animi tempora molestiae nulla laborum. Neque, delectus commodi.
       </p>
     </header>
+
     <p>Reorder based on X?</p>
   </stack-layout>
 </template>

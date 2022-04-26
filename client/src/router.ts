@@ -13,6 +13,7 @@ import NewComponentCollect from './entries/new-entry-collect.vue'
 import NewEntryInit from './entries/new-entry-init.vue'
 import NewEntryDetails from './entries/new-entry-details.vue'
 import NewEntryCompare from './entries/new-entry-compare.vue'
+import NewEntryReview from './entries/new-entry-review.vue'
 
 const routes = [
   { ...Routes.home, path: '/', component: HomeView },
@@ -44,6 +45,11 @@ const routes = [
         ...Routes.newEntryCompare,
         path: 'compare',
         component: NewEntryCompare,
+      },
+      {
+        ...Routes.newEntryReview,
+        path: 'compare',
+        component: NewEntryReview,
       },
     ],
   },

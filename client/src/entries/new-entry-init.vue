@@ -9,6 +9,14 @@ function onCancel() {
   console.log('...')
 }
 
+/** Remove previously created items if the source has been removed */
+function onNext() {
+  const sourceSet = new Set(entry.submission.sources)
+  entry.submission.items = entry.submission.items.filter((s) =>
+    sourceSet.has(s.source)
+  )
+}
+
 const hasNews = computed(() => {
   return entry.submission.sources.length > 0
 })
@@ -37,14 +45,18 @@ const hasNews = computed(() => {
   </fieldset>
 
   <cluster-layout space="var(--s-1)" v-if="hasNews">
-    <button class="secondaryButton" @click="onCancel">
+    <!-- <button class="secondaryButton" @click="onCancel">
       <icon-layout>
         <span> Cancel </span>
         <SvgIcon name="cross" />
       </icon-layout>
-    </button>
+    </button> -->
 
-    <router-link :to="Routes.newEntryCollect" class="primaryButton">
+    <router-link
+      :to="Routes.newEntryCollect"
+      class="primaryButton"
+      @click="onNext"
+    >
       <icon-layout>
         <span>Next </span>
         <SvgIcon name="right" />

@@ -43,11 +43,13 @@ function removeItem(item: DiaryItem) {
         {{ currentSource.question }}
       </p>
     </header>
+
     <BasicDiaryItem
       v-for="item in currentItems"
       :item="item"
       @remove="removeItem(item)"
     />
+
     <div>
       <button class="primaryButton" @click="addItem">
         <icon-layout>

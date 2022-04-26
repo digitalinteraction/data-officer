@@ -21,7 +21,7 @@ function logout() {
 <template>
   <div class="mainLayout">
     <!-- HEADER -->
-    <header class="mainLayout-header" aria-label="header">
+    <header class="mainLayout-header" aria-label="main navigation">
       <MainBrand />
       <button
         class="mainLayout-navToggle"
@@ -46,13 +46,14 @@ function logout() {
           <router-link :to="Routes.newEntry" class="mainLayout-navItem">
             New Entry
           </router-link>
-          <router-link
+          <!-- TODO: profile button -->
+          <!-- <router-link
             :to="Routes.home"
             @click="logout"
             class="mainLayout-navItem"
           >
             Log out
-          </router-link>
+          </router-link> -->
         </template>
 
         <template v-else>
@@ -110,6 +111,12 @@ function logout() {
 .mainLayout-navItem {
   color: black;
 }
+
+.mainLayout-navItem.router-link-active {
+  outline: var(--s-4) solid var(--color-bleu);
+  outline-offset: var(--border-thin);
+}
+
 .mainLayout-navButton {
   background-color: var(--color-light);
   color: var(--color-dark);

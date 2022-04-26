@@ -41,3 +41,7 @@ a {
   outline: var(--s-4) solid var(--color-orange);
   outline-offset: var(--border-thin);
 }
+
+ul {
+  margin-left: 1em;
+}
