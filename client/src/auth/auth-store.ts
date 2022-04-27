@@ -26,6 +26,11 @@ export const useAuthStore = defineStore('auth', {
     user: (state): AppToken | null => {
       return state.authToken ? (decodeJwt(state.authToken) as AppToken) : null
     },
+    requestHeaders: (state): HeadersInit => {
+      const h: HeadersInit = {}
+      if (state.authToken) h.authorization = `bearer ${state.authToken}`
+      return h
+    },
   },
   actions: {
     /** Initially look for the localStorage auth token, or clear it if invalid */

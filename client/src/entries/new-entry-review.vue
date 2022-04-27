@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { FormState, Routes, SvgIcon } from '../utils'
+import { useAuthStore } from '../auth/auth-store'
+import { config, FormState, Routes, SvgIcon } from '../utils'
 import { useEntryStore } from './entry-store'
 
+const formAction = new URL('entries', config.SERVER_URL).toString()
 const formState = ref<FormState>('pending')
+
 const entry = useEntryStore()
+const auth = useAuthStore()
 
 const prevRoute = computed(() => {
   return entry.submission.items.length > 1
@@ -14,7 +18,29 @@ const prevRoute = computed(() => {
 
 async function onSubmit() {
   try {
-    // const res = await fetch()
+    formState.value = 'loading'
+
+    const res = await fetch(formAction, {
+      method: 'post',
+      headers: {
+        ...auth.requestHeaders,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        reminder: entry.reminder,
+        items: entry.submission.items.map((item) => ({
+          ...item,
+          trust: parseInt(item.trust, 10),
+          importance: parseInt(item.importance, 10),
+        })),
+      }),
+    })
+
+    formState.value = res.ok ? 'success' : 'error'
+
+    if (res.ok) {
+      entry.resetSubmission()
+    }
   } catch (error) {
     console.error(error)
     formState.value = 'error'

@@ -7,8 +7,9 @@ import HomeView from './home/home-view.vue'
 import LoginView from './auth/login-view.vue'
 import RegisterView from './auth/register-view.vue'
 import VerifySmsView from './auth/verify-sms-view.vue'
-
 import NewEntry from './entries/new-entry-view.vue'
+import EntriesView from './entries/entries-view.vue'
+
 import NewComponentCollect from './entries/new-entry-collect.vue'
 import NewEntryInit from './entries/new-entry-init.vue'
 import NewEntryDetails from './entries/new-entry-details.vue'
@@ -19,7 +20,7 @@ const routes = [
   { ...Routes.home, path: '/', component: HomeView },
   { ...Routes.register, path: '/register', component: RegisterView },
   { ...Routes.login, path: '/login', component: LoginView },
-  { ...Routes.entries, path: '/entries', component: HomeView },
+  { ...Routes.entries, path: '/entries', component: EntriesView },
   { ...Routes.verifySms, path: '/verify-sms', component: VerifySmsView },
 
   {
@@ -48,7 +49,7 @@ const routes = [
       },
       {
         ...Routes.newEntryReview,
-        path: 'compare',
+        path: 'review',
         component: NewEntryReview,
       },
     ],

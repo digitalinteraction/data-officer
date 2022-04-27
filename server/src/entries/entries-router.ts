@@ -1,4 +1,4 @@
-import { array, object, string } from 'superstruct'
+import { array, nullable, number, object, string } from 'superstruct'
 import {
   ApiError,
   AppContext,
@@ -15,9 +15,24 @@ interface EntryRecord<T = unknown> {
 }
 
 const EntryStruct = object({
-  q1: string(),
-  q2: string(),
-  q3: array(string()),
+  reminder: nullable(number()),
+  items: array(
+    object({
+      id: number(),
+      source: string(),
+
+      origin: string(),
+      organisation: string(),
+      description: string(),
+      url: string(),
+      when: string(),
+
+      trust: number(),
+      importance: number(),
+      feeling: string(),
+      nextActions: string(),
+    })
+  ),
 })
 
 export class EntriesRouter implements AppRouter {

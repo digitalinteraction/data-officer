@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useEntryStore } from './entry-store'
+import { SvgIcon, Routes } from '../utils'
 
 const entry = useEntryStore()
 </script>
@@ -17,5 +18,20 @@ const entry = useEntryStore()
     </header>
 
     <p>Reorder based on X?</p>
+
+    <cluster-layout space="var(--s-1)">
+      <router-link :to="Routes.newEntryCollect" class="secondaryButton">
+        <icon-layout>
+          <SvgIcon name="left" />
+          Back
+        </icon-layout>
+      </router-link>
+      <router-link :to="Routes.newEntryReview" class="primaryButton">
+        <icon-layout>
+          <SvgIcon name="left" />
+          Next
+        </icon-layout>
+      </router-link>
+    </cluster-layout>
   </stack-layout>
 </template>

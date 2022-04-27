@@ -42,6 +42,7 @@ a {
   outline-offset: var(--border-thin);
 }
 
-ul {
+ul,
+ol {
   margin-left: 1em;
 }

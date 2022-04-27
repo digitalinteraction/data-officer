@@ -1,8 +1,18 @@
 import { defineStore } from 'pinia'
 
-export interface EntryStore {
+export interface EntryStoreState {
+  itemId: number
   submission: EntrySubmission
   reminder: null | number
+}
+
+export interface DiaryEntry {
+  id: number
+  created: string
+  response: {
+    items: DiaryItem
+  }
+  user: number
 }
 
 export interface EntrySubmission {
@@ -11,6 +21,7 @@ export interface EntrySubmission {
 }
 
 export interface DiaryItem {
+  id: number
   source: string
 
   origin: string
@@ -19,8 +30,8 @@ export interface DiaryItem {
   url: string
   when: string
 
-  trust: number
-  importance: number
+  trust: string // number in a string
+  importance: string // number in a string
   feeling: string
   nextActions: string
 }
@@ -39,8 +50,9 @@ function blankSubmission(): EntrySubmission {
   }
 }
 
-function blankItem(): DiaryItem {
+function blankItem(id: number): DiaryItem {
   return {
+    id: id,
     source: '',
 
     origin: '',
@@ -49,8 +61,8 @@ function blankItem(): DiaryItem {
     url: '',
     when: '',
 
-    trust: 50,
-    importance: 50,
+    trust: '50',
+    importance: '50',
     feeling: '',
     nextActions: '',
   }
@@ -78,19 +90,24 @@ export const entrySources: NewsSource[] = [
 ]
 
 export const useEntryStore = defineStore('entry', {
-  state: (): EntryStore => ({
+  state: (): EntryStoreState => ({
+    itemId: 1,
     submission: blankSubmission(),
     reminder: null,
   }),
   actions: {
     addItem(source: string) {
       this.submission.items.push({
-        ...blankItem(),
+        ...blankItem(this.itemId++),
         source: source,
       })
     },
     removeItem(item: DiaryItem) {
       this.submission.items = this.submission.items.filter((i) => i !== item)
+    },
+    resetSubmission() {
+      this.itemId = 0
+      this.submission = blankSubmission()
     },
   },
 })
