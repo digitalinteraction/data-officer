@@ -3,9 +3,7 @@
 import fs from 'fs/promises'
 
 async function main() {
-  const { version } = JSON.parse(await fs.readFile('package.json', 'utf8'))
-
-  console.log('update version to %o', version)
+  const { version } = JSON.parse(fs.readFile('package.json', 'utf8'))
 
   const files = [
     'client/package.json',

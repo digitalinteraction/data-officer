@@ -3,6 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "postversion": "scripts/update-versions.mjs && git add -A"
+    "postversion": "bin/update-versions.mjs && git add -A && git commit --ammend"
   }
 }
