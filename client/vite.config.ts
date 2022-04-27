@@ -17,7 +17,7 @@ const layoutNames = [
   'icon-layout',
 ]
 
-const pkg = JSON.parse(fs.readFileSync('../package.json', 'utf8'))
+const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'))
 
 // https://vitejs.dev/config/
 export default defineConfig({

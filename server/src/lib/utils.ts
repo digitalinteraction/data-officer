@@ -88,7 +88,7 @@ export function getAppConfig() {
 /** Synchronously load and validate the **root** package.json */
 export function getPackageJson() {
   const { name, version } = JSON.parse(
-    fs.readFileSync('../package.json', 'utf8')
+    fs.readFileSync('./package.json', 'utf8')
   )
   return { name, version }
 }
