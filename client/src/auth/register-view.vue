@@ -2,10 +2,9 @@
 import { computed } from '@vue/reactivity'
 import { ref } from 'vue'
 import AltLayout from '../components/alt-layout.vue'
-import { Routes, config, FormState } from '../utils'
+import { Routes, getEndpoint, FormState } from '../utils'
 
 const formState = ref<FormState>('pending')
-const formAction = new URL('auth/register', config.SERVER_URL).toString()
 
 function blankSubmission() {
   return {
@@ -66,7 +65,7 @@ async function onSubmit() {
     reminders,
   } = submission.value
 
-  await fetch(formAction, {
+  await fetch(getEndpoint('auth/register'), {
     method: 'post',
     headers: {
       'content-type': 'application/json',

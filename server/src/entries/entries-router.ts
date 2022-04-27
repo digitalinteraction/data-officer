@@ -43,18 +43,13 @@ export class EntriesRouter implements AppRouter {
       const auth = this.context.jwt.getRequestAuth(ctx.request.headers)
       if (!auth) throw ApiError.unauthorized()
 
-      const client = await this.context.pg.getClient()
-      try {
-        const entries = await client.sql<EntryRecord>`
+      ctx.body = await this.context.pg.run(
+        (client) => client.sql<EntryRecord>`
           SELECT "id", "created", "response"::jsonb, "user"::int
           FROM "entries"
           WHERE "user" = ${auth.sub}
         `
-
-        ctx.body = entries
-      } finally {
-        client.release()
-      }
+      )
     })
 
     router.post('/entries', async (ctx) => {
@@ -70,6 +65,25 @@ export class EntriesRouter implements AppRouter {
         `
       )
       ctx.body = 'ok'
+    })
+
+    router.get('/entries/:id', async (ctx) => {
+      const auth = this.context.jwt.getRequestAuth(ctx.request.headers)
+      if (!auth) throw ApiError.unauthorized()
+
+      const [entry] = await this.context.pg.run(
+        (client) => client.sql<EntryRecord>`
+          SELECT "id", "created", "response"::jsonb, "user"::int
+          FROM "entries"
+          WHERE
+            "id" = ${ctx.params.id}
+            AND "user" = ${auth.sub}
+        `
+      )
+
+      if (!entry) throw ApiError.notFound()
+
+      ctx.body = entry
     })
   }
 }

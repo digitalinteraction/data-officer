@@ -2,10 +2,9 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AltLayout from '../components/alt-layout.vue'
-import { Routes, config, FormState } from '../utils'
+import { Routes, getEndpoint, FormState } from '../utils'
 
 const formState = ref<FormState>('pending')
-const formAction = new URL('auth/login', config.SERVER_URL).toString()
 
 const route = useRoute()
 
@@ -34,7 +33,7 @@ if (route.query.success !== undefined) formState.value = 'success'
       Magic link sent, please check your email.
     </p>
 
-    <form :action="formAction" method="post">
+    <form :action="getEndpoint('auth/login')" method="post">
       <div class="field">
         <label for="email">
           <span class="field-label">Email address</span>

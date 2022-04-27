@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useAuthStore } from '../auth/auth-store'
-import { config, FormState, Routes, SvgIcon } from '../utils'
-import { useEntryStore } from './entry-store'
+import { FormState, getEndpoint, Routes, SvgIcon } from '../utils'
+import { entrySources, useEntryStore } from './entry-store'
 
-const formAction = new URL('entries', config.SERVER_URL).toString()
 const formState = ref<FormState>('pending')
 
 const entry = useEntryStore()
@@ -16,11 +15,16 @@ const prevRoute = computed(() => {
     : Routes.newEntryDetails
 })
 
+function getSourceName(id: string) {
+  const source = entrySources.find((s) => s.id === id)
+  return source?.name ?? id
+}
+
 async function onSubmit() {
   try {
     formState.value = 'loading'
 
-    const res = await fetch(formAction, {
+    const res = await fetch(getEndpoint('entries'), {
       method: 'post',
       headers: {
         ...auth.requestHeaders,
@@ -74,7 +78,7 @@ async function onSubmit() {
       <p><strong>Entries</strong></p>
       <ul>
         <li v-for="item in entry.submission.items">
-          {{ item.source }} &dash; {{ item.origin }}
+          {{ getSourceName(item.source) }} &ndash; {{ item.origin }}
         </li>
       </ul>
     </section>

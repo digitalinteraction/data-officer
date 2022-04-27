@@ -3,28 +3,33 @@ import { onMounted, ref } from 'vue'
 import { useAuthStore } from '../auth/auth-store'
 import MainLayout from '../components/main-layout.vue'
 import { DiaryEntry } from './entry-store'
-import { SvgIcon, config } from '../utils'
+import { SvgIcon, Routes, getEndpoint } from '../utils'
 
 const auth = useAuthStore()
 
 const entries = ref<DiaryEntry[] | null>(null)
 
 onMounted(async () => {
-  entries.value = await fetch(
-    new URL('entries', config.SERVER_URL).toString(),
-    { headers: { ...auth.requestHeaders } }
-  ).then(
-    (r) => r.json() as Promise<DiaryEntry[]>,
-    (e) => {
+  entries.value = await fetch(getEndpoint('entries'), {
+    headers: auth.requestHeaders,
+  })
+    .then((r) => r.json())
+    .catch((e) => {
       console.error('Failed to fetch entries')
       return null
-    }
-  )
+    })
 })
 
 function formatDate(input: string) {
   const d = new Date(input)
   return d.toLocaleString()
+}
+
+function entryRoute(entry: DiaryEntry) {
+  return {
+    ...Routes.entry,
+    params: { entryId: entry.id.toString() },
+  }
 }
 </script>
 
@@ -45,10 +50,12 @@ function formatDate(input: string) {
           <section>
             <ol>
               <li v-for="entry in entries">
-                <icon-layout>
-                  {{ formatDate(entry.created) }}
-                  <SvgIcon name="right" />
-                </icon-layout>
+                <router-link :to="entryRoute(entry)">
+                  <icon-layout>
+                    {{ formatDate(entry.created) }}
+                    <SvgIcon name="right" />
+                  </icon-layout>
+                </router-link>
               </li>
             </ol>
           </section>

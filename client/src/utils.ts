@@ -25,6 +25,7 @@ export const Routes = {
   register: { name: 'register' },
   login: { name: 'login' },
   entries: { name: 'entries' },
+  entry: { name: 'entry' },
   verifySms: { name: 'verifySms' },
 
   newEntry: { name: 'newEntry' },
@@ -86,4 +87,8 @@ let _idCounter = 0
 export function idFactory() {
   const id = _idCounter++
   return (slug: string) => `${slug}-${id}`
+}
+
+export function getEndpoint(path: string) {
+  return new URL(path, config.SERVER_URL).toString()
 }
