@@ -33,6 +33,10 @@ function addItem() {
 function removeItem(item: DiaryItem) {
   entry.removeItem(item)
 }
+function onPage(change: number) {
+  sourceIndex.value += change
+  window.scrollTo({ top: 0 })
+}
 </script>
 
 <template>
@@ -75,7 +79,7 @@ function removeItem(item: DiaryItem) {
       </icon-layout>
     </router-link>
 
-    <button v-else @click="sourceIndex--" class="secondaryButton">
+    <button v-else @click="onPage(-1)" class="secondaryButton">
       <icon-layout>
         <SvgIcon name="left" />
         Back
@@ -97,7 +101,7 @@ function removeItem(item: DiaryItem) {
       </icon-layout>
     </router-link>
 
-    <button v-else class="primaryButton" @click="sourceIndex++">
+    <button v-else class="primaryButton" @click="onPage(1)">
       <icon-layout>
         Next
         <SvgIcon name="right" />

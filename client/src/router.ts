@@ -1,4 +1,9 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  RouteRecordRaw,
+  RouterScrollBehavior,
+} from 'vue-router'
 
 import { Routes, emitMetric } from './utils'
 
@@ -66,9 +71,25 @@ const routes: RouteRecordRaw[] = [
   },
 ]
 
+const scrollBehavior: RouterScrollBehavior = (to, from, savedPosition) => {
+  // If they clicked on a hash, scroll to that
+  if (to.hash) {
+    const el = document.getElementById(to.hash)
+    if (el) return { el }
+  }
+
+  // If they've been to the page, scroll back to there
+  // Only available when navigating back via the browser
+  if (savedPosition) return savedPosition
+
+  // Otherwise, its a new page so go to the top
+  return { top: 0 }
+}
+
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior,
 })
 
 router.beforeEach((to, from, next) => {
