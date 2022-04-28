@@ -30,6 +30,7 @@ export interface DiaryItem {
   description: string
   url: string
   when: string
+  reason: string
 
   trust: string // number in a string
   importance: string // number in a string

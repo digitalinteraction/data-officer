@@ -74,6 +74,8 @@ const longDate = new Intl.DateTimeFormat(['en-gb'], {
                 </template>
                 <dt>When</dt>
                 <dd>{{ item.when }}</dd>
+                <dt>Reason</dt>
+                <dd>{{ item.reason }}</dd>
               </dl>
               <dl>
                 <dt>Trust</dt>

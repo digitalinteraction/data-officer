@@ -63,6 +63,13 @@ const getId = idFactory()
       <input type="text" :id="getId('when')" v-model="item.when" />
     </div>
 
+    <div class="field">
+      <label :for="getId('reason')">
+        <span class="field-label">Why was this shared?</span>
+      </label>
+      <input type="text" :id="getId('reason')" v-model="item.reason" />
+    </div>
+
     <div class="newEntryCollect-itemActions">
       <button class="secondaryButton" @click="$emit('remove')">
         <icon-layout>
