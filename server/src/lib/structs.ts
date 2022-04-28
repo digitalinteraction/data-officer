@@ -4,6 +4,7 @@ export type EnvRecord = Infer<typeof EnvRecordStruct>
 export const EnvRecordStruct = object({
   SELF_URL: string(),
   CLIENT_URL: string(),
+  SHARE_URL: optional(string()),
   DATABASE_URL: string(),
   JWT_SECRET: string(),
   NODE_ENV: defaulted(string(), 'production'),

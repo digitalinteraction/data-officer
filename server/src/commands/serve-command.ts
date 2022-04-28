@@ -44,7 +44,7 @@ export async function serveCommand(options: ServeCommandOptions) {
     accountSid: env.TWILIO_ACCOUNT_SID,
   })
   const links = new LinksService({
-    baseUrl: env.SELF_URL,
+    baseUrl: env.SHARE_URL ?? env.SELF_URL,
   })
 
   toDispose.push(() => {
