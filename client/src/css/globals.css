@@ -46,3 +46,14 @@ ul,
 ol {
   margin-left: 2ch;
 }
+
+dl dt {
+  font-weight: 600;
+  font-style: italic;
+}
+dl dd {
+  margin-inline-start: 2ch;
+}
+dl > dd + dt {
+  margin-top: var(--s-1);
+}

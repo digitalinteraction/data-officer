@@ -10,7 +10,8 @@ export interface DiaryEntry {
   id: number
   created: Date
   response: {
-    items: DiaryItem
+    reminder: number | null
+    items: DiaryItem[]
   }
   user: number
 }
@@ -84,10 +85,15 @@ export const entrySources: NewsSource[] = [
   {
     id: 'messaging',
     name: 'Messaging apps',
-    label: 'A social media platform',
+    label: 'Mobile messaging apps',
     question: 'What online information have you recieved from messaging apps?',
   },
 ]
+
+export function getSourceName(id: string) {
+  const source = entrySources.find((s) => s.id === id)
+  return source?.name ?? id
+}
 
 export const useEntryStore = defineStore('entry', {
   state: (): EntryStoreState => ({

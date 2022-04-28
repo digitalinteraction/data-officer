@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useAuthStore } from '../auth/auth-store'
 import { FormState, getEndpoint, Routes, SvgIcon } from '../utils'
-import { entrySources, useEntryStore } from './entry-store'
+import { getSourceName, useEntryStore } from './entry-store'
 
 const formState = ref<FormState>('pending')
 
@@ -14,11 +14,6 @@ const prevRoute = computed(() => {
     ? Routes.newEntryCompare
     : Routes.newEntryDetails
 })
-
-function getSourceName(id: string) {
-  const source = entrySources.find((s) => s.id === id)
-  return source?.name ?? id
-}
 
 async function onSubmit() {
   try {
