@@ -8,7 +8,7 @@ export interface EntryStoreState {
 
 export interface DiaryEntry {
   id: number
-  created: string
+  created: Date
   response: {
     items: DiaryItem
   }

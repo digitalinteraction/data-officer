@@ -12,10 +12,6 @@ function toggleMenu() {
 }
 
 const showMobileMenu = ref(false)
-
-function logout() {
-  auth.unauthenticate()
-}
 </script>
 
 <template>
@@ -43,17 +39,14 @@ function logout() {
           <router-link :to="Routes.entries" class="mainLayout-navItem">
             My Entries
           </router-link>
+
           <router-link :to="Routes.newEntry" class="mainLayout-navItem">
             New Entry
           </router-link>
-          <!-- TODO: profile button -->
-          <!-- <router-link
-            :to="Routes.home"
-            @click="logout"
-            class="mainLayout-navItem"
-          >
-            Log out
-          </router-link> -->
+
+          <router-link :to="Routes.profile" class="mainLayout-navItem">
+            My profile
+          </router-link>
         </template>
 
         <template v-else>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '../auth/auth-store'
 import MainLayout from '../components/main-layout.vue'
 import { DiaryEntry } from './entry-store'
@@ -14,16 +14,22 @@ onMounted(async () => {
     headers: auth.requestHeaders,
   })
     .then((r) => r.json())
-    .catch((e) => {
-      console.error('Failed to fetch entries')
+    .then((entries: DiaryEntry[]) =>
+      entries.map((e) => ({
+        ...e,
+        created: new Date(e.created),
+      }))
+    )
+    .catch((error) => {
+      console.error('Failed to fetch entries', error)
       return null
     })
 })
 
-function formatDate(input: string) {
-  const d = new Date(input)
-  return d.toLocaleString()
-}
+const longDate = new Intl.DateTimeFormat(['en'], {
+  dateStyle: 'long',
+  timeStyle: 'short',
+})
 
 function entryRoute(entry: DiaryEntry) {
   return {
@@ -31,6 +37,14 @@ function entryRoute(entry: DiaryEntry) {
     params: { entryId: entry.id.toString() },
   }
 }
+
+const sortedEntries = computed(() => {
+  if (!entries.value) return []
+
+  return [...entries.value].sort(
+    (a, b) => b.created.getTime() - a.created.getTime()
+  )
+})
 </script>
 
 <template>
@@ -49,10 +63,10 @@ function entryRoute(entry: DiaryEntry) {
           </section>
           <section>
             <ol>
-              <li v-for="entry in entries">
+              <li v-for="entry in sortedEntries">
                 <router-link :to="entryRoute(entry)">
                   <icon-layout>
-                    {{ formatDate(entry.created) }}
+                    {{ longDate.format(entry.created) }}
                     <SvgIcon name="right" />
                   </icon-layout>
                 </router-link>

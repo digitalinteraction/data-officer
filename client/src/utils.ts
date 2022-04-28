@@ -27,6 +27,7 @@ export const Routes = {
   entries: { name: 'entries' },
   entry: { name: 'entry' },
   verifySms: { name: 'verifySms' },
+  profile: { name: 'profile' },
 
   newEntry: { name: 'newEntry' },
   newEntryCollect: { name: 'newEntryCollect' },

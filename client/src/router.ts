@@ -16,6 +16,7 @@ import NewEntryInit from './entries/new-entry-init.vue'
 import NewEntryDetails from './entries/new-entry-details.vue'
 import NewEntryCompare from './entries/new-entry-compare.vue'
 import NewEntryReview from './entries/new-entry-review.vue'
+import ProfileView from './auth/profile-view.vue'
 
 const routes: RouteRecordRaw[] = [
   { ...Routes.home, path: '/', component: HomeView },
@@ -23,6 +24,7 @@ const routes: RouteRecordRaw[] = [
   { ...Routes.login, path: '/login', component: LoginView },
   { ...Routes.entries, path: '/entries', component: EntriesView },
   { ...Routes.verifySms, path: '/verify-sms', component: VerifySmsView },
+  { ...Routes.profile, path: '/profile', component: ProfileView },
 
   {
     ...Routes.entry,
