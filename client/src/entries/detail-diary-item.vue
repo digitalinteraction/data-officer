@@ -13,7 +13,9 @@ const getId = idFactory()
   <fieldset>
     <legend>{{ item.origin }}</legend>
 
-    <p class="fieldset-hint">"{{ item.description }}"</p>
+    <p class="fieldset-hint" v-if="item.description">
+      "{{ item.description }}"
+    </p>
 
     <div class="field">
       <label :for="getId('trust')">
@@ -45,11 +47,12 @@ const getId = idFactory()
       <label :for="getId('feeling')">
         <span class="field-label">How did it make you feel?</span>
       </label>
-      <textarea
+      <input
+        type="text"
         :id="getId('feeling')"
         v-model="item.feeling"
-        rows="3"
-      ></textarea>
+        required
+      />
     </div>
 
     <div class="field">
