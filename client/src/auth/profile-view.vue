@@ -172,24 +172,3 @@ async function onUpdate() {
     </center-layout>
   </MainLayout>
 </template>
-
-<style>
-.profileView table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-.profileView table th {
-  text-align: right;
-}
-.profileView table th,
-.profileView table td {
-  border-width: 0;
-  padding: var(--s-2) var(--s-3);
-  vertical-align: top;
-}
-
-.profileView table th:not([algin]) {
-  text-align: inherit;
-}
-</style>

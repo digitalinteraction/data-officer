@@ -47,6 +47,7 @@ ol {
   margin-left: 2ch;
 }
 
+/* Description list */
 dl dt {
   font-weight: 600;
   font-style: italic;
@@ -56,4 +57,24 @@ dl dd {
 }
 dl > dd + dt {
   margin-top: var(--s-1);
+}
+
+/* table */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+table th {
+  text-align: right;
+}
+table th,
+table td {
+  border-width: 0;
+  padding: var(--s-2) var(--s-3);
+  vertical-align: top;
+}
+
+table th:not([algin]) {
+  text-align: inherit;
 }
