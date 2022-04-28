@@ -13,6 +13,8 @@ const getId = idFactory()
   <fieldset>
     <legend>{{ item.origin }}</legend>
 
+    <p class="fieldset-hint">"{{ item.description }}"</p>
+
     <div class="field">
       <label :for="getId('trust')">
         <span class="field-label">How much do you trust this?</span>
