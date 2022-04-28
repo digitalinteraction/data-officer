@@ -3,6 +3,7 @@ import { computed } from '@vue/reactivity'
 import { ref } from 'vue'
 import AltLayout from '../components/alt-layout.vue'
 import { Routes, getEndpoint, FormState } from '../utils'
+import ScheduleField from '../components/schedule-field.vue'
 
 const formState = ref<FormState>('pending')
 
@@ -12,42 +13,18 @@ function blankSubmission() {
     email: '',
     phoneNumber: '',
     reminders: [] as string[],
-    reminderDays: [] as string[],
-    reminderHours: [] as string[],
+    reminderSchedule: null as string | null,
     consent: false,
   }
 }
 
 const submission = ref(blankSubmission())
 
-const allDays = [
-  { value: '1', id: 'mon', name: 'Monday' },
-  { value: '2', id: 'tue', name: 'Tuesday' },
-  { value: '3', id: 'wed', name: 'Wednesday' },
-  { value: '4', id: 'thur', name: 'Thursday' },
-  { value: '5', id: 'fri', name: 'Friday' },
-  { value: '6', id: 'sat', name: 'Saturday' },
-  { value: '0', id: 'sun', name: 'Sunday' },
-]
-
-const allTimes = [
-  { value: '8', id: '8am', name: '8am' },
-  { value: '12', id: '12pm', name: '12pm' },
-  { value: '15', id: '3pm', name: '3pm' },
-  { value: '18', id: '6pm', name: '6pm' },
-]
-
 const isLoading = computed(() => formState.value === 'loading')
-
-function buildCron(days: string[], hours: string[]) {
-  return `0 ${hours.join(',')} * * ${days.join(',')}`
-}
 
 async function onSubmit() {
   const noReminders =
-    submission.value.reminders.length < 1 ||
-    submission.value.reminderDays.length < 1 ||
-    submission.value.reminderHours.length < 1
+    submission.value.reminders.length < 1 || !submission.value.reminderSchedule
 
   const msg = `
     You have not selected any reminders, are you sure you want to continue?
@@ -56,14 +33,8 @@ async function onSubmit() {
 
   formState.value = 'loading'
 
-  const {
-    fullName,
-    email,
-    phoneNumber,
-    reminderDays,
-    reminderHours,
-    reminders,
-  } = submission.value
+  const { fullName, email, phoneNumber, reminderSchedule, reminders } =
+    submission.value
 
   await fetch(getEndpoint('auth/register'), {
     method: 'post',
@@ -74,7 +45,7 @@ async function onSubmit() {
       fullName: fullName,
       email: email,
       phoneNumber: phoneNumber ? phoneNumber : null,
-      reminderSchedule: buildCron(reminderDays, reminderHours),
+      reminderSchedule: reminderSchedule,
       reminders: {
         email: reminders.includes('email'),
         sms: reminders.includes('sms'),
@@ -208,35 +179,10 @@ function startAgain() {
             </label>
           </div>
 
-          <div class="checkboxGroup">
-            <p class="checkboxGroup-label">Days</p>
-            <label class="checkbox" v-for="item in allDays" :for="item.id">
-              <input
-                type="checkbox"
-                :id="item.id"
-                name="reminderDays"
-                v-model="submission.reminderDays"
-                :value="item.value"
-                :disabled="isLoading"
-              />
-              <span>{{ item.name }}</span>
-            </label>
-          </div>
-
-          <div class="checkboxGroup">
-            <p class="checkboxGroup-label">Times</p>
-            <label class="checkbox" v-for="item in allTimes" :for="item.id">
-              <input
-                type="checkbox"
-                :id="item.id"
-                name="reminderHours"
-                v-model="submission.reminderHours"
-                :value="item.value"
-                :disabled="isLoading"
-              />
-              <span>{{ item.name }}</span>
-            </label>
-          </div>
+          <ScheduleField
+            v-model="submission.reminderSchedule"
+            :disabled="isLoading"
+          />
         </fieldset>
 
         <fieldset>

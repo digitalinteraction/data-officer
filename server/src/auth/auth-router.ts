@@ -60,8 +60,6 @@ const UserRequestStruct = object({
 })
 
 const UserUpdateStruct = object({
-  fullName: string(),
-  phoneNumber: nullable(string()),
   reminderSchedule: string(),
   reminders: userReminders(),
 })
@@ -90,12 +88,20 @@ export class AuthRouter implements AppRouter {
     return client.sql`
       UPDATE "users"
       SET 
-        "fullName" = ${update.fullName},
-        "phoneNumber" = ${update.phoneNumber},
         "reminderSchedule" = ${update.reminderSchedule},
         "reminders" = ${update.reminders}
       WHERE "id" = ${id}
     `
+  }
+
+  async getUser(client: PostgresClient, id: number) {
+    const result = await client.sql<UserRecord>`
+      SELECT "id", "fullName", "email", "phoneNumber", "reminderSchedule", "reminders"
+      FROM "users"
+      WHERE "id" = ${id}
+    `
+
+    return result[0] ?? null
   }
 
   async sendSmsVerification(
@@ -126,12 +132,8 @@ export class AuthRouter implements AppRouter {
       const auth = this.context.jwt.getRequestAuth(ctx.headers)
       if (!auth) throw ApiError.unauthorized()
 
-      const [user] = await this.context.pg.run(
-        (c) => c.sql<UserRecord>`
-          SELECT "id", "fullName", "email", "phoneNumber", "reminderSchedule", "reminders"
-          FROM "users"
-          WHERE "id" = ${auth.sub}
-        `
+      const user = await this.context.pg.run((client) =>
+        this.getUser(client, auth.sub)
       )
 
       if (!user) throw ApiError.unauthorized()
@@ -328,6 +330,25 @@ export class AuthRouter implements AppRouter {
       }
     })
 
-    // TODO: endpoint to update profile
+    router.post('/auth/me', async (ctx) => {
+      const auth = this.context.jwt.getRequestAuth(ctx.headers)
+      if (!auth) throw ApiError.unauthorized()
+
+      const update = validateStruct(ctx.request.body, UserUpdateStruct)
+      const client = await this.context.pg.getClient()
+
+      try {
+        await this.updateUser(client, auth.sub, update)
+
+        const user = await this.context.pg.run((client) =>
+          this.getUser(client, auth.sub)
+        )
+
+        if (!user) throw ApiError.internalServerError()
+        ctx.body = user
+      } finally {
+        client.release()
+      }
+    })
   }
 }
