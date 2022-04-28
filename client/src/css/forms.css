@@ -93,7 +93,7 @@ fieldset legend {
 .checkbox input {
   font-size: 1rem;
   margin: 0;
-  flex: 0;
+  flex-grow: 0;
 }
 
 /*
