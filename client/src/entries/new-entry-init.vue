@@ -66,5 +66,6 @@ const hasNews = computed(() => {
 
   <p class="formSuccessMessage" v-if="!hasNews">
     If you haven't seen any news theres no need to make a diary entry!
+    <router-link :to="Routes.entries">Go to my entries</router-link>.
   </p>
 </template>
