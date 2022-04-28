@@ -20,6 +20,10 @@ const getId = idFactory()
     <div class="field">
       <label :for="getId('trust')">
         <span class="field-label">How much do you trust this?</span>
+        <span class="rangeHints">
+          <span>Less</span>
+          <span>Lots</span>
+        </span>
       </label>
       <input
         type="range"
@@ -33,6 +37,10 @@ const getId = idFactory()
     <div class="field">
       <label :for="getId('importance')">
         <span class="field-label">How much important is this?</span>
+        <span class="rangeHints">
+          <span>Not</span>
+          <span>Very</span>
+        </span>
       </label>
       <input
         type="range"

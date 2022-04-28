@@ -111,3 +111,14 @@ fieldset legend {
   background: rgba(0, 255, 0, 0.1);
   padding: 0.5rem;
 }
+
+/**
+  Range hints
+ */
+.rangeHints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: var(--s-5);
+}
