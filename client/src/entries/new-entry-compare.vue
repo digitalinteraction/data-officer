@@ -20,7 +20,7 @@ const entry = useEntryStore()
     <p>Reorder based on X?</p>
 
     <cluster-layout space="var(--s-1)">
-      <router-link :to="Routes.newEntryCollect" class="secondaryButton">
+      <router-link :to="Routes.newEntryDetails" class="secondaryButton">
         <icon-layout>
           <SvgIcon name="left" />
           Back
@@ -28,8 +28,8 @@ const entry = useEntryStore()
       </router-link>
       <router-link :to="Routes.newEntryReview" class="primaryButton">
         <icon-layout>
-          <SvgIcon name="left" />
           Next
+          <SvgIcon name="right" />
         </icon-layout>
       </router-link>
     </cluster-layout>
