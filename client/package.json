@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "serve": "vite --port 8080",
     "build": "vue-tsc --noEmit && vite build",
