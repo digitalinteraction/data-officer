@@ -62,6 +62,7 @@ function blankItem(id: number): DiaryItem {
     description: '',
     url: '',
     when: '',
+    reason: '',
 
     trust: '50',
     importance: '50',
