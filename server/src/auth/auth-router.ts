@@ -206,47 +206,41 @@ export class AuthRouter implements AppRouter {
     })
 
     router.post('/auth/login', async (ctx) => {
-      try {
-        const request = validateStruct(ctx.request.body, LoginRequestStruct)
-        const email = sanitizeEmail(request.email)
+      const request = validateStruct(ctx.request.body, LoginRequestStruct)
+      const email = sanitizeEmail(request.email)
 
-        // Find the user in question
-        const [user] = await this.context.pg.run(
-          (c) =>
-            c.sql<IdRecord>`SELECT "id" FROM "users" WHERE email = ${email}`
-        )
+      // Find the user in question
+      const [user] = await this.context.pg.run(
+        (c) => c.sql<IdRecord>`
+            SELECT "id" FROM "users" WHERE email = ${email}
+          `
+      )
 
-        if (!user) throw ApiError.badRequest()
+      if (!user) throw ApiError.badRequest()
 
-        // Generate a login url for the client
-        const token = this.context.jwt.sign(
-          {
-            sub: user.id,
-            app: { roles: [AppRoles.login] },
-          },
-          { expiresIn: '1h' }
-        )
-        const link = new URL(`auth/login/${token}`, this.context.env.SELF_URL)
+      // Generate a login url for the client
+      const token = this.context.jwt.sign(
+        {
+          sub: user.id,
+          app: { roles: [AppRoles.login] },
+        },
+        { expiresIn: '1h' }
+      )
+      const link = new URL(`auth/login/${token}`, this.context.env.SELF_URL)
 
-        // Send the verification email with their login link in it
-        await this.context.email.sendEmail({
-          to: email,
-          subject: 'Log in to DataDiaries',
-          html: `
+      // Send the verification email with their login link in it
+      await this.context.email.sendEmail({
+        to: email,
+        subject: 'Log in to DataDiaries',
+        html: `
             <h1>Log in to DataDiaries</h1>
             <p>Click the link below to log in to your DataDiaries account. It will expire in 30 minutes.</p>
             <p><a href="${link}">Log in</a></p>
           `,
-        })
+      })
 
-        // Redirect the user back to the login page with success
-        const url = new URL('login?success', this.context.env.CLIENT_URL)
-        ctx.redirect(url.toString())
-      } catch (error) {
-        const url = new URL('login?error', this.context.env.CLIENT_URL)
-        ctx.redirect(url.toString())
-        return
-      }
+      // Redirect the user back to the login page with success
+      ctx.body = 'ok'
     })
 
     router.get('/auth/login/:token', async (ctx) => {
