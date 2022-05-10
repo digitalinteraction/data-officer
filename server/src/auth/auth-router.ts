@@ -60,7 +60,7 @@ const UserRequestStruct = object({
 })
 
 const UserUpdateStruct = object({
-  reminderSchedule: string(),
+  reminderSchedule: nullable(string()),
   reminders: userReminders(),
 })
 
