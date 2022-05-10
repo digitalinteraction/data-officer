@@ -14,44 +14,32 @@ const auth = useAuthStore()
           <section>
             <h1>About</h1>
             <p>
-              This is a study about your relationship with online information to
-              learn how people review and validate information online.
-            </p>
-          </section>
-
-          <section>
-            <h2>Overview</h2>
-            <p>
-              Forget the fat lady! You're obsessed with the fat lady! Drive us
-              out of here! Do you have any idea how long it takes those cups to
-              decompose. Life finds a way. Jaguar shark! So tell me - does it
-              really exist? Hey, you know how I'm, like, always trying to save
-              the planet? Here's my chance.
+              DataDiaries is a web application for the recording of online news
+              consumption.
             </p>
           </section>
 
           <section>
             <h2>How it works</h2>
             <p>
-              You know what? It is beets. I've crashed into a beet truck. I gave
-              it a cold? I gave it a virus. A computer virus. Yeah, but your
-              scientists were so preoccupied with whether or not they could,
-              they didn't stop to think if they should. Hey, you know how I'm,
-              like, always trying to save the planet? Here's my chance.
+              Once you have set up a profile and indicated your preferences you
+              will receive notifications by email or SMS to remind you to enter
+              details of the online news you have accessed since the last
+              notification. The app will take you through a set of simple forms
+              where you are asked to indicate the source, content, and your
+              perceptions of online news.
             </p>
           </section>
 
           <section>
             <h2>Study info</h2>
             <p>
-              Remind me to thank John for a lovely weekend. So you two dig up,
-              dig up dinosaurs? We gotta burn the rain forest, dump toxic waste,
-              pollute the air, and rip up the OZONE! 'Cause maybe if we screw up
-              this planet enough, they won't want it anymore! Is this my
-              espresso machine? Wh-what is-h-how did you get my espresso
-              machine?
+              This is a study into the way people access and interact with
+              online information to understand how people review and validate
+              information online.
             </p>
           </section>
+
           <section v-if="!auth.isLoggedIn">
             <cluster-layout space="var(--s-1)">
               <router-link class="primaryButton" :to="Routes.register">

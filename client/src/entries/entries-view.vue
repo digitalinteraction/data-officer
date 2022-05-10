@@ -55,10 +55,8 @@ const sortedEntries = computed(() => {
           <section>
             <h1>My entries</h1>
             <p>
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fuga
-              aperiam error dolorem accusamus maxime suscipit, aliquid magnam
-              alias deleniti harum? Eum eligendi maiores ullam fugit at
-              voluptates, eveniet praesentium nulla?
+              This page shows each DataDiary entry you have submitted. Click on
+              an entry for more details.
             </p>
           </section>
           <section>

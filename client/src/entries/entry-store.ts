@@ -30,6 +30,7 @@ export interface DiaryItem {
   description: string
   url: string
   when: string
+  how: string
   reason: string
 
   trust: string // number in a string
@@ -62,6 +63,7 @@ function blankItem(id: number): DiaryItem {
     description: '',
     url: '',
     when: '',
+    how: '',
     reason: '',
 
     trust: '50',
@@ -82,13 +84,13 @@ export const entrySources: NewsSource[] = [
     id: 'social-media',
     name: 'Social media',
     label: 'A social media platform',
-    question: 'What online information have you access from social media?',
+    question: 'What online information have you consumed from messaging apps?',
   },
   {
     id: 'messaging',
     name: 'Messaging apps',
     label: 'Mobile messaging apps',
-    question: 'What online information have you recieved from messaging apps?',
+    question: 'What online information have you consumed from social media?',
   },
 ]
 

@@ -26,6 +26,7 @@ const EntryStruct = object({
       description: string(),
       url: string(),
       when: string(),
+      how: string(),
       reason: string(),
 
       trust: number(),

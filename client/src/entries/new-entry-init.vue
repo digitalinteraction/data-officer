@@ -26,11 +26,13 @@ const hasNews = computed(() => {
   <fieldset>
     <legend>News source</legend>
     <p class="fieldset-hint">
-      These questions get you thinking about how you've accessed news or online
-      information recently.
+      These questions prompt you to think about the different ways you've
+      accessed news or online information recently.
     </p>
     <div class="checkboxGroup">
-      <p class="checkboxGroup-label">How have you accessed news recently?</p>
+      <p class="checkboxGroup-label">
+        Have you accessed news through these media?
+      </p>
       <label class="checkbox" v-for="item in entrySources" :for="item.id">
         <input
           type="checkbox"

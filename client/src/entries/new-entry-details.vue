@@ -6,18 +6,19 @@ import { useEntryStore } from './entry-store'
 import DetailDiaryItem from './detail-diary-item.vue'
 
 const entry = useEntryStore()
-const nextRoute = computed(() => {
-  return entry.submission.items.length < 2
-    ? Routes.newEntryReview
-    : Routes.newEntryCompare
-})
+const nextRoute = Routes.newEntryReview
+// const nextRoute = computed(() => {
+//   return entry.submission.items.length < 2
+//     ? Routes.newEntryReview
+//     : Routes.newEntryCompare
+// })
 </script>
 
 <template>
   <stack-layout>
     <header>
       <h2>More detail</h2>
-      <p>Lets think more about your interactions...</p>
+      <p>Let's think more about your interactions...</p>
     </header>
 
     <DetailDiaryItem v-for="item in entry.submission.items" :item="item" />

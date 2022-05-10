@@ -66,6 +66,9 @@ const getId = idFactory()
     <div class="field">
       <label :for="getId('nextAction')">
         <span class="field-label">What did you do next?</span>
+        <span class="field-hint"
+          >Did you share it? Find out more information?</span
+        >
       </label>
       <textarea
         :id="getId('nextAction')"
