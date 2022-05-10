@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "scripts": {
     "build": "tsc",
     "dev": "node --loader=ts-node/esm --require=dotenv/config src/cli.ts",
