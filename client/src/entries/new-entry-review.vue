@@ -10,9 +10,10 @@ const entry = useEntryStore()
 const auth = useAuthStore()
 
 const prevRoute = computed(() => {
-  return entry.submission.items.length > 1
-    ? Routes.newEntryCompare
-    : Routes.newEntryDetails
+  return Routes.newEntryDetails
+  // return entry.submission.items.length > 1
+  //   ? Routes.newEntryCompare
+  //   : Routes.newEntryDetails
 })
 
 async function onSubmit() {
