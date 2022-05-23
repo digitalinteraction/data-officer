@@ -89,7 +89,8 @@ export class AuthRouter implements AppRouter {
       UPDATE "users"
       SET 
         "reminderSchedule" = ${update.reminderSchedule},
-        "reminders" = ${update.reminders}
+        "reminders" = ${update.reminders},
+        "lastReminder" = ${new Date()}
       WHERE "id" = ${id}
     `
   }
