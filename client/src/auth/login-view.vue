@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AltLayout from '../components/alt-layout.vue'
 import { Routes, getEndpoint, FormState } from '../utils'
@@ -8,6 +8,7 @@ const email = ref('')
 const formState = ref<FormState>('pending')
 
 const route = useRoute()
+const isLoading = computed(() => formState.value === 'loading')
 
 if (route.query.error !== undefined) formState.value = 'error'
 if (route.query.success !== undefined) formState.value = 'success'
@@ -54,15 +55,17 @@ async function onSubmit() {
       <label for="email">
         <span class="field-label">Email address</span>
       </label>
-      <input type="email" id="email" v-model="email" @keyup.enter="onSubmit" />
+      <input
+        type="email"
+        id="email"
+        v-model="email"
+        @keyup.enter="onSubmit"
+        :disabled="isLoading"
+      />
     </div>
 
     <cluster-layout space="var(--s-1)">
-      <button
-        class="primaryButton"
-        :disabled="formState === 'loading'"
-        @click="onSubmit"
-      >
+      <button class="primaryButton" :disabled="isLoading" @click="onSubmit">
         Send magic link
       </button>
       <router-link :to="Routes.home" class="secondaryButton">
