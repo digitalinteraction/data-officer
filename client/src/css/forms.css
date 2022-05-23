@@ -1,7 +1,7 @@
 /*
   General
  */
-fieldset > * + * + *,
+fieldset > :not(legend) + *,
 form > * + * {
   margin-top: var(--s0);
 }
@@ -53,7 +53,6 @@ fieldset {
   border-style: dashed;
   border-width: var(--border-thin);
   padding: var(--s-1);
-  padding-top: 0;
 }
 fieldset legend {
   font-size: var(--s1);
