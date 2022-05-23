@@ -122,7 +122,7 @@ function startAgain() {
               >
             </label>
             <input
-              type="text"
+              type="email"
               id="email"
               name="email"
               required
