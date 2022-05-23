@@ -51,9 +51,12 @@ const cronExpression = () =>
     }
   })
 
+const basicEmail = () =>
+  refine(string(), 'email', (v) => /^\S+@\S+$/.test(v.trim()))
+
 const UserRequestStruct = object({
   fullName: string(),
-  email: string(),
+  email: basicEmail(),
   phoneNumber: nullable(string()),
   reminderSchedule: cronExpression(),
   reminders: userReminders(),
@@ -65,7 +68,7 @@ const UserUpdateStruct = object({
 })
 
 const LoginRequestStruct = type({
-  email: string(),
+  email: basicEmail(),
 })
 
 const VerifySmsStruct = object({

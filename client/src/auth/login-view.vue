@@ -15,11 +15,6 @@ if (route.query.success !== undefined) formState.value = 'success'
 async function onSubmit() {
   formState.value === 'loading'
 
-  if (!/.+@.+/.test(email.value)) {
-    formState.value = 'error'
-    return
-  }
-
   const res = await fetch(getEndpoint('auth/login'), {
     method: 'post',
     headers: {
