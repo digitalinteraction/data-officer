@@ -1,0 +1,36 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: reminders
+  labels:
+    app.kubernetes.io/component: app
+spec:
+  schedule: '*/5 * * * *'
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: reminders
+              image: ghcr.io/digitalinteraction/datadiaries-server
+              envFrom:
+                - secretRef: { name: app-env }
+              volumeMounts:
+                - mountPath: /app/app-config.json
+                  name: resources
+                  subPath: app-config.json
+                  readOnly: true
+              args:
+                - reminders
+
+          volumes:
+            - name: resources
+              configMap:
+                name: resources
+
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000

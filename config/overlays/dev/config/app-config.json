@@ -1,0 +1,13 @@
+{
+  "email": {
+    "fromEmail": "noreply@openlab.dev",
+    "replyToEmail": "openlab@ncl.ac.uk",
+    "templateId": ""
+  },
+  "jwt": {
+    "issuer": "data-diaries-dev"
+  },
+  "sms": {
+    "fromNumber": "+44 7723 478137"
+  }
+}
