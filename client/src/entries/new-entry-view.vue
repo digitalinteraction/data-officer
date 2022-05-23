@@ -20,7 +20,7 @@ onMounted(() => {
   }
 
   if (
-    entry.submission.sources.length < 1 &&
+    entry.submission.items.length < 1 &&
     route.name !== Routes.newEntry.name
   ) {
     router.replace(Routes.newEntry)

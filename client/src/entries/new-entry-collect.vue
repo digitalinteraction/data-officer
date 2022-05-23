@@ -6,50 +6,25 @@ import BasicDiaryItem from './basic-diary-item.vue'
 
 const entry = useEntryStore()
 
-const sourceIndex = ref(0)
-const chosenSources = computed(() => entry.submission.sources)
-const currentSource = computed(() => {
-  return entrySources.find(
-    (source) => source.id === entry.submission.sources[sourceIndex.value]
-  )!
-})
-
-onMounted(() => {
-  for (const source of chosenSources.value) {
-    const items = entry.submission.items.filter((i) => i.source === source)
-    if (items.length === 0) entry.addItem(source)
-  }
-})
-
-const currentItems = computed(() => {
-  return entry.submission.items.filter(
-    (item) => item.source === currentSource.value.id
-  )
-})
-
 function addItem() {
-  entry.addItem(chosenSources.value[sourceIndex.value])
+  entry.addItem('')
 }
 function removeItem(item: DiaryItem) {
   entry.removeItem(item)
 }
-function onPage(change: number) {
-  sourceIndex.value += change
-  window.scrollTo({ top: 0 })
-}
 </script>
 
 <template>
-  <stack-layout v-if="currentSource" class="newEntryCollect">
-    <header>
+  <stack-layout class="newEntryCollect">
+    <!-- <header>
       <h2>{{ currentSource.name }}</h2>
       <p>
         {{ currentSource.question }}
       </p>
-    </header>
+    </header> -->
 
     <BasicDiaryItem
-      v-for="item in currentItems"
+      v-for="item in entry.submission.items"
       :item="item"
       @remove="removeItem(item)"
     />
@@ -68,45 +43,23 @@ function onPage(change: number) {
     <!--
       Previous button
     -->
-    <router-link
-      v-if="sourceIndex == 0"
-      :to="Routes.newEntry"
-      class="secondaryButton"
-    >
+    <router-link :to="Routes.newEntry" class="secondaryButton">
       <icon-layout>
         <SvgIcon name="left" />
         Back
       </icon-layout>
     </router-link>
-
-    <button v-else @click="onPage(-1)" class="secondaryButton">
-      <icon-layout>
-        <SvgIcon name="left" />
-        Back
-      </icon-layout>
-    </button>
 
     <!--
       Next button
     -->
 
-    <router-link
-      v-if="sourceIndex + 1 >= chosenSources.length"
-      :to="Routes.newEntryDetails"
-      class="primaryButton"
-    >
+    <router-link :to="Routes.newEntryDetails" class="primaryButton">
       <icon-layout>
         Next
         <SvgIcon name="right" />
       </icon-layout>
     </router-link>
-
-    <button v-else class="primaryButton" @click="onPage(1)">
-      <icon-layout>
-        Next
-        <SvgIcon name="right" />
-      </icon-layout>
-    </button>
   </cluster-layout>
 </template>
 

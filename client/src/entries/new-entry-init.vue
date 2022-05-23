@@ -1,64 +1,62 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { Routes, SvgIcon } from '../utils'
-import { useEntryStore, entrySources } from './entry-store'
+import { idFactory, Routes, SvgIcon } from '../utils'
+import { DiaryItem, useEntryStore } from './entry-store'
 
 const entry = useEntryStore()
 
-function onCancel() {
-  console.log('...')
-}
-
-/** Remove previously created items if the source has been removed */
-function onNext() {
-  const sourceSet = new Set(entry.submission.sources)
-  entry.submission.items = entry.submission.items.filter((s) =>
-    sourceSet.has(s.source)
-  )
-}
-
-const hasNews = computed(() => {
-  return entry.submission.sources.length > 0
+const hasStories = computed(() => {
+  return entry.submission.items.length > 0
 })
+
+function addStory() {
+  entry.addItem('')
+}
+function removeStory(item: DiaryItem) {
+  entry.removeItem(item)
+}
+function getItemId(item: DiaryItem) {
+  return `story-${item.id}`
+}
 </script>
 
 <template>
-  <fieldset>
-    <legend>News source</legend>
-    <p class="fieldset-hint">
-      These questions prompt you to think about the different ways you've
-      accessed news or online information recently.
-    </p>
-    <div class="checkboxGroup">
-      <p class="checkboxGroup-label">
-        Have you accessed news through these media?
-      </p>
-      <label class="checkbox" v-for="item in entrySources" :for="item.id">
-        <input
-          type="checkbox"
-          :id="item.id"
-          name="newsSource"
-          v-model="entry.submission.sources"
-          :value="item.id"
-        />
-        <span>{{ item.label }}</span>
-      </label>
-    </div>
-  </fieldset>
+  <stack-layout>
+    <fieldset v-for="item in entry.submission.items">
+      <div class="field">
+        <label :for="getItemId(item)">
+          <span class="field-label">What did you learn?</span>
+          <input
+            type="text"
+            :id="getItemId(item)"
+            name="getItemId(item)"
+            v-model="item.description"
+          />
+        </label>
+      </div>
 
-  <cluster-layout space="var(--s-1)" v-if="hasNews">
-    <!-- <button class="secondaryButton" @click="onCancel">
-      <icon-layout>
-        <span> Cancel </span>
-        <SvgIcon name="cross" />
-      </icon-layout>
-    </button> -->
+      <cluster-layout style="font-size: 0.8em">
+        <button class="secondaryButton" @click="removeStory(item)">
+          <icon-layout>
+            <SvgIcon name="cross" />
+            Remove story
+          </icon-layout>
+        </button>
+      </cluster-layout>
+    </fieldset>
 
-    <router-link
-      :to="Routes.newEntryCollect"
-      class="primaryButton"
-      @click="onNext"
-    >
+    <cluster-layout>
+      <button class="primaryButton" @click="addStory">
+        <icon-layout>
+          <SvgIcon name="plus" />
+          Add a story
+        </icon-layout>
+      </button>
+    </cluster-layout>
+  </stack-layout>
+
+  <cluster-layout space="var(--s-1)" v-if="hasStories">
+    <router-link :to="Routes.newEntryCollect" class="primaryButton">
       <icon-layout>
         <span>Next </span>
         <SvgIcon name="right" />
@@ -66,7 +64,7 @@ const hasNews = computed(() => {
     </router-link>
   </cluster-layout>
 
-  <p class="formSuccessMessage" v-if="!hasNews">
+  <p class="formSuccessMessage" v-if="!hasStories">
     If you haven't seen any news theres no need to make a diary entry!
     <router-link :to="Routes.entries">Go to my entries</router-link>.
   </p>

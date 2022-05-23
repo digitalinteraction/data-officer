@@ -17,7 +17,6 @@ export interface DiaryEntry {
 }
 
 export interface EntrySubmission {
-  sources: string[]
   items: DiaryItem[]
 }
 
@@ -48,7 +47,6 @@ export interface NewsSource {
 
 function blankSubmission(): EntrySubmission {
   return {
-    sources: [],
     items: [],
   }
 }
@@ -106,10 +104,10 @@ export const useEntryStore = defineStore('entry', {
     reminder: null,
   }),
   actions: {
-    addItem(source: string) {
+    addItem(description: string) {
       this.submission.items.push({
         ...blankItem(this.itemId++),
-        source: source,
+        description,
       })
     },
     removeItem(item: DiaryItem) {

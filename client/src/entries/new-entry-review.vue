@@ -73,7 +73,7 @@ async function onSubmit() {
       <p><strong>Entries</strong></p>
       <ul>
         <li v-for="item in entry.submission.items">
-          {{ getSourceName(item.source) }} &ndash; {{ item.origin }}
+          {{ item.origin }} &ndash; {{ item.description }}
         </li>
       </ul>
     </section>
