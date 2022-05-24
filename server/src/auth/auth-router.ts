@@ -167,8 +167,10 @@ export class AuthRouter implements AppRouter {
         } else {
           // Create a new user
           const [newUser] = await client.sql<IdRecord>`
-            INSERT INTO "users" ("fullName", "email", "reminderSchedule", "reminders")
-            VALUES (${request.fullName}, ${email}, ${request.reminderSchedule}, ${request.reminders})
+            INSERT INTO "users" ("fullName", "email", "reminderSchedule", "reminders", "lastReminder")
+            VALUES (${request.fullName}, ${email}, ${
+            request.reminderSchedule
+          }, ${request.reminders}, ${new Date()})
             RETURNING "id"
           `
           userId = newUser.id
