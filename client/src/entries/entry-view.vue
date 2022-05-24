@@ -55,7 +55,7 @@ const longDate = new Intl.DateTimeFormat(['en-gb'], {
             </p>
           </section>
           <section v-for="item in entry.response.items">
-            <h2>{{ getSourceName(item.source) }} / {{ item.origin }}</h2>
+            <h2>{{ getSourceName(item.origin) }} / {{ item.source }}</h2>
             <switcher-layout threshold="22em">
               <dl>
                 <dt>Source</dt>
