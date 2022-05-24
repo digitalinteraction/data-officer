@@ -212,7 +212,7 @@ function startAgain() {
         <cluster-layout space="var(--s-1)">
           <input
             type="submit"
-            :disabled="formState === 'loading'"
+            :disabled="isLoading"
             class="primaryButton"
             name="register"
             value="Register"
