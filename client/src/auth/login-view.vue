@@ -51,26 +51,35 @@ async function onSubmit() {
       Magic link sent, please check your email.
     </p>
 
-    <div class="field">
-      <label for="email">
-        <span class="field-label">Email address</span>
-      </label>
-      <input
-        type="email"
-        id="email"
-        v-model="email"
-        @keyup.enter="onSubmit"
-        :disabled="isLoading"
-      />
-    </div>
+    <form @submit.prevent="onSubmit">
+      <div class="field">
+        <label for="email">
+          <span class="field-label">Email address</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          v-model="email"
+          required
+          :disabled="isLoading"
+          enterkeyhint="send"
+        />
+      </div>
 
-    <cluster-layout space="var(--s-1)">
-      <button class="primaryButton" :disabled="isLoading" @click="onSubmit">
-        Send magic link
-      </button>
-      <router-link :to="Routes.home" class="secondaryButton">
-        Cancel
-      </router-link>
-    </cluster-layout>
+      <cluster-layout space="var(--s-1)">
+        <input
+          type="submit"
+          :disabled="isLoading"
+          class="primaryButton"
+          name="login"
+          value="Send magic link"
+        />
+
+        <router-link :to="Routes.home" class="secondaryButton">
+          Cancel
+        </router-link>
+      </cluster-layout>
+    </form>
   </AltLayout>
 </template>
