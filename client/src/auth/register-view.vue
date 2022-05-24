@@ -36,31 +36,33 @@ async function onSubmit() {
   const { fullName, email, phoneNumber, reminderSchedule, reminders } =
     submission.value
 
-  await fetch(getEndpoint('auth/register'), {
-    method: 'post',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      fullName: fullName,
-      email: email,
-      phoneNumber: phoneNumber ? phoneNumber : null,
-      reminderSchedule: reminderSchedule,
-      reminders: {
-        email: reminders.includes('email'),
-        sms: reminders.includes('sms'),
+  try {
+    const res = await fetch(getEndpoint('auth/register'), {
+      method: 'post',
+      headers: {
+        'content-type': 'application/json',
       },
-    }),
-  }).then(
-    (res) => {
-      formState.value = res.ok ? 'success' : 'error'
-    },
-    (error) => {
-      console.error(error)
-      formState.value = 'error'
+      body: JSON.stringify({
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber ? phoneNumber : null,
+        reminderSchedule: reminderSchedule,
+        reminders: {
+          email: reminders.includes('email'),
+          sms: reminders.includes('sms'),
+        },
+      }),
+    })
+
+    formState.value = res.ok ? 'success' : 'error'
+  } catch (error) {
+    console.error(error)
+    formState.value = 'error'
+  } finally {
+    if (formState.value === 'error') {
       window.scrollTo({ top: 0 })
     }
-  )
+  }
 }
 function startAgain() {
   submission.value = blankSubmission()
