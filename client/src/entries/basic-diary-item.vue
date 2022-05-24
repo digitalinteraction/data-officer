@@ -66,7 +66,7 @@ const getId = idFactory()
         <span class="field-label">When did you access the information?</span>
         <span class="field-hint">Roughly</span>
       </label>
-      <input type="text" :id="getId('when')" v-model="item.when" />
+      <input type="time" :id="getId('when')" v-model="item.when" />
     </div>
 
     <div class="field">
