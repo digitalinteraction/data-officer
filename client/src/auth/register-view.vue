@@ -146,6 +146,7 @@ function startAgain() {
               name="phoneNumber"
               v-model="submission.phoneNumber"
               :disabled="isLoading"
+              :required="submission.reminders.includes('sms')"
             />
           </div>
         </fieldset>
