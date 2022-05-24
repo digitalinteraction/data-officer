@@ -14,7 +14,7 @@ if (route.query.error !== undefined) formState.value = 'error'
 if (route.query.success !== undefined) formState.value = 'success'
 
 async function onSubmit() {
-  formState.value === 'loading'
+  formState.value = 'loading'
 
   const res = await fetch(getEndpoint('auth/login'), {
     method: 'post',
