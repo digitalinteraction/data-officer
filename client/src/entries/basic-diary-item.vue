@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DiaryItem } from './entry-store'
+import { DiaryItem, entrySources } from './entry-store'
 import { SvgIcon, idFactory } from '../utils'
 
 defineProps<{
@@ -16,6 +16,21 @@ const getId = idFactory()
 <template>
   <fieldset>
     <legend>{{ item.origin || 'New diary item' }}</legend>
+
+    <p class="fieldset-hint" v-if="item.description">
+      "{{ item.description }}"
+    </p>
+
+    <div class="field">
+      <label :for="getId('source')">
+        <span class="field-label">How did you recieve it?</span>
+      </label>
+      <select :id="getId('source')" v-model="item.source">
+        <option v-for="source in entrySources" :value="source.id">
+          {{ source.label }}
+        </option>
+      </select>
+    </div>
 
     <div class="field">
       <label :for="getId('origin')">
@@ -39,21 +54,6 @@ const getId = idFactory()
     </div>
 
     <div class="field">
-      <label :for="getId('description')">
-        <span class="field-label">What was it about?</span>
-        <span class="field-hint"
-          >Give us an idea of the content, or the headline</span
-        >
-      </label>
-      <input
-        type="text"
-        :id="getId('description')"
-        v-model="item.description"
-        required
-      />
-    </div>
-
-    <div class="field">
       <label :for="getId('url')">
         <span class="field-label">Do you have the URL?</span>
         <span class="field-hint">Optional</span>
@@ -63,7 +63,9 @@ const getId = idFactory()
 
     <div class="field">
       <label :for="getId('when')">
-        <span class="field-label">When did you access the information?</span>
+        <span class="field-label"
+          >What time did you access the information?</span
+        >
         <span class="field-hint">Roughly</span>
       </label>
       <input type="time" :id="getId('when')" v-model="item.when" />

@@ -42,7 +42,6 @@ export interface NewsSource {
   id: string
   name: string
   label: string
-  question: string
 }
 
 function blankSubmission(): EntrySubmission {
@@ -75,20 +74,17 @@ export const entrySources: NewsSource[] = [
   {
     id: 'news-site',
     name: 'News',
-    label: 'A news website',
-    question: 'What online information have you consumed from news websites?',
+    label: 'News website',
   },
   {
     id: 'social-media',
     name: 'Social media',
     label: 'A social media platform',
-    question: 'What online information have you consumed from messaging apps?',
   },
   {
     id: 'messaging',
-    name: 'Messaging apps',
+    name: 'Messaging app',
     label: 'Mobile messaging apps',
-    question: 'What online information have you consumed from social media?',
   },
 ]
 
