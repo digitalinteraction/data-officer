@@ -60,6 +60,10 @@ const sortedEntries = computed(() => {
             </p>
           </section>
           <section>
+            <p v-if="sortedEntries.length === 0" class="formInfoMessage">
+              No entries yet, why not
+              <router-link :to="Routes.newEntry">create one?</router-link>
+            </p>
             <ol>
               <li v-for="entry in sortedEntries">
                 <router-link :to="entryRoute(entry)">
