@@ -90,10 +90,7 @@ function startAgain() {
       </p>
     </div>
     <form v-else @submit.prevent="onSubmit">
-      <p>
-        Use this form to sign up for the DataDiaries study. Lorem ipsum sil dor
-        amet...
-      </p>
+      <p>Use this form to sign up for the DataDiaries study.</p>
       <stack-layout space="var(--s1)">
         <fieldset>
           <legend>Your details</legend>
