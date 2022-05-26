@@ -1,7 +1,7 @@
 {
   "name": "@openlab/data-diaries",
   "private": true,
-  "version": "0.0.5",
+  "version": "0.1.0",
   "scripts": {
     "version": "bin/update-versions.mjs && git add -A"
   }
