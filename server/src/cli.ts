@@ -23,10 +23,7 @@ function errorHandler(error: any) {
 cli.command(
   'serve',
   'Run the http server',
-  (yargs) =>
-    yargs
-      .option('port', { type: 'number', default: 3000 })
-      .option('migrate', { type: 'boolean', default: false }),
+  (yargs) => yargs.option('port', { type: 'number', default: 3000 }),
   (args) => serveCommand(args).catch(errorHandler)
 )
 
