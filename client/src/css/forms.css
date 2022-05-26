@@ -31,7 +31,9 @@ form > * + * {
   font-size: 0.9em;
 }
 .field input,
+.field select,
 .field textarea {
+  background-color: transparent;
   border-width: var(--border-thin);
   margin: 0;
   border-radius: var(--border-thin);
@@ -44,6 +46,9 @@ form > * + * {
 .field textarea {
   resize: vertical;
   min-height: 5em;
+}
+.field select {
+  line-height: 1.5;
 }
 
 /*
@@ -62,6 +67,7 @@ fieldset legend {
   font-weight: 400;
   display: block;
   font-size: 0.9em;
+  margin-block-start: calc(-1 * var(--s-1));
 }
 
 /*
@@ -98,17 +104,24 @@ fieldset legend {
 /*
   Messages
  */
-.formErrorMessage {
-  border-radius: var(--border-thick);
-  border: var(--border-thick) solid #ce4760;
-  background: rgba(255, 0, 0, 0.1);
-  padding: 0.5rem;
-}
+.formInfoMessage,
+.formErrorMessage,
 .formSuccessMessage {
   border-radius: var(--border-thick);
-  border: var(--border-thick) solid var(--color-kellyGreen);
-  background: rgba(0, 255, 0, 0.1);
-  padding: 0.5rem;
+  border: var(--border-thick) solid;
+  padding: var(--s-1);
+}
+.formInfoMessage {
+  border-color: royalblue;
+  background-color: rgba(65, 105, 225, 0.15);
+}
+.formErrorMessage {
+  border-color: #ce4760;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+.formSuccessMessage {
+  border-color: var(--color-kellyGreen);
+  background-color: rgba(0, 255, 0, 0.1);
 }
 
 /**
