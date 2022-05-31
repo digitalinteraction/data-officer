@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: link
+  labels:
+    app.kubernetes.io/component: link
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-redirect: 'true'
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: datadiaries.uk
+      http:
+        paths:
+          - pathType: Prefix
+            path: /l/
+            backend:
+              service:
+                name: app
+                port:
+                  name: server
+
+  tls:
+    - hosts:
+        - datadiaries.uk
+      secretName: datadiaries.uk

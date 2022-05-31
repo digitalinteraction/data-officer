@@ -1,0 +1,38 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: data-diaries
+namePrefix: data-diaries-
+nameSuffix: -prod
+
+commonLabels:
+  app.kubernetes.io/app: data-diaries
+  app.kubernetes.io/instance: production
+
+bases:
+  - ../../base
+
+configMapGenerator:
+  - name: resources
+    files:
+      - config/app-config.json
+      - config/config.js
+      - config/nginx.conf
+
+secretGenerator:
+  - name: app-env
+    env: secret/app.env
+
+resources:
+  - app-ingress.yml
+  - link-ingress.yml
+
+images:
+  - name: redis
+    newTag: 6-alpine
+
+  - name: ghcr.io/digitalinteraction/datadiaries-client
+    newTag: '0.1.0'
+
+  - name: ghcr.io/digitalinteraction/datadiaries-server
+    newTag: '0.1.0'
