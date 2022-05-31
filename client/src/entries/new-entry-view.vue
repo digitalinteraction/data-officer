@@ -40,10 +40,10 @@ onMounted(() => {
           <section>
             <h1>New entry</h1>
             <p>
-              Create a new entry in your DataDiary. First, select all the
-              relevant news sources from the list on this page then click 'next'
-              to add details of each news story you've accessed for each source
-              in the next page.
+              Create a new entry in your DataDiary. First, add details of each
+              item of news or online information you have accessed since your
+              last DataDiary entry, then click 'next' to add details of each
+              news story you've accessed in the next page.
             </p>
           </section>
 

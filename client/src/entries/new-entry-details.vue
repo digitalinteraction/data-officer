@@ -18,7 +18,7 @@ const nextRoute = Routes.newEntryReview
   <stack-layout>
     <header>
       <h2>More detail</h2>
-      <p>Let's think more about your interactions...</p>
+      <p>Let's move onto your reaction to the news stories...</p>
     </header>
 
     <DetailDiaryItem v-for="item in entry.submission.items" :item="item" />

@@ -14,7 +14,7 @@ const auth = useAuthStore()
           <section>
             <h1>About</h1>
             <p>
-              DataDiaries is a web application for the recording of online news
+              DataDiaries is a web application to record online news
               consumption.
             </p>
           </section>
@@ -26,8 +26,8 @@ const auth = useAuthStore()
               will receive notifications by email or SMS to remind you to enter
               details of the online news you have accessed since the last
               notification. The app will take you through a set of simple forms
-              where you are asked to indicate the source, content, and your
-              perceptions of online news.
+              where you are asked to indicate the content, source, and your
+              perceptions of online news and information.
             </p>
           </section>
 

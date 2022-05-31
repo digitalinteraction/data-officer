@@ -25,7 +25,10 @@ function getItemId(item: DiaryItem) {
     <fieldset v-for="item in entry.submission.items">
       <div class="field">
         <label :for="getItemId(item)">
-          <span class="field-label">What did you learn?</span>
+          <span class="field-label">What was the news story about?</span>
+          <span class="field-hint">
+            This could be a headline, summary or simple explanation
+          </span>
           <input
             type="text"
             :id="getItemId(item)"
@@ -49,7 +52,7 @@ function getItemId(item: DiaryItem) {
       <button class="primaryButton" @click="addStory">
         <icon-layout>
           <SvgIcon name="plus" />
-          Add a story
+          Add a new story
         </icon-layout>
       </button>
     </cluster-layout>

@@ -19,10 +19,10 @@ const getId = idFactory()
 
     <div class="field">
       <label :for="getId('trust')">
-        <span class="field-label">How much do you trust this?</span>
+        <span class="field-label">How trustworthy is this story?</span>
         <span class="rangeHints">
-          <span>Less</span>
-          <span>Lots</span>
+          <span>Not at all</span>
+          <span>Very</span>
         </span>
       </label>
       <input
@@ -36,9 +36,9 @@ const getId = idFactory()
 
     <div class="field">
       <label :for="getId('importance')">
-        <span class="field-label">How much important is this?</span>
+        <span class="field-label">How important is this information?</span>
         <span class="rangeHints">
-          <span>Not</span>
+          <span>Not at all</span>
           <span>Very</span>
         </span>
       </label>
@@ -54,6 +54,9 @@ const getId = idFactory()
     <div class="field">
       <label :for="getId('feeling')">
         <span class="field-label">How did it make you feel?</span>
+        <span class="field-hint">
+          Can you sum it up in one word or show us with an emoji?
+        </span>
       </label>
       <input
         type="text"
@@ -66,9 +69,9 @@ const getId = idFactory()
     <div class="field">
       <label :for="getId('nextAction')">
         <span class="field-label">What did you do next?</span>
-        <span class="field-hint"
-          >Did you share it? Find out more information?</span
-        >
+        <span class="field-hint">
+          Did you re-share it? Find out more information? Tell someone about it?
+        </span>
       </label>
       <textarea
         :id="getId('nextAction')"
