@@ -1,5 +1,7 @@
-node_modules
-coverage
+# 
+# Files to ignore from git source control
+# 
+
 .DS_Store
-.nyc_output
 *.env
+repos

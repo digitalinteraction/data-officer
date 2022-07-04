@@ -1,16 +1,26 @@
-# Use a node alpine image install packages and run the start script
-FROM node:10-alpine
+# https://stackoverflow.com/a/71611002
+
+FROM --platform=linux/amd64 denoland/deno:alpine-1.22.0 as builder
+EXPOSE 8080
 WORKDIR /app
-EXPOSE 3000
+COPY ["deps.ts", "app.json", "/app/"]
+RUN deno cache deps.ts
+COPY . .
+RUN deno compile --allow-env --allow-net --allow-read serve.ts --port=8080
 
-# Install dependancies
-ENV NODE_ENV production
-COPY ["package.json", "package-lock.json", "/app/"]
-RUN npm ci --silent > /dev/null
+# 
+# Try to straight-copy the binary in
+# 
+# FROM --platform=linux/amd64 alpine:3.16
+# RUN addgroup -g 1000 deno \
+#   && adduser -u 1000 -G deno -s /bin/sh -D deno
+# USER deno
+# WORKDIR /app
+# COPY --from=builder ["/app/serve", "/app/"]
+# ENTRYPOINT ["/app/serve"]
 
-# Copy in our source code
-COPY docs /app/docs
-COPY web /app/web
-
-# Start up
-CMD [ "npm", "start" ]
+FROM denoland/deno:alpine-1.22.0
+USER deno
+WORKDIR /app
+COPY --from=builder ["/app/serve", "/app/"]
+ENTRYPOINT ["/app/serve"]
