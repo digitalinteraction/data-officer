@@ -1,4 +1,4 @@
-const DEFAULT_HTTP_TIMEOUT = 10_000;
+export const DEFAULT_HTTP_TIMEOUT = 10_000;
 
 export async function fetchWithTimeout(
   url: string,

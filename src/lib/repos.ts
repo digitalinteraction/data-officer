@@ -1,4 +1,4 @@
-import { expandGlob, extractFrontMatter } from "../deps.ts";
+import { expandGlob, extractFrontMatter } from "../../deps.ts";
 
 export interface GitRepository {
   name: string;
@@ -23,12 +23,12 @@ export async function getMarkdownCollection<T = unknown>(
   for await (const file of files) {
     const contents = await Deno.readTextFile(file.path);
 
-    const some = extractFrontMatter<T>(contents);
+    const { attrs, body } = extractFrontMatter<T>(contents);
 
     result.push({
       path: file.path,
-      attrs: some.attrs,
-      body: some.body,
+      attrs: attrs,
+      body: body,
     });
   }
 

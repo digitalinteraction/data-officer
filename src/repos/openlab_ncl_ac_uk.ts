@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 
-import { path } from "../deps.ts";
-import { getMarkdownCollection, GitRepository } from "./repos.ts";
+import { path } from "../../deps.ts";
+import { getMarkdownCollection, GitRepository } from "../lib/mod.ts";
 
 export function _resolveImage(url: string, size: string) {
   const ext = path.extname(url);
