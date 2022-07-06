@@ -1,4 +1,5 @@
 {
-  "name": "@openlab/systems-pinger",
-  "version": "0.1.0"
+  "name": "data-officer.openlab.dev",
+  "version": "0.1.0",
+  "jwtIssuer": "data-officer.openlab.dev@0.1"
 }

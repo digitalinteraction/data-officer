@@ -6,7 +6,7 @@ const bearerRegex = /^bearer /i;
 
 export function getBearerHeader(headers: Headers) {
   const header = headers.get("authorization");
-  if (!header || bearerRegex.test(header)) return null;
+  if (!header || !bearerRegex.test(header)) return null;
   return header.replace(bearerRegex, "");
 }
 
@@ -21,7 +21,7 @@ export async function authenticate(scope: string, ctx: AcornContext) {
   if (!auth) throw new AuthzError("No authorization present");
 
   const result = await jwtVerify(auth, new TextEncoder().encode("top_secret"), {
-    issuer: app.name,
+    issuer: app.jwtIssuer,
   }).catch(() => null);
 
   if (!result) throw new AuthzError("Bad authorization");

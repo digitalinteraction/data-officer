@@ -1,5 +1,7 @@
-import { MysqlClient } from "../../deps.ts";
+import { MysqlClient, configMysqlLogger } from "../../deps.ts";
 import { fetchWithTimeout } from "./fetch.ts";
+
+configMysqlLogger({ enable: false });
 
 export interface EndpointInfo {
   name: string;
@@ -8,8 +10,8 @@ export interface EndpointInfo {
 }
 
 export interface EndpointState {
-  online: boolean;
-  status: number;
+  ok: boolean;
+  httpStatus?: number;
   messages: string[];
 }
 
@@ -22,8 +24,8 @@ export interface Endpoint {
   (): Promise<EndpointResult>;
 }
 
-export function unknownState(): EndpointState {
-  return { online: false, status: -1, messages: ["Unknown state"] };
+export function unknownState(message = "Unknown state"): EndpointState {
+  return { ok: false, messages: [message] };
 }
 
 export function httpEndpoint(url: string, service: EndpointInfo): Endpoint {
@@ -33,14 +35,13 @@ export function httpEndpoint(url: string, service: EndpointInfo): Endpoint {
       return {
         service,
         state: {
-          online: res.ok,
-          status: res.status,
+          ok: res.ok,
+          httpStatus: res.status,
           messages: [],
         },
       };
     } catch (error) {
-      console.error(error);
-      return { service, state: unknownState() };
+      return { service, state: unknownState(error.message) };
     }
   };
 }
@@ -62,20 +63,21 @@ export function mysqlEndpoint(
         port: port,
         password: url.password,
         db: database,
+        debug: false,
       });
 
       await client.query("SELECT 1;");
 
-      return { service, state: unknownState() };
-    } catch (error) {
-      console.error(error);
+      await client.close();
+
       return {
         service,
-        state: {
-          online: false,
-          status: 400,
-          messages: [],
-        },
+        state: { ok: true, messages: [] },
+      };
+    } catch (error) {
+      return {
+        service,
+        state: { ok: false, messages: [error.message] },
       };
     }
   };

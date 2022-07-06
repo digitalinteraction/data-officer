@@ -8,7 +8,10 @@ export { config as loadDotenv } from "https://deno.land/std@0.146.0/dotenv/mod.t
 
 export { default as app } from "./app.json" assert { type: "json" };
 
-export { Client as MysqlClient } from "https://deno.land/x/mysql@v2.10.2/mod.ts";
+export {
+  Client as MysqlClient,
+  configLogger as configMysqlLogger,
+} from "https://deno.land/x/mysql@v2.10.2/mod.ts";
 
 export { expandGlob } from "https://deno.land/std@0.146.0/fs/mod.ts";
 
@@ -18,4 +21,4 @@ export { parse as parseCsv } from "https://deno.land/std@0.146.0/encoding/csv.ts
 
 export * as path from "https://deno.land/std@0.146.0/path/mod.ts";
 
-export { jwtVerify } from "https://deno.land/x/jose@v4.8.3/index.ts";
+export { jwtVerify, SignJWT } from "https://deno.land/x/jose@v4.8.3/index.ts";

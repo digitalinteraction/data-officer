@@ -1,7 +1,9 @@
-import { parseFlags, loadDotenv } from "./deps.ts";
-import { createServer } from "./src/server.ts";
+#!/usr/bin/env -S deno run --allow-net --allow-env --allow-read
 
-await loadDotenv();
+import { parseFlags, loadDotenv } from "../deps.ts";
+import { createServer } from "../src/server.ts";
+
+await loadDotenv({ export: true });
 
 const flags = parseFlags(Deno.args, {
   string: ["port"],

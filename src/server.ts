@@ -31,19 +31,11 @@ export function createServer(options: ServerOptions) {
     },
   };
 
-  router.get("/", () => {
-    const reposNav: NavTree = {};
-    for (const repo of repos) {
-      reposNav["/" + repo.name] = Object.keys(repo.collections).map(
-        (collection) => "/" + collection
-      );
-    }
-    return {
-      message: "ok",
-      app,
-      routes: nav,
-    };
-  });
+  const index = () => ({ message: "ok", app, routes: nav });
+
+  router.get("/", index);
+  router.get("/repos{/}?", index);
+  router.get("/ping{/}?", index);
 
   router.get("/healthz", () => ({ message: "ok" }));
 
@@ -54,22 +46,33 @@ export function createServer(options: ServerOptions) {
     ...getSystemsEndpoints(),
   };
 
-  router.get("/ping/all", () => runAllEndpoints(endpoints));
+  router.get("/ping/all", async (ctx) => {
+    await authenticate("ping", ctx);
+    return runAllEndpoints(endpoints);
+  });
 
-  router.get("/ping/down", async () => {
+  router.get("/ping/down", async (ctx) => {
+    await authenticate("ping", ctx);
+
     const down: Record<string, EndpointResult> = {};
     const allResults = await runAllEndpoints(endpoints);
     for (const [id, result] of Object.entries(allResults)) {
-      if (result.state.online) continue;
+      if (result.state.ok) continue;
       down[id] = result;
     }
-    return down;
+    return Response.json(down, {
+      status: Object.keys(down).length === 0 ? 200 : 400,
+    });
   });
 
+  (nav["/ping"] as NavTree)["/:service"] = Object.keys(endpoints).sort();
   for (const [id, endpoint] of Object.entries(endpoints)) {
     router.get(`/ping/${id}`, async (ctx) => {
       await authenticate(`ping:${id}`, ctx);
-      return endpoint();
+      const result = await endpoint();
+      return Response.json(result, {
+        status: result.state.ok ? 200 : 400,
+      });
     });
   }
 

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY ["deps.ts", "app.json", "/app/"]
 RUN deno cache deps.ts
 COPY . .
-RUN deno compile --allow-env --allow-net --allow-read serve.ts --port=8080
+RUN deno compile --allow-env --allow-net --allow-read scripts/serve.ts --port=8080
 
 # 
 # Try to straight-copy the binary in
