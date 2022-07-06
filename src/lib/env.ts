@@ -2,6 +2,7 @@ export interface EnvRecord {
   JWT_SECRET: string;
   MAIN_MYSQL_URL: string;
   SHARED_MYSQL_URL: string;
+  UPTIME_ROBOT_SECRET: string;
 }
 
 export function getEnv<K extends keyof EnvRecord>(

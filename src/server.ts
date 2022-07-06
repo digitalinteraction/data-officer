@@ -9,6 +9,7 @@ import {
 import { getSystemsEndpoints } from "./endpoints/systems.ts";
 import { getCoffeeClubRepo } from "./repos/coffee_club.ts";
 import { getOpenlabRepo } from "./repos/openlab_ncl_ac_uk.ts";
+import { uptimeRobotTweet } from "./uptimerobot.ts";
 
 interface ServerOptions {
   port: number;
@@ -38,9 +39,10 @@ export function createServer(options: ServerOptions) {
   router.get("/ping{/}?", index);
 
   router.get("/healthz", () => ({ message: "ok" }));
+  router.post("/tweet/uptimerobot", uptimeRobotTweet);
 
   //
-  // Ping endpoints
+  // Ping routes
   //
   const endpoints = {
     ...getSystemsEndpoints(),
@@ -75,6 +77,10 @@ export function createServer(options: ServerOptions) {
       });
     });
   }
+
+  //
+  // Repos routes
+  //
 
   const repos = [getOpenlabRepo(), getCoffeeClubRepo()];
 

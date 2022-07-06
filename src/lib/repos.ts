@@ -12,7 +12,7 @@ export interface MarkdownPage<T> {
 }
 
 export async function getMarkdownCollection<T = unknown>(
-  pattern: string,
+  pattern: string
 ): Promise<MarkdownPage<T>[]> {
   const result: MarkdownPage<T>[] = [];
 
