@@ -115,7 +115,7 @@ export function getOpenlabRepo(): GitRepository {
 
   repo.collections.publications = async () => {
     return JSON.parse(
-      await Deno.readTextFile(`${base}/_data/publications.json`)
+      await Deno.readTextFile(`${base}/_data/publications.json`),
     );
   };
 

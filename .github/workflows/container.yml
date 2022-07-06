@@ -6,14 +6,14 @@
 # - original gist: https://gist.github.com/robb-j/049217ca8cecf4e214b8b82123f7371b
 #
 
-name: 'Build Versioned Container'
+name: "Build Versioned Container"
 
 on:
   push:
     tags: [v*.*.*]
 
 env:
-  REGISTRY: ghcr.io/digitalinteraction/systems-pinger
+  REGISTRY: ghcr.io/digitalinteraction/data-officer
 
 jobs:
   build_container:

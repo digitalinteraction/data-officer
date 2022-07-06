@@ -53,12 +53,12 @@ export function getSystemsEndpoints() {
     const messages: string[] = [];
     if (!dokku.ok) {
       messages.push(
-        "Cannot connect to dig-civics generator endpoint: http://dig-civics.ncl.ac.uk:8083"
+        "Cannot connect to dig-civics generator endpoint: http://dig-civics.ncl.ac.uk:8083",
       );
     }
     if (!gateway.ok) {
       messages.push(
-        "Cannot connect to dig-gateway reload endpoint: http://dig-gateway.ncl.ac.uk:8095/ping"
+        "Cannot connect to dig-gateway reload endpoint: http://dig-gateway.ncl.ac.uk:8095/ping",
       );
     }
 
@@ -93,7 +93,7 @@ export function getSystemsEndpoints() {
       name: "Shared MySql Backup",
       info: "Automated MySQL backup for our shared databases",
       link: null,
-    }
+    },
   );
 
   endpoints.mysql_main_backup = httpEndpoint("http://dig-wing.ncl.ac.uk:8087", {

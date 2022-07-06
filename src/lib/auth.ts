@@ -16,8 +16,8 @@ const toArray = (input: string | string[] | undefined) => {
 };
 
 export async function authenticate(scope: string, ctx: AcornContext) {
-  const auth =
-    getBearerHeader(ctx.request.headers) ?? ctx.searchParams["token"];
+  const auth = getBearerHeader(ctx.request.headers) ??
+    ctx.searchParams["token"];
   if (!auth) throw new AuthzError("No authorization present");
 
   const result = await jwtVerify(auth, new TextEncoder().encode("top_secret"), {

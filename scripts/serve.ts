@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env --allow-read
 
-import { parseFlags, loadDotenv } from "../deps.ts";
+import { loadDotenv, parseFlags } from "../deps.ts";
 import { createServer } from "../src/server.ts";
 
 await loadDotenv({ export: true });

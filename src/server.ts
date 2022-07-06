@@ -1,4 +1,4 @@
-import { Router, app } from "../deps.ts";
+import { app, Router } from "../deps.ts";
 import {
   authenticate,
   AuthzError,

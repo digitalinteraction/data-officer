@@ -1,4 +1,4 @@
-import { MysqlClient, configMysqlLogger } from "../../deps.ts";
+import { configMysqlLogger, MysqlClient } from "../../deps.ts";
 import { fetchWithTimeout } from "./fetch.ts";
 
 configMysqlLogger({ enable: false });
@@ -48,7 +48,7 @@ export function httpEndpoint(url: string, service: EndpointInfo): Endpoint {
 
 export function mysqlEndpoint(
   connectionString: string,
-  service: EndpointInfo
+  service: EndpointInfo,
 ): Endpoint {
   return async () => {
     try {
@@ -84,13 +84,13 @@ export function mysqlEndpoint(
 }
 
 export async function runAllEndpoints<T extends string>(
-  endpoints: Record<T, Endpoint>
+  endpoints: Record<T, Endpoint>,
 ): Promise<Record<T, EndpointResult>> {
   const pongs: Record<string, EndpointResult> = {};
   await Promise.all(
     Object.entries(endpoints).map(async ([key, endpoint]) => {
       pongs[key] = await (endpoint as Endpoint)();
-    })
+    }),
   );
   return pongs;
 }
