@@ -5,3 +5,5 @@
 .DS_Store
 *.env
 /repos
+
+twitter_auth.json

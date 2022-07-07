@@ -1,5 +1,5 @@
 import { AcornContext } from "../deps.ts";
-import { formatDuration } from "./lib/duration.ts";
+import { formatDuration, TwitterClient } from "./lib/mod.ts";
 
 /** https://uptimerobot.com/dashboard#mySettings */
 export interface UpDownAlert {
@@ -33,6 +33,10 @@ export function _monitorUpMessage(alert: UpDownAlert) {
 
 export async function uptimeRobotTweet(ctx: AcornContext) {
   const UPTIME_ROBOT_SECRET = Deno.env.get("UPTIME_ROBOT_SECRET");
+  const twitter = TwitterClient.fromEnv();
+
+  const creds = await twitter.getUpdatedCredentials();
+  if (!creds) return new Response("Not authorized to tweet", { status: 500 });
 
   try {
     const body = (await ctx.body()) as Record<string, unknown>;
@@ -49,14 +53,20 @@ export async function uptimeRobotTweet(ctx: AcornContext) {
         ? _monitorDownMessage(alert)
         : _monitorUpMessage(alert);
 
-    const oauthSignature = "TODO";
-    await console.log(new URL("tweets", TWITTER_API_URL), {
+    console.log(creds);
+
+    const endpoint = new URL("tweets", TWITTER_API_URL);
+    const request = new Request(endpoint.toString(), {
+      method: "POST",
       headers: {
         "content-type": "application/json",
-        authorization: `OAuth ${oauthSignature}`,
+        authorization: `Bearer ${creds.access_token}`,
       },
       body: JSON.stringify({ text }),
     });
+
+    const response = await fetch(request);
+    if (!response.ok) return response;
 
     return { message: "ok" };
   } catch (error) {

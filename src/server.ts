@@ -39,7 +39,7 @@ export function createServer(options: ServerOptions) {
   router.get("/ping{/}?", index);
 
   router.get("/healthz", () => ({ message: "ok" }));
-  router.post("/tweet/uptimerobot", uptimeRobotTweet);
+  router.post("/tweet/uptimerobot", (ctx) => uptimeRobotTweet(ctx));
 
   //
   // Ping routes

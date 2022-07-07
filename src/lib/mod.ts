@@ -4,3 +4,4 @@ export * from "./endpoints.ts";
 export * from "./env.ts";
 export * from "./fetch.ts";
 export * from "./repos.ts";
+export * from "./twitter.ts";
