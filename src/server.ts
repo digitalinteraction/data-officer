@@ -3,7 +3,10 @@ import {
   authenticate,
   AuthzError,
   EndpointResult,
+  getEnv,
   runAllEndpoints,
+  TwitterClient,
+  TwitterOAuth2,
 } from "./lib/mod.ts";
 
 import { getSystemsEndpoints } from "./endpoints/systems.ts";
@@ -22,6 +25,22 @@ interface NavTree {
 export function createServer(options: ServerOptions) {
   const router = new Router();
 
+  const env = getEnv(
+    "SELF_URL",
+    "TWITTER_CLIENT_ID",
+    "TWITTER_CLIENT_SECRET",
+    "TWITTER_AUTH_SECRET"
+  );
+
+  const twitter = new TwitterClient({
+    clientId: env.TWITTER_CLIENT_ID,
+    clientSecret: env.TWITTER_CLIENT_SECRET,
+  });
+  const twitterOAuth = new TwitterOAuth2(
+    twitter,
+    new URL("twitter/oauth2/callback", env.SELF_URL)
+  );
+
   const nav: NavTree = {
     "/": "This endpoint",
     "/healthz": "Get the health of the server",
@@ -29,6 +48,10 @@ export function createServer(options: ServerOptions) {
       "/all": "Get the status of all services",
       "/down": "Get the services which are down",
       "/:service": "Get the status of a specific (get the name from /all)",
+    },
+    "/twitter/oauth2": {
+      "/login": "Start a Twitter OAuth2 login to let the bot tweet",
+      "/callback": "Finish a Twitter OAuth2 login and store credentials",
     },
   };
 
@@ -40,6 +63,23 @@ export function createServer(options: ServerOptions) {
 
   router.get("/healthz", () => ({ message: "ok" }));
   router.post("/tweet/uptimerobot", (ctx) => uptimeRobotTweet(ctx));
+
+  router.get("/twitter/oauth2/login", async (ctx) => {
+    if (ctx.searchParams.secret !== env.TWITTER_AUTH_SECRET) {
+      throw new AuthzError("Invalid secret");
+    }
+    const url = await twitterOAuth.startLogin();
+    return url
+      ? Response.redirect(url.toString())
+      : new Response("Already authorized");
+  });
+  router.get("/twitter/oauth2/callback", async (ctx) => {
+    const { code, state } = ctx.searchParams;
+    const success = await twitterOAuth.finishLogin(state, code);
+    return success
+      ? new Response("Successfully authorized")
+      : new Response("Authorization failed", { status: 400 });
+  });
 
   //
   // Ping routes

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-read=. --allow-env --allow-net --allow-write=twitter_auth.json
+#!/usr/bin/env -S deno run --allow-read=. --allow-env --allow-net --allow-write=data/twitter_auth.json
 
 import { loadDotenv } from "../deps.ts";
 import { TwitterClient } from "../src/lib/mod.ts";

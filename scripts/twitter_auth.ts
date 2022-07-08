@@ -1,7 +1,11 @@
-#!/usr/bin/env -S deno run --allow-read --allow-env --allow-net --allow-write=twitter_auth.json
+#!/usr/bin/env -S deno run --allow-read=. --allow-env --allow-net --allow-write=data/twitter_auth.json
 
 import { Router, loadDotenv, parseFlags } from "../deps.ts";
-import { TwitterClient } from "../src/lib/mod.ts";
+import {
+  TwitterClient,
+  TwitterCredentials,
+  TwitterOAuth2,
+} from "../src/lib/mod.ts";
 
 const CLI_USAGE = `
 ./scripts/twitter_auth.ts - Generate twitter access credentials
@@ -40,21 +44,18 @@ if (flags.help) {
   Deno.exit(0);
 }
 
-const redirectUri = `http://localhost:${flags.port}/callback`;
-const randomState = crypto.randomUUID();
+const twitterOAuth = new TwitterOAuth2(
+  TwitterClient.fromEnv(),
+  new URL(`http://localhost:${flags.port}/twitter/oauth2/callback`)
+);
 
-const twitter = TwitterClient.fromEnv();
-
-const authUrl = twitter.getAuthorizeUrl({
-  scope: flags.scope,
-  state: randomState,
-  redirectUri,
-});
+const authUrl = await twitterOAuth.startLogin({ force: true });
+if (!authUrl) throw new Error("Something went wrong");
 
 //
 // Run a server to redirect to the oauth website and collect the state & token
 //
-const code = await new Promise<string | null>((resolve) => {
+const creds = await new Promise<TwitterCredentials | null>((resolve) => {
   const abort = new AbortController();
   const router = new Router();
 
@@ -62,7 +63,7 @@ const code = await new Promise<string | null>((resolve) => {
     console.log("Opening %o", authUrl.toString());
     return Response.redirect(authUrl.toString());
   });
-  router.get("/callback", (ctx) => {
+  router.get("/callback", async (ctx) => {
     const { state, code, error } = ctx.searchParams;
 
     if (typeof error === "string") {
@@ -71,32 +72,31 @@ const code = await new Promise<string | null>((resolve) => {
         abort.abort();
       }, 0);
       return `Authorization failed '${error}'`;
-    } else if (state === randomState && typeof code === "string") {
+    }
+
+    const creds = await twitterOAuth.finishLogin(state, code);
+
+    if (creds) {
       setTimeout(() => {
-        resolve(code);
+        resolve(creds);
         abort.abort();
       }, 0);
       return "Ok, now return to the terminal";
-    } else {
-      return new Response("Invalid callback, please try again", {
-        status: 400,
-      });
     }
+
+    return new Response("Invalid callback, please try again", { status: 400 });
   });
   router.listen({ port: flags.port, signal: abort.signal });
   console.log("Open: http://localhost:%s", flags.port);
 });
 
-if (!code) {
+if (!creds) {
   console.error("Failed to get authorization");
   Deno.exit(1);
 }
 
 //
-// Generate an access_token and refresh_token
+// Output credentials
 //
-const creds = await twitter.getTokenFromCode(code, redirectUri);
-await twitter.stashCredentials(creds);
-
 console.log("Your token:");
 console.log(JSON.stringify(creds, null, 2));

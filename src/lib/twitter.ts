@@ -1,6 +1,8 @@
+import { path } from "../../deps.ts";
 import { getEnv } from "./env.ts";
 
 const TWITTER_URL = new URL("https://api.twitter.com/2/");
+const TOKEN_PATH = "data/twitter_auth.json";
 
 export interface TwitterClientOptions {
   clientId: string;
@@ -17,7 +19,7 @@ export interface TwitterCredentials {
 }
 
 export interface TwitterAuthorizeOptions {
-  redirectUri: string;
+  redirectUri: string | URL;
   scope: string[];
   state: string;
 }
@@ -45,7 +47,7 @@ export class TwitterClient {
     const url = new URL("https://twitter.com/i/oauth2/authorize");
     url.searchParams.set("response_type", "code");
     url.searchParams.set("client_id", this.options.clientId);
-    url.searchParams.set("redirect_uri", redirectUri);
+    url.searchParams.set("redirect_uri", redirectUri.toString());
     url.searchParams.set("state", state);
     url.searchParams.set("code_challenge", "challenge");
     url.searchParams.set("code_challenge_method", "plain");
@@ -60,7 +62,7 @@ export class TwitterClient {
 
   async getTokenFromCode(
     code: string,
-    redirectUri: string
+    redirectUri: string | URL
   ): Promise<TwitterCredentials> {
     const response = await fetch(new URL("oauth2/token", TWITTER_URL), {
       method: "post",
@@ -75,7 +77,7 @@ export class TwitterClient {
         code,
         grant_type: "authorization_code",
         client_id: this.options.clientId,
-        redirect_uri: redirectUri,
+        redirect_uri: redirectUri.toString(),
         code_verifier: "challenge",
       }).toString(),
     });
@@ -86,15 +88,14 @@ export class TwitterClient {
   }
 
   async stashCredentials(credentials: TwitterCredentials) {
-    await Deno.writeTextFile(
-      "twitter_auth.json",
-      JSON.stringify(credentials, null, 2)
-    );
+    const { dir } = path.parse(TOKEN_PATH);
+    if (dir) await Deno.mkdir(dir, { recursive: true });
+    await Deno.writeTextFile(TOKEN_PATH, JSON.stringify(credentials, null, 2));
   }
 
   async grabCredentials(): Promise<TwitterCredentials | null> {
     try {
-      return JSON.parse(await Deno.readTextFile("twitter_auth.json"));
+      return JSON.parse(await Deno.readTextFile(TOKEN_PATH));
     } catch (_error) {
       return null;
     }
@@ -150,5 +151,43 @@ export class TwitterClient {
       },
       body: JSON.stringify({ text }),
     });
+  }
+}
+
+export class TwitterOAuth2 {
+  state: string | null = null;
+  constructor(protected client: TwitterClient, protected redirectUri: URL) {}
+
+  async startLogin({ force = false } = {}) {
+    const credentials = await this.client.grabCredentials();
+    if (
+      !force &&
+      credentials?.expires_at &&
+      credentials.expires_at > Date.now()
+    ) {
+      return null;
+    }
+
+    this.state = crypto.randomUUID();
+    return this.client.getAuthorizeUrl({
+      redirectUri: this.redirectUri,
+      state: this.state,
+      scope: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+    });
+  }
+
+  async finishLogin(
+    state?: string,
+    code?: string
+  ): Promise<TwitterCredentials | null> {
+    if (!this.state || typeof code !== "string" || state !== this.state) {
+      return null;
+    }
+
+    const creds = await this.client.getTokenFromCode(code, this.redirectUri);
+    await this.client.stashCredentials(creds);
+    this.state = null;
+
+    return creds;
   }
 }

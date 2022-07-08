@@ -1,10 +1,14 @@
 export interface EnvRecord {
   JWT_SECRET: string;
+  UPTIME_ROBOT_SECRET: string;
+  TWITTER_AUTH_SECRET: string;
+
   MAIN_MYSQL_URL: string;
   SHARED_MYSQL_URL: string;
-  UPTIME_ROBOT_SECRET: string;
 
-  TWITTER_BEARER_TOKEN: string;
+  SELF_URL: string;
+  TZ: string;
+
   TWITTER_CLIENT_ID: string;
   TWITTER_CLIENT_SECRET: string;
 }

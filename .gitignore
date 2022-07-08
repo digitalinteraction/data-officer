@@ -6,4 +6,4 @@
 *.env
 /repos
 
-twitter_auth.json
+data/
