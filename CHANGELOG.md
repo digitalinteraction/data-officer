@@ -2,6 +2,11 @@
 
 This file lists notable changes to the project.
 
+## 0.6.0
+
+- Add `/health/twitter` endpoint to check credential health
+- Log internal server errors
+
 ## 0.5.0
 
 - Add admin endpoint to generate tokens based on the request body
