@@ -1,6 +1,6 @@
 import { app, Router } from "../deps.ts";
 import {
-  authenticate,
+  AuthService,
   AuthzError,
   EndpointResult,
   getEnv,
@@ -29,7 +29,10 @@ export function createServer(options: ServerOptions) {
     "SELF_URL",
     "TWITTER_CLIENT_ID",
     "TWITTER_CLIENT_SECRET",
+    "JWT_SECRET",
   );
+
+  const auth = new AuthService(env.JWT_SECRET);
 
   const twitter = new TwitterClient({
     clientId: env.TWITTER_CLIENT_ID,
@@ -62,12 +65,12 @@ export function createServer(options: ServerOptions) {
 
   router.get("/healthz", () => ({ message: "ok" }));
   router.post("/tweet/uptimerobot", async (ctx) => {
-    await authenticate(ctx, "uptimerobot");
+    await auth.authenticate(ctx, "uptimerobot");
     return uptimeRobotTweet(ctx, twitter);
   });
 
   router.get("/twitter/oauth2/login", async (ctx) => {
-    await authenticate(ctx, "twitter:oauth2");
+    await auth.authenticate(ctx, "twitter:oauth2");
     const url = await twitterOAuth.startLogin();
     return url
       ? Response.redirect(url.toString())
@@ -82,6 +85,17 @@ export function createServer(options: ServerOptions) {
   });
 
   //
+  // Admin
+  //
+  router.post("/admin/token", async (ctx) => {
+    await auth.authenticate(ctx, "admin");
+    const token = await auth.signFromRequest(await ctx.body());
+    return token
+      ? new Response(token)
+      : new Response("Bad request", { status: 400 });
+  });
+
+  //
   // Ping routes
   //
   const endpoints = {
@@ -89,12 +103,12 @@ export function createServer(options: ServerOptions) {
   };
 
   router.get("/ping/all", async (ctx) => {
-    await authenticate(ctx, "ping");
+    await auth.authenticate(ctx, "ping");
     return runAllEndpoints(endpoints);
   });
 
   router.get("/ping/down", async (ctx) => {
-    await authenticate(ctx, "ping");
+    await auth.authenticate(ctx, "ping");
 
     const down: Record<string, EndpointResult> = {};
     const allResults = await runAllEndpoints(endpoints);
@@ -110,7 +124,7 @@ export function createServer(options: ServerOptions) {
   (nav["/ping"] as NavTree)["/:service"] = Object.keys(endpoints).sort();
   for (const [id, endpoint] of Object.entries(endpoints)) {
     router.get(`/ping/${id}`, async (ctx) => {
-      await authenticate(ctx, ["ping", `ping:${id}`]);
+      await auth.authenticate(ctx, ["ping", `ping:${id}`]);
       const result = await endpoint();
       return Response.json(result, {
         status: result.state.ok ? 200 : 400,
@@ -129,7 +143,10 @@ export function createServer(options: ServerOptions) {
   for (const repo of repos) {
     for (const [id, collection] of Object.entries(repo.collections)) {
       router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
-        await authenticate(ctx, ["repos", `repos:${repo.name}:${id}`]);
+        await auth.authenticate(ctx, [
+          "repos",
+          `repos:${repo.name}:${id}`,
+        ]);
         return collection();
       });
     }
