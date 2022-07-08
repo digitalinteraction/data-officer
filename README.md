@@ -5,7 +5,7 @@ in Deno.
 
 ## Development
 
-## Setup
+### Setup
 
 To develop on this repo you will need to have Docker and Deno installed on your
 dev machine and have an understanding of them. This guide assumes you have the
@@ -15,6 +15,8 @@ repo checked out and are on macOS.
 # Create an .env then fill in the values
 cp .env.example .env
 ```
+
+### Regular use
 
 These are the commands you'll regularly run to develop the API, in no particular
 order.
@@ -31,6 +33,14 @@ order.
 #   --subject is the name of the token (wip not used)
 #   --expire tells the token to expire in a timeframe, e.g. `60m`
 ./scripts/get_jwt.ts
+
+# Request a token from the endpoint
+TOKEN=...
+http :8080/admin/token \
+  "Authorization:Bearer $TOKEN"
+  subject=geoff \
+  scope="a b c" \
+  expiresIn=5m
 ```
 
 ### Code formatting
