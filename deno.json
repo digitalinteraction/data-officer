@@ -6,5 +6,10 @@
     "files": {
       "exclude": ["repos/"]
     }
+  },
+  "lint": {
+    "files": {
+      "exclude": ["repos/"]
+    }
   }
 }
