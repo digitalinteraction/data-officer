@@ -54,7 +54,7 @@ export class AuthService {
       .setIssuedAt()
       .setProtectedHeader({ alg: "HS256", typ: "JWT" });
     if (options.audience) jwt.setAudience(options.audience);
-    if (options.expiresIn) jwt.setAudience(options.expiresIn);
+    if (options.expiresIn) jwt.setExpirationTime(options.expiresIn);
     return jwt.sign(this.#secret);
   }
 
