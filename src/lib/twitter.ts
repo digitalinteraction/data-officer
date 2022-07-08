@@ -32,6 +32,11 @@ export function _getClientBasicAuthz(id: string, secret: string) {
   return `Basic ${btoa([id, secret].join(":"))}`;
 }
 
+export function _isValid(creds: TwitterCredentials, now = Date.now()): boolean {
+  if (creds.expires_at === undefined) return true;
+  return creds.expires_at > now;
+}
+
 export class TwitterClient {
   static fromEnv() {
     const env = getEnv("TWITTER_CLIENT_ID", "TWITTER_CLIENT_SECRET");
@@ -102,9 +107,7 @@ export class TwitterClient {
   }
 
   async refreshToken(creds: TwitterCredentials) {
-    if (creds.expires_at !== undefined && creds.expires_at > Date.now()) {
-      return creds;
-    }
+    if (_isValid(creds)) return creds;
 
     const response = await fetch(new URL("oauth2/token", TWITTER_URL), {
       method: "POST",
@@ -125,6 +128,7 @@ export class TwitterClient {
     });
 
     if (!response || !response.ok) {
+      await Deno.remove(TOKEN_PATH);
       throw new Error("Failed to refresh credentials");
     }
 
@@ -139,6 +143,11 @@ export class TwitterClient {
     const updated = await this.refreshToken(initial);
     if (updated !== updated) this.stashCredentials(updated);
     return updated;
+  }
+
+  async getHealth(): Promise<boolean> {
+    const creds = await this.getUpdatedCredentials();
+    return creds ? _isValid(creds) : false;
   }
 
   /** https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets */

@@ -64,6 +64,12 @@ export function createServer(options: ServerOptions) {
   router.get("/ping{/}?", () => index(nav["/ping"]));
 
   router.get("/healthz", () => ({ message: "ok" }));
+  router.get("/health/twitter", async () => {
+    const creds = await twitter.getHealth().catch(() => null);
+    return creds
+      ? new Response("Ok")
+      : new Response("Bad credentials", { status: 400 });
+  });
   router.post("/tweet/uptimerobot", async (ctx) => {
     await auth.authenticate(ctx, "uptimerobot");
     return uptimeRobotTweet(ctx, twitter);
@@ -163,6 +169,7 @@ export function createServer(options: ServerOptions) {
         statusText: "Unauthorized",
       });
     } else {
+      console.error(event.error);
       event.response = new Response("Internal Server Error", {
         status: 500,
       });
