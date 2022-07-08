@@ -25,15 +25,17 @@ const commands: Record<string, Command> = {
 
 const cmdIndent = Object.keys(commands).reduce<number>(
   (longest, str) => (longest > str.length ? longest : str.length),
-  0
+  0,
 );
 
 const CLI_USAGE = `./src/cli.ts <command> [options]
 
 commands:
-  ${Object.entries(commands)
+  ${
+  Object.entries(commands)
     .map(([key, cmd]) => key.padEnd(cmdIndent + 2, " ") + cmd.info)
-    .join("\n  ")}
+    .join("\n  ")
+}
 
 global options:
   --help    Show this help message

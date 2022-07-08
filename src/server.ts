@@ -29,7 +29,7 @@ export function createServer(options: ServerOptions) {
     "SELF_URL",
     "TWITTER_CLIENT_ID",
     "TWITTER_CLIENT_SECRET",
-    "TWITTER_AUTH_SECRET"
+    "TWITTER_AUTH_SECRET",
   );
 
   const twitter = new TwitterClient({
@@ -38,7 +38,7 @@ export function createServer(options: ServerOptions) {
   });
   const twitterOAuth = new TwitterOAuth2(
     twitter,
-    new URL("twitter/oauth2/callback", env.SELF_URL)
+    new URL("twitter/oauth2/callback", env.SELF_URL),
   );
 
   const nav: NavTree = {
@@ -135,7 +135,7 @@ export function createServer(options: ServerOptions) {
     }
 
     reposNav["/" + repo.name] = Object.keys(repo.collections).map(
-      (collection) => "/" + collection
+      (collection) => "/" + collection,
     );
   }
 

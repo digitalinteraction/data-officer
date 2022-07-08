@@ -62,7 +62,7 @@ export class TwitterClient {
 
   async getTokenFromCode(
     code: string,
-    redirectUri: string | URL
+    redirectUri: string | URL,
   ): Promise<TwitterCredentials> {
     const response = await fetch(new URL("oauth2/token", TWITTER_URL), {
       method: "post",
@@ -70,7 +70,7 @@ export class TwitterClient {
         "content-type": "application/x-www-form-urlencoded",
         authorization: _getClientBasicAuthz(
           this.options.clientId,
-          this.options.clientSecret
+          this.options.clientSecret,
         ),
       },
       body: new URLSearchParams({
@@ -112,7 +112,7 @@ export class TwitterClient {
         "content-type": "application/x-www-form-urlencoded",
         authorization: _getClientBasicAuthz(
           this.options.clientId,
-          this.options.clientSecret
+          this.options.clientSecret,
         ),
       },
       body: new URLSearchParams({
@@ -178,7 +178,7 @@ export class TwitterOAuth2 {
 
   async finishLogin(
     state?: string,
-    code?: string
+    code?: string,
   ): Promise<TwitterCredentials | null> {
     if (!this.state || typeof code !== "string" || state !== this.state) {
       return null;

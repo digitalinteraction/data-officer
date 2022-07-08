@@ -38,7 +38,8 @@ order.
 This repo is formatted with Deno, your IDE should do this for you automatically.
 You can run `deno fmt` if you like instead.
 
-> You can ignore a line with `// deno-fmt-ignore` or a file with `// deno-fmt-ignore-file`.
+> You can ignore a line with `// deno-fmt-ignore` or a file with
+> `// deno-fmt-ignore-file`.
 
 ## Release
 

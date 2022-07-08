@@ -1,8 +1,8 @@
 import { assertMatch } from "../../deps_test.ts";
 import {
-  UpDownAlert,
   _monitorDownMessage,
   _monitorUpMessage,
+  UpDownAlert,
 } from "../../src/uptimerobot.ts";
 
 const alert: Omit<UpDownAlert, "alertType"> = {

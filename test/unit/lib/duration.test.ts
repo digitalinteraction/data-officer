@@ -17,14 +17,14 @@ Deno.test("#formatDuration", async (t) => {
   await t.step("should format seconds, minutes and hours", () => {
     assertEquals(
       formatDuration(((23 * 60 + 11) * 60 + 5) * 1000),
-      "23h 11m 5s"
+      "23h 11m 5s",
     );
   });
 
   await t.step("should format seconds, minutes, hours and days", () => {
     assertEquals(
       formatDuration((((3 * 24 + 23) * 60 + 11) * 60 + 5) * 1000),
-      "3d 23h 11m 5s"
+      "3d 23h 11m 5s",
     );
   });
 

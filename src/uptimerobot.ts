@@ -46,10 +46,9 @@ export async function uptimeRobotTweet(ctx: AcornContext) {
     // deno-lint-ignore no-explicit-any
     const alert: UpDownAlert = ctx.searchParams as any;
 
-    const text =
-      alert.alertType === "1"
-        ? _monitorDownMessage(alert)
-        : _monitorUpMessage(alert);
+    const text = alert.alertType === "1"
+      ? _monitorDownMessage(alert)
+      : _monitorUpMessage(alert);
 
     const response = await twitter.tweet(text, creds);
     if (!response.ok) return response;

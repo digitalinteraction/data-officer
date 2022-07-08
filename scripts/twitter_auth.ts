@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read=. --allow-env --allow-net --allow-write=data/twitter_auth.json
 
-import { Router, loadDotenv, parseFlags } from "../deps.ts";
+import { loadDotenv, parseFlags, Router } from "../deps.ts";
 import {
   TwitterClient,
   TwitterCredentials,
@@ -34,7 +34,7 @@ const flags: Flags = parseFlags(Deno.args, {
 if (!flags.scope) {
   console.error(
     "No scopes passed, maybe: %o",
-    "--scope=tweet.read --scope=tweet.write --scope=users.read --scope=offline.access"
+    "--scope=tweet.read --scope=tweet.write --scope=users.read --scope=offline.access",
   );
   Deno.exit(1);
 }
@@ -46,7 +46,7 @@ if (flags.help) {
 
 const twitterOAuth = new TwitterOAuth2(
   TwitterClient.fromEnv(),
-  new URL(`http://localhost:${flags.port}/twitter/oauth2/callback`)
+  new URL(`http://localhost:${flags.port}/twitter/oauth2/callback`),
 );
 
 const authUrl = await twitterOAuth.startLogin({ force: true });
