@@ -1,7 +1,5 @@
 export interface EnvRecord {
   JWT_SECRET: string;
-  UPTIME_ROBOT_SECRET: string;
-  TWITTER_AUTH_SECRET: string;
 
   MAIN_MYSQL_URL: string;
   SHARED_MYSQL_URL: string;

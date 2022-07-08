@@ -29,7 +29,6 @@ export function createServer(options: ServerOptions) {
     "SELF_URL",
     "TWITTER_CLIENT_ID",
     "TWITTER_CLIENT_SECRET",
-    "TWITTER_AUTH_SECRET",
   );
 
   const twitter = new TwitterClient({
@@ -55,19 +54,20 @@ export function createServer(options: ServerOptions) {
     },
   };
 
-  const index = () => ({ message: "ok", app, routes: nav });
+  const index = (nav: unknown) => ({ message: "ok", app, routes: nav });
 
-  router.get("/", index);
-  router.get("/repos{/}?", index);
-  router.get("/ping{/}?", index);
+  router.get("/", () => index(nav));
+  router.get("/repos{/}?", () => index(nav["/repos"]));
+  router.get("/ping{/}?", () => index(nav["/ping"]));
 
   router.get("/healthz", () => ({ message: "ok" }));
-  router.post("/tweet/uptimerobot", (ctx) => uptimeRobotTweet(ctx));
+  router.post("/tweet/uptimerobot", async (ctx) => {
+    await authenticate(ctx, "uptimerobot");
+    return uptimeRobotTweet(ctx, twitter);
+  });
 
   router.get("/twitter/oauth2/login", async (ctx) => {
-    if (ctx.searchParams.secret !== env.TWITTER_AUTH_SECRET) {
-      throw new AuthzError("Invalid secret");
-    }
+    await authenticate(ctx, "twitter:oauth2");
     const url = await twitterOAuth.startLogin();
     return url
       ? Response.redirect(url.toString())
@@ -89,12 +89,12 @@ export function createServer(options: ServerOptions) {
   };
 
   router.get("/ping/all", async (ctx) => {
-    await authenticate("ping", ctx);
+    await authenticate(ctx, "ping");
     return runAllEndpoints(endpoints);
   });
 
   router.get("/ping/down", async (ctx) => {
-    await authenticate("ping", ctx);
+    await authenticate(ctx, "ping");
 
     const down: Record<string, EndpointResult> = {};
     const allResults = await runAllEndpoints(endpoints);
@@ -110,7 +110,7 @@ export function createServer(options: ServerOptions) {
   (nav["/ping"] as NavTree)["/:service"] = Object.keys(endpoints).sort();
   for (const [id, endpoint] of Object.entries(endpoints)) {
     router.get(`/ping/${id}`, async (ctx) => {
-      await authenticate(`ping:${id}`, ctx);
+      await authenticate(ctx, ["ping", `ping:${id}`]);
       const result = await endpoint();
       return Response.json(result, {
         status: result.state.ok ? 200 : 400,
@@ -129,7 +129,7 @@ export function createServer(options: ServerOptions) {
   for (const repo of repos) {
     for (const [id, collection] of Object.entries(repo.collections)) {
       router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
-        await authenticate(`${repo.name}:${id}`, ctx);
+        await authenticate(ctx, ["repos", `repos:${repo.name}:${id}`]);
         return collection();
       });
     }

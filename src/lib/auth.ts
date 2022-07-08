@@ -15,7 +15,10 @@ const toArray = (input: string | string[] | undefined) => {
   return typeof input === "string" ? [input] : input;
 };
 
-export async function authenticate(scope: string, ctx: AcornContext) {
+export async function authenticate(
+  ctx: AcornContext,
+  scope: string | string[],
+) {
   const auth = getBearerHeader(ctx.request.headers) ??
     ctx.searchParams["token"];
   if (!auth) throw new AuthzError("No authorization present");
@@ -27,9 +30,10 @@ export async function authenticate(scope: string, ctx: AcornContext) {
   if (!result) throw new AuthzError("Bad authorization");
 
   // Check the audience manually, to add an "admin" check
-  const aud = toArray(result.payload.aud);
-  if (!aud.includes(scope) && !aud.includes("admin")) {
-    throw new AuthzError("Scope missing: " + scope);
+  const aud = new Set(toArray(result.payload.aud));
+  const scopes = toArray(scope);
+  if (scopes.every((s) => !aud.has(s)) && !aud.has("admin")) {
+    throw new AuthzError("Not authorized for: " + scopes);
   }
 
   return result;

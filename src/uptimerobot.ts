@@ -29,20 +29,14 @@ export function _monitorUpMessage(alert: UpDownAlert) {
   ].join(" ");
 }
 
-export async function uptimeRobotTweet(ctx: AcornContext) {
-  const UPTIME_ROBOT_SECRET = Deno.env.get("UPTIME_ROBOT_SECRET");
-  const twitter = TwitterClient.fromEnv();
-
+export async function uptimeRobotTweet(
+  ctx: AcornContext,
+  twitter: TwitterClient,
+) {
   const creds = await twitter.getUpdatedCredentials();
   if (!creds) return new Response("Not authorized to tweet", { status: 500 });
 
   try {
-    const body = (await ctx.body()) as Record<string, unknown>;
-
-    if (!UPTIME_ROBOT_SECRET || body.secret !== UPTIME_ROBOT_SECRET) {
-      return Response.json({}, { status: 401 });
-    }
-
     // deno-lint-ignore no-explicit-any
     const alert: UpDownAlert = ctx.searchParams as any;
 
