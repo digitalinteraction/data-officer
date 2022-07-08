@@ -5,16 +5,33 @@ import { getEnv } from "../src/lib/mod.ts";
 
 await loadDotenv({ export: true });
 
+const CLI_USAGE = `
+./scripts/get_jwt.ts
+
+options:
+  --subject Set the "sub" claim
+  --scope   Set the "aud" claim, can be passed multiple times
+  --expire  Set the "exr" claim, use a string like 5m
+  --help    Show this help message
+`;
+
 interface Flags {
+  help?: boolean;
   subject?: string;
   scope?: string[];
   expire: string;
 }
 
 const flags: Flags = parseFlags(Deno.args, {
+  boolean: ["help"],
   string: ["expire", "subject"],
   collect: ["scope"],
 });
+
+if (flags.help) {
+  console.log(CLI_USAGE);
+  Deno.exit();
+}
 
 const env = getEnv("JWT_SECRET");
 
