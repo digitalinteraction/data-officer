@@ -14,3 +14,7 @@ Deno re-write.
 - Add script to generate a JWT to access the specific endpoints
 - Add script to get a twitter authentication token using a temporary http server
 - Add script to reauthenticate a twitter token with a refresh_token
+
+## Pre data-officer
+
+This app was called `systems-pinger` and just provided the ping endpoints.
