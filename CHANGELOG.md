@@ -2,6 +2,11 @@
 
 This file lists notable changes to the project.
 
+## 0.5.0
+
+- Add admin endpoint to generate tokens based on the request body
+- Fix auth not working
+
 ## 0.4.0
 
 Deno re-write.
