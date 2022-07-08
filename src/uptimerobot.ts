@@ -13,8 +13,6 @@ export interface UpDownAlert {
   monitorAlertContacts: string;
 }
 
-const TWITTER_API_URL = new URL("https://api.twitter.com/2/");
-
 export function _monitorDownMessage(alert: UpDownAlert) {
   return [
     "💔 Looks like",
@@ -53,19 +51,7 @@ export async function uptimeRobotTweet(ctx: AcornContext) {
         ? _monitorDownMessage(alert)
         : _monitorUpMessage(alert);
 
-    console.log(creds);
-
-    const endpoint = new URL("tweets", TWITTER_API_URL);
-    const request = new Request(endpoint.toString(), {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${creds.access_token}`,
-      },
-      body: JSON.stringify({ text }),
-    });
-
-    const response = await fetch(request);
+    const response = await twitter.tweet(text, creds);
     if (!response.ok) return response;
 
     return { message: "ok" };

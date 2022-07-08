@@ -30,7 +30,7 @@ const flags: Flags = parseFlags(Deno.args, {
 if (!flags.scope) {
   console.error(
     "No scopes passed, maybe: %o",
-    "--scope=tweet.write --scope=users.read --scope=offline.access"
+    "--scope=tweet.read --scope=tweet.write --scope=users.read --scope=offline.access"
   );
   Deno.exit(1);
 }

@@ -139,4 +139,16 @@ export class TwitterClient {
     if (updated !== updated) this.stashCredentials(updated);
     return updated;
   }
+
+  /** https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets */
+  tweet(text: string, creds: TwitterCredentials) {
+    return fetch(new URL("tweets", TWITTER_URL), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${creds.access_token}`,
+      },
+      body: JSON.stringify({ text }),
+    });
+  }
 }
