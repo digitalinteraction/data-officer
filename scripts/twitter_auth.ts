@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --allow-read --allow-env --allow-net --allow-write=twitter_auth.json
 
 import { Router, loadDotenv, parseFlags } from "../deps.ts";
-import { getEnv, TwitterClient } from "../src/lib/mod.ts";
+import { TwitterClient } from "../src/lib/mod.ts";
 
 const CLI_USAGE = `
 ./scripts/twitter_auth.ts - Generate twitter access credentials

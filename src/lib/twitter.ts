@@ -133,8 +133,10 @@ export class TwitterClient {
   }
 
   async getUpdatedCredentials(): Promise<TwitterCredentials> {
-    const creds = await this.grabCredentials();
-    if (!creds) throw new Error("No credentials loaded");
-    return this.refreshToken(creds);
+    const initial = await this.grabCredentials();
+    if (!initial) throw new Error("No credentials loaded");
+    const updated = await this.refreshToken(initial);
+    if (updated !== updated) this.stashCredentials(updated);
+    return updated;
   }
 }
