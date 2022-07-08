@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env --allow-read --allow-write=data
 
-import { app } from "../deps.ts";
-import { serveCommand } from "./commands/serve.ts";
+import { app } from "./deps.ts";
+import { serveCommand } from "./src/commands/serve.ts";
 
 interface Command {
   info: string;

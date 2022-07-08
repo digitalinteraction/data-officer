@@ -1,27 +1,33 @@
 # https://stackoverflow.com/a/71611002
 
-FROM --platform=linux/amd64 denoland/deno:alpine-1.22.0 as builder
+# --platform=linux/amd64
+
+FROM denoland/deno:alpine-1.22.0 as builder
 EXPOSE 8080
 WORKDIR /app
 COPY ["deps.ts", "app.json", "/app/"]
 RUN deno cache deps.ts
 COPY . .
-RUN deno compile --allow-env --allow-net --allow-read scripts/serve.ts --port=8080
+RUN deno compile --output data-officer --allow-net --allow-env --allow-read --allow-write=data cli.ts
 
 # 
 # Try to straight-copy the binary in
+# based on https://github.com/denoland/deno_docker/blob/main/alpine.dockerfile
 # 
-# FROM --platform=linux/amd64 alpine:3.16
-# RUN addgroup -g 1000 deno \
-#   && adduser -u 1000 -G deno -s /bin/sh -D deno
-# USER deno
-# WORKDIR /app
-# COPY --from=builder ["/app/serve", "/app/"]
-# ENTRYPOINT ["/app/serve"]
-
-FROM denoland/deno:alpine-1.22.0
+FROM frolvlad/alpine-glibc:alpine-3.13
+RUN addgroup --gid 1000 deno \
+  && adduser --uid 1000 --disabled-password deno --ingroup deno
 USER deno
 WORKDIR /app
-COPY --from=builder ["/app/serve", "/app/"]
 RUN mkdir /app/data
-ENTRYPOINT ["/app/serve"]
+COPY --from=builder ["/app/data-officer", "/app/"]
+ENTRYPOINT ["/app/data-officer"]
+CMD ["serve", "--port=8080"]
+
+# FROM denoland/deno:alpine-1.22.0
+# USER deno
+# WORKDIR /app
+# RUN mkdir /app/data
+# COPY --from=builder ["/app/data-officer", "/app/"]
+# ENTRYPOINT ["/app/data-officer"]
+# CMD ["serve", "--port=8080"]
