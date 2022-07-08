@@ -23,4 +23,5 @@ FROM denoland/deno:alpine-1.22.0
 USER deno
 WORKDIR /app
 COPY --from=builder ["/app/serve", "/app/"]
+RUN mkdir /app/data
 ENTRYPOINT ["/app/serve"]
