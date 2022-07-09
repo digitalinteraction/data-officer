@@ -34,6 +34,11 @@ order.
 #   --expire tells the token to expire in a timeframe, e.g. `60m`
 ./scripts/get_jwt.ts
 
+# Bump the app's version, must be run with a semantic version
+# -> commits as X.Y.Z
+# -> tags as vX.Y.Z
+./scripts/version.ts X.Y.Z
+
 # Request a token from the endpoint
 TOKEN=...
 http :8080/admin/token \
@@ -56,13 +61,10 @@ You can run `deno fmt` if you like instead.
 This repo uses GitHub actions to build a container when you push a git tag like
 `v1.2.3`.
 
-1. Make sure all code is commited
-2. Pick a new version, `X.Y.Z`
-3. Bump the version in [app.json](/app.json) to the new version
-4. Update the [CHANGELOG.md](/CHANGELOG.md) to document new changes
-5. Commit changes as `X.Y.Z`
-6. Tag as `vX.Y.Z`
-7. Push to GitHub
+1. Make sure all code is committed on `main`
+2. Update the [CHANGELOG.md](/CHANGELOG.md)
+3. Run `./script/version X.Y.Z`
+4. Push to main
 
 ## Environment variables
 
