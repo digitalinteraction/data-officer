@@ -1,4 +1,4 @@
-import { path } from "../../deps.ts";
+import { base64, path } from "../../deps.ts";
 import { getEnv } from "./env.ts";
 
 const TWITTER_URL = new URL("https://api.twitter.com/2/");
@@ -32,7 +32,7 @@ export function _getExpiresAt(
 }
 
 export function _getClientBasicAuthz(id: string, secret: string) {
-  return `Basic ${btoa([id, secret].join(":"))}`;
+  return `Basic ${base64.encode([id, secret].join(":"))}`;
 }
 
 export function _isValid(creds: TwitterCredentials, now = Date.now()): boolean {

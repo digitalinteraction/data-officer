@@ -13,6 +13,7 @@ export { expandGlob } from "https://deno.land/std@0.146.0/fs/mod.ts";
 export { extract as extractFrontMatter } from "https://deno.land/std@0.146.0/encoding/front_matter.ts";
 export { parse as parseYaml } from "https://deno.land/std@0.146.0/encoding/yaml.ts";
 export { parse as parseCsv } from "https://deno.land/std@0.146.0/encoding/csv.ts";
+export * as base64 from "https://deno.land/std@0.146.0/encoding/base64.ts";
 export * as path from "https://deno.land/std@0.146.0/path/mod.ts";
 export * as datetime from "https://deno.land/std@0.146.0/datetime/mod.ts";
 

@@ -60,11 +60,16 @@ Deno.test("AuthService", async (t) => {
   const auth = new AuthService(JWT_SECRET, JWT_ISSUER);
 
   await t.step("#authenticate", async (t) => {
-    const headers = new Headers();
-    const searchParams: any = {};
-    const ctx: any = { request: { headers }, searchParams };
+    function setup() {
+      const headers = new Headers();
+      const searchParams: any = {};
+      const ctx: any = { request: { headers }, searchParams };
+      return { headers, searchParams, ctx };
+    }
 
     await t.step("should throw AuthzError when not authed", () => {
+      const { ctx } = setup();
+
       assertRejects(
         () => auth.authenticate(ctx, "user"),
         AuthzError,
@@ -72,16 +77,20 @@ Deno.test("AuthService", async (t) => {
     });
 
     await t.step("should parse auth headers", async () => {
+      const { ctx, headers } = setup();
+
       headers.set("Authorization", "Bearer " + USER_JWT);
       await auth.authenticate(ctx, "user");
     });
 
     await t.step("should parse searchParams token", async () => {
+      const { ctx, searchParams } = setup();
       searchParams.token = USER_JWT;
       await auth.authenticate(ctx, "user");
     });
 
     await t.step("should throw AuthzError if the scope is missing", () => {
+      const { ctx, searchParams } = setup();
       searchParams.token = USER_JWT;
       assertRejects(
         () => auth.authenticate(ctx, "moderate"),
@@ -90,6 +99,7 @@ Deno.test("AuthService", async (t) => {
     });
 
     await t.step("should always allow admins", async () => {
+      const { ctx, searchParams } = setup();
       searchParams.token = ADMIN_JWT;
       await auth.authenticate(ctx, "user");
     });
