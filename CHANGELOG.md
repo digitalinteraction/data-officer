@@ -2,6 +2,12 @@
 
 This file lists notable changes to the project.
 
+## 0.7.0
+
+- Git remotes are now synchronised in the background. Enable with `--syncRepos`
+  and optional `--verboseSync`.
+- Add `--help` option to serve command to output usage info.
+
 ## 0.6.0
 
 - Add `/health/twitter` endpoint to check credential health

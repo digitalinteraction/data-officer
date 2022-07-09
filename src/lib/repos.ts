@@ -34,3 +34,17 @@ export async function getMarkdownCollection<T = unknown>(
 
   return result;
 }
+
+// https://deno.land/manual/examples/subprocess
+export async function syncRepos(
+  verbose: boolean,
+): Promise<boolean> {
+  const process = Deno.run({
+    cmd: ["scripts/clone_repos.sh"],
+    stdout: verbose ? "inherit" : "null",
+    stderr: verbose ? "inherit" : "null",
+  });
+
+  const status = await process.status();
+  return status.success;
+}

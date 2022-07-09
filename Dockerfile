@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ["deps.ts", "app.json", "/app/"]
 RUN deno cache deps.ts
 COPY . .
-RUN deno compile --output data-officer --allow-net --allow-env --allow-read --allow-write=data cli.ts
+RUN deno compile --output data-officer --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh cli.ts
 
 # 
 # Try to straight-copy the binary in
@@ -19,8 +19,9 @@ RUN addgroup --gid 1000 deno \
   && adduser --uid 1000 --disabled-password deno --ingroup deno
 USER deno
 WORKDIR /app
-RUN mkdir /app/data
+RUN mkdir /app/data /app/repos
 COPY --from=builder ["/app/data-officer", "/app/"]
+COPY ["scripts/clone_repos.sh", "/app/scripts/"]
 ENTRYPOINT ["/app/data-officer"]
 CMD ["serve", "--port=8080"]
 

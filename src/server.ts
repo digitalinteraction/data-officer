@@ -5,6 +5,7 @@ import {
   EndpointResult,
   getEnv,
   runAllEndpoints,
+  syncRepos,
   TwitterClient,
   TwitterOAuth2,
 } from "./lib/mod.ts";
@@ -16,11 +17,15 @@ import { uptimeRobotTweet } from "./uptimerobot.ts";
 
 interface ServerOptions {
   port: number;
+  syncRepos: boolean;
+  verboseSync: boolean;
 }
 
 interface NavTree {
   [key: string]: string | string[] | NavTree;
 }
+
+const SYNC_INTERVAL = 2 * 60 * 1000;
 
 export function createServer(options: ServerOptions) {
   const router = new Router();
@@ -141,7 +146,6 @@ export function createServer(options: ServerOptions) {
   //
   // Repos routes
   //
-
   const repos = [getOpenlabRepo(), getCoffeeClubRepo()];
 
   const reposNav: NavTree = {};
@@ -162,6 +166,9 @@ export function createServer(options: ServerOptions) {
     );
   }
 
+  //
+  // Error handler
+  //
   router.addEventListener("error", (event) => {
     if (event.error instanceof AuthzError) {
       event.response = new Response(event.error.message, {
@@ -175,6 +182,17 @@ export function createServer(options: ServerOptions) {
       });
     }
   });
+
+  //
+  // Repos sync
+  //
+  if (options.syncRepos) {
+    syncRepos(options.verboseSync);
+    setInterval(
+      async () => await syncRepos(options.verboseSync),
+      SYNC_INTERVAL,
+    );
+  }
 
   return {
     async start() {
