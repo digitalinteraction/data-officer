@@ -24,8 +24,11 @@ export interface TwitterAuthorizeOptions {
   state: string;
 }
 
-export function _getExpiresAt(creds: TwitterCredentials): number {
-  return Date.now() + creds.expires_in * 1000;
+export function _getExpiresAt(
+  creds: TwitterCredentials,
+  now = Date.now(),
+): number {
+  return now + creds.expires_in * 1000;
 }
 
 export function _getClientBasicAuthz(id: string, secret: string) {
@@ -167,12 +170,12 @@ export class TwitterOAuth2 {
   state: string | null = null;
   constructor(protected client: TwitterClient, protected redirectUri: URL) {}
 
-  async startLogin({ force = false } = {}) {
+  async startLogin({ force = false, now = Date.now() } = {}) {
     const credentials = await this.client.grabCredentials();
     if (
       !force &&
       credentials?.expires_at &&
-      credentials.expires_at > Date.now()
+      credentials.expires_at > now
     ) {
       return null;
     }
