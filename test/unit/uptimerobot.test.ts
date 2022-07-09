@@ -15,14 +15,14 @@ const alert: Omit<UpDownAlert, "alertType"> = {
   monitorAlertContacts: "",
 };
 
-Deno.test("#_monitorDownMessage", async (t) => {
+Deno.test("_monitorDownMessage", async (t) => {
   await t.step("should format the message", () => {
     const result = _monitorDownMessage({ ...alert, alertType: "1" });
     assertMatch(result, /ExampleMonitor is down/i);
   });
 });
 
-Deno.test("#_monitorUpMessage", async (t) => {
+Deno.test("_monitorUpMessage", async (t) => {
   await t.step("should format the message", () => {
     const result = _monitorUpMessage({ ...alert, alertType: "0" });
     assertMatch(result, /ExampleMonitor is back up/i);

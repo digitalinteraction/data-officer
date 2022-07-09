@@ -1,7 +1,7 @@
 import { assertEquals } from "../../../deps_test.ts";
 import { formatDuration } from "../../../src/lib/duration.ts";
 
-Deno.test("#formatDuration", async (t) => {
+Deno.test("formatDuration", async (t) => {
   await t.step("should format no seconds", () => {
     assertEquals(formatDuration(0), "0s");
   });

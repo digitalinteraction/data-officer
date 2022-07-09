@@ -1,4 +1,4 @@
-import { AcornContext, app, jwtVerify, SignJWT } from "../../deps.ts";
+import { AcornContext, jwtVerify, SignJWT } from "../../deps.ts";
 
 export class AuthzError extends Error {}
 
@@ -10,7 +10,7 @@ export function getBearerHeader(headers: Headers) {
   return header.replace(bearerRegex, "");
 }
 
-const toArray = (input: string | string[] | undefined) => {
+export const _toArray = (input: string | string[] | undefined) => {
   if (input === undefined) return [];
   return typeof input === "string" ? [input] : input;
 };
@@ -22,8 +22,10 @@ export interface JwtSignOptions {
 
 export class AuthService {
   #secret: Uint8Array;
-  constructor(secret: string) {
+  #jwtIssuer: string;
+  constructor(secret: string, jwtIssuer: string) {
     this.#secret = new TextEncoder().encode(secret);
+    this.#jwtIssuer = jwtIssuer;
   }
 
   async authenticate(ctx: AcornContext, scope: string | string[]) {
@@ -34,14 +36,14 @@ export class AuthService {
     const result = await jwtVerify(
       auth,
       this.#secret,
-      { issuer: app.jwtIssuer },
+      { issuer: this.#jwtIssuer },
     ).catch(() => null);
 
     if (!result) throw new AuthzError("Bad authorization");
 
     // Check the audience manually, to add an "admin" check
-    const aud = new Set(toArray(result.payload.aud));
-    const scopes = toArray(scope);
+    const aud = new Set(_toArray(result.payload.aud));
+    const scopes = _toArray(scope);
     if (scopes.every((s) => !aud.has(s)) && !aud.has("admin")) {
       throw new AuthzError("Not authorized for: " + scopes);
     }
@@ -50,7 +52,7 @@ export class AuthService {
   }
 
   sign(subject: string, options: JwtSignOptions) {
-    const jwt = new SignJWT({ sub: subject, iss: app.jwtIssuer })
+    const jwt = new SignJWT({ sub: subject, iss: this.#jwtIssuer })
       .setIssuedAt()
       .setProtectedHeader({ alg: "HS256", typ: "JWT" });
     if (options.audience) jwt.setAudience(options.audience);
