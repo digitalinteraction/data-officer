@@ -21,4 +21,4 @@ jobs:
           deno-version: v1.x
       - run: |
           deno lint
-          deno test
+          ./scripts/test.js
