@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## 0.7.4
+
+- Add missing `git` and `ssh` binaries to container
+
 ## 0.7.3
 
 - Fix bug refreshing twitter credentials
