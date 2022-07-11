@@ -57,6 +57,7 @@ export function createServer(options: ServerOptions) {
       "/:service": "Get the status of a specific (get the name from /all)",
     },
     "/twitter/oauth2": {
+      "/health": "Whether the server is authenticated to tweet",
       "/login": "Start a Twitter OAuth2 login to let the bot tweet",
       "/callback": "Finish a Twitter OAuth2 login and store credentials",
     },
@@ -67,19 +68,25 @@ export function createServer(options: ServerOptions) {
   router.get("/", () => index(nav));
   router.get("/repos{/}?", () => index(nav["/repos"]));
   router.get("/ping{/}?", () => index(nav["/ping"]));
-
   router.get("/healthz", () => ({ message: "ok" }));
-  router.get("/health/twitter", async () => {
-    const creds = await twitter.getHealth().catch(() => null);
-    return creds
-      ? new Response("Ok")
-      : new Response("Bad credentials", { status: 400 });
-  });
+
+  //
+  // Tweet endpoint
+  //
   router.post("/tweet/uptimerobot", async (ctx) => {
     await auth.authenticate(ctx, "uptimerobot");
     return uptimeRobotTweet(ctx, twitter);
   });
 
+  //
+  // Twitter OAuth2
+  //
+  router.get("/twitter/oauth2/health", async () => {
+    const creds = await twitter.getHealth().catch(() => null);
+    return creds
+      ? new Response("Ok")
+      : new Response("Bad credentials", { status: 400 });
+  });
   router.get("/twitter/oauth2/login", async (ctx) => {
     await auth.authenticate(ctx, "twitter:oauth2");
     const url = await twitterOAuth.startLogin();
