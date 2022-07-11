@@ -37,7 +37,7 @@ export function createServer(options: ServerOptions) {
     "JWT_SECRET",
   );
 
-  const auth = new AuthService(env.JWT_SECRET);
+  const auth = new AuthService(env.JWT_SECRET, app.jwtIssuer);
 
   const twitter = new TwitterClient({
     clientId: env.TWITTER_CLIENT_ID,

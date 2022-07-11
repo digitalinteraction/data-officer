@@ -20,5 +20,6 @@ jobs:
         with:
           deno-version: v1.x
       - run: |
+          deno check cli.ts
           deno lint
           ./scripts/test.sh
