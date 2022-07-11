@@ -144,7 +144,7 @@ export class TwitterClient {
     const initial = await this.grabCredentials();
     if (!initial) throw new Error("No credentials loaded");
     const updated = await this.refreshToken(initial);
-    if (updated !== updated) this.stashCredentials(updated);
+    if (updated !== initial) this.stashCredentials(updated);
     return updated;
   }
 
