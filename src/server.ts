@@ -82,7 +82,7 @@ export function createServer(options: ServerOptions) {
   // Twitter OAuth2
   //
   router.get("/twitter/oauth2/health", async () => {
-    const creds = await twitter.getHealth().catch(() => null);
+    const creds = await twitter.getHealth();
     return creds
       ? new Response("Ok")
       : new Response("Bad credentials", { status: 400 });

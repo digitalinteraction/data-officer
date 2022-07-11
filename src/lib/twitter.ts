@@ -149,7 +149,7 @@ export class TwitterClient {
   }
 
   async getHealth(): Promise<boolean> {
-    const creds = await this.getUpdatedCredentials();
+    const creds = await this.getUpdatedCredentials().catch(() => null);
     return creds ? _isValid(creds) : false;
   }
 
