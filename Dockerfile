@@ -11,15 +11,16 @@ COPY . .
 RUN deno compile --output data-officer --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh cli.ts
 
 # 
-# Try to straight-copy the binary in
-# based on https://github.com/denoland/deno_docker/blob/main/alpine.dockerfile
+# Copy the new binary into an alpine container
+# BASE from: https://github.com/denoland/deno_docker/blob/main/alpine.dockerfile
 # 
 FROM frolvlad/alpine-glibc:alpine-3.13
 RUN addgroup --gid 1000 deno \
   && adduser --uid 1000 --disabled-password deno --ingroup deno
 USER deno
 WORKDIR /app
-RUN mkdir /app/data /app/repos
+RUN mkdir /app/data /app/repos && \
+  apk add --no-cache git openssh-client
 COPY --from=builder ["/app/data-officer", "/app/"]
 COPY ["scripts/clone_repos.sh", "/app/scripts/"]
 ENTRYPOINT ["/app/data-officer"]
