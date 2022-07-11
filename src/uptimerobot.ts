@@ -32,8 +32,19 @@ export function _monitorUpMessage(alert: UpDownAlert) {
 export async function uptimeRobotTweet(
   ctx: AcornContext,
   twitter: TwitterClient,
+  sharedSecret: string,
 ) {
-  const creds = await twitter.getUpdatedCredentials();
+  const body = await ctx.body() as Record<string, unknown>;
+  if (typeof body !== "object" || body?.secret !== sharedSecret) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const creds = await twitter.getUpdatedCredentials().catch((error) => {
+    console.error("twitter#getUpdatedCredentials error");
+    console.error(error);
+    return null;
+  });
+
   if (!creds) return new Response("Not authorized to tweet", { status: 500 });
 
   try {

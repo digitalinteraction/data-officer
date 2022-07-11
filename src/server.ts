@@ -35,6 +35,7 @@ export function createServer(options: ServerOptions) {
     "TWITTER_CLIENT_ID",
     "TWITTER_CLIENT_SECRET",
     "JWT_SECRET",
+    "UPTIME_ROBOT_SECRET",
   );
 
   const auth = new AuthService(env.JWT_SECRET, app.jwtIssuer);
@@ -73,9 +74,8 @@ export function createServer(options: ServerOptions) {
   //
   // Tweet endpoint
   //
-  router.post("/tweet/uptimerobot", async (ctx) => {
-    await auth.authenticate(ctx, "uptimerobot");
-    return uptimeRobotTweet(ctx, twitter);
+  router.post("/tweet/uptimerobot", (ctx) => {
+    return uptimeRobotTweet(ctx, twitter, env.UPTIME_ROBOT_SECRET);
   });
 
   //

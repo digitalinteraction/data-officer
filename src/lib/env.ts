@@ -9,6 +9,8 @@ export interface EnvRecord {
 
   TWITTER_CLIENT_ID: string;
   TWITTER_CLIENT_SECRET: string;
+
+  UPTIME_ROBOT_SECRET: string;
 }
 
 export function getEnv<K extends keyof EnvRecord>(
