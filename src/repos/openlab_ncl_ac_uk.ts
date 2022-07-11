@@ -3,6 +3,8 @@
 import { path } from "../../deps.ts";
 import { getMarkdownCollection, GitRepository } from "../lib/mod.ts";
 
+export const OPENLAB_WEB_BASE = "repos/openlab.ncl.ac.uk/content";
+
 export function _resolveImage(url: string, size: string) {
   const ext = path.extname(url);
   return (
@@ -12,15 +14,15 @@ export function _resolveImage(url: string, size: string) {
 }
 
 export function getOpenlabRepo(): GitRepository {
-  const base = "repos/openlab.ncl.ac.uk/content";
-
   const repo: GitRepository = {
     name: "openlab.ncl.ac.uk",
     collections: {},
   };
 
   repo.collections.people = async () => {
-    const people = await getMarkdownCollection<any>(`${base}/people/*.md`);
+    const people = await getMarkdownCollection<any>(
+      `${OPENLAB_WEB_BASE}/people/*.md`,
+    );
 
     return people
       .filter((p) => p.attrs.draft !== true)
@@ -41,7 +43,9 @@ export function getOpenlabRepo(): GitRepository {
   };
 
   repo.collections.projects = async () => {
-    const projects = await getMarkdownCollection<any>(`${base}/projects/*.md`);
+    const projects = await getMarkdownCollection<any>(
+      `${OPENLAB_WEB_BASE}/projects/*.md`,
+    );
 
     return projects
       .filter((p) => p.attrs.draft !== true)
@@ -62,7 +66,9 @@ export function getOpenlabRepo(): GitRepository {
   };
 
   repo.collections.posts = async () => {
-    const posts = await getMarkdownCollection<any>(`${base}/posts/*.md`);
+    const posts = await getMarkdownCollection<any>(
+      `${OPENLAB_WEB_BASE}/posts/*.md`,
+    );
 
     return posts
       .filter((p) => p.attrs.draft !== true)
@@ -82,7 +88,9 @@ export function getOpenlabRepo(): GitRepository {
   };
 
   repo.collections.roles = async () => {
-    const roles = await getMarkdownCollection<any>(`${base}/roles/*.md`);
+    const roles = await getMarkdownCollection<any>(
+      `${OPENLAB_WEB_BASE}/roles/*.md`,
+    );
 
     return roles
       .filter((r) => r.attrs.draft !== true)
@@ -98,7 +106,9 @@ export function getOpenlabRepo(): GitRepository {
   };
 
   repo.collections.topics = async () => {
-    const topics = await getMarkdownCollection<any>(`${base}/topics/*.md`);
+    const topics = await getMarkdownCollection<any>(
+      `${OPENLAB_WEB_BASE}/topics/*.md`,
+    );
 
     return topics
       .filter((t) => t.attrs.draft !== true)
@@ -115,7 +125,7 @@ export function getOpenlabRepo(): GitRepository {
 
   repo.collections.publications = async () => {
     return JSON.parse(
-      await Deno.readTextFile(`${base}/_data/publications.json`),
+      await Deno.readTextFile(`${OPENLAB_WEB_BASE}/_data/publications.json`),
     );
   };
 
