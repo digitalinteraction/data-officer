@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## 0.7.5
+
+- Fix broken build
+
 ## 0.7.4
 
 - Add missing `git` and `ssh` binaries to container
