@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## 0.7.3
+
+- Fix bug refreshing twitter credentials
+
 ## 0.7.2
 
 - Revert `/tweet/uptimerobot` back to use JSON body auth
