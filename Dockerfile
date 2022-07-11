@@ -16,11 +16,11 @@ RUN deno compile --output data-officer --allow-net --allow-env --allow-read --al
 # 
 FROM frolvlad/alpine-glibc:alpine-3.13
 RUN addgroup --gid 1000 deno \
-  && adduser --uid 1000 --disabled-password deno --ingroup deno
+  && adduser --uid 1000 --disabled-password deno --ingroup deno \
+  && apk add --no-cache git openssh-client
 USER deno
 WORKDIR /app
-RUN mkdir /app/data /app/repos && \
-  apk add --no-cache git openssh-client
+RUN mkdir /app/data /app/repos
 COPY --from=builder ["/app/data-officer", "/app/"]
 COPY ["scripts/clone_repos.sh", "/app/scripts/"]
 ENTRYPOINT ["/app/data-officer"]
