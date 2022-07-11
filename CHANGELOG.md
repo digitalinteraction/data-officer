@@ -2,6 +2,12 @@
 
 This file lists notable changes to the project.
 
+## 0.7.1
+
+- Fix broken build
+- Fix tweet health endpoint to `/twitter/oauth2/health`
+- Add tests behind the scenes
+
 ## 0.7.0
 
 - Git remotes are now synchronised in the background. Enable with `--syncRepos`
