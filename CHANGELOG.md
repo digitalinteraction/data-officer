@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## next
+
+- Add `repo:{repo}` intermediate scope to access an entire repo
+
 ## 0.7.5
 
 - Fix broken build
