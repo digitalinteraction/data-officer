@@ -74,3 +74,13 @@ features.
 - `JWT_SECRET` — The secret used to sign and verify JWTs (**required**)
 - `MAIN_MYSQL_URL` — A mysql uri for the main mysql database, i.e. `:3307`
 - `SHARED_MYSQL_URL` — A mysql uri for the shared mysql database, e.g. `:3306`
+
+## Scopes
+
+- `admin` — Can perform all endpoints and generate new tokens
+- `ping` — Can ping all services
+- `ping:{service}` — Can ping a specific service, where `{service}` is the URL slug of the service
+- `repos` — Can access all repos
+- `repos:{repo}` — Can access all endpoints for a repo, where `{repo}` is the URL slug of the repository
+- `repos:{repo}:{endpoint}` — Can access an endpoint on a repo, where `{endpoint}` is the URL slug of the repo's endpoint
+- `twitter:oauth2` — Can trigger an Twitter OAuth2 flow to authenticate the twitter bot.

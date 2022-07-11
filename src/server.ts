@@ -162,6 +162,7 @@ export function createServer(options: ServerOptions) {
       router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
         await auth.authenticate(ctx, [
           "repos",
+          `repos:${repo.name}`,
           `repos:${repo.name}:${id}`,
         ]);
         return collection();
