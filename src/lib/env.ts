@@ -1,4 +1,5 @@
 export interface EnvRecord {
+  REDIS_URL: string;
   JWT_SECRET: string;
 
   MAIN_MYSQL_URL: string;

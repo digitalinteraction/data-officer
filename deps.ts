@@ -34,3 +34,12 @@ export {
 // Jose / JWT
 //
 export { jwtVerify, SignJWT } from "https://deno.land/x/jose@v4.8.3/index.ts";
+
+//
+// Redis
+//
+export {
+  connect as connectToRedis,
+  parseURL as parseRedisUrl,
+} from "https://deno.land/x/redis@v0.26.0/mod.ts";
+export type { Redis as RedisClient } from "https://deno.land/x/redis@v0.26.0/mod.ts";

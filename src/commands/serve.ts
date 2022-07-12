@@ -1,4 +1,5 @@
-import { loadDotenv, parseFlags } from "../../deps.ts";
+import { Command } from "../../cli.ts";
+import { parseFlags } from "../../deps.ts";
 import { createServer } from "../../src/server.ts";
 
 const CLI_USAGE = `
@@ -11,34 +12,36 @@ options:
   --help        Show this help message
 `;
 
-export async function serveCommand(args: string[]) {
-  await loadDotenv({ export: true });
+export const serveCommand: Command = {
+  name: "serve",
+  info: "Run the http server",
+  async fn(args) {
+    const flags = parseFlags(args, {
+      boolean: ["syncRepos", "verboseSync", "help"],
+      string: ["port"],
+      default: {
+        port: "8080",
+      },
+    });
 
-  const flags = parseFlags(args, {
-    boolean: ["syncRepos", "verboseSync", "help"],
-    string: ["port"],
-    default: {
-      port: "8080",
-    },
-  });
+    if (flags.help) {
+      console.log(CLI_USAGE);
+      return;
+    }
 
-  if (flags.help) {
-    console.log(CLI_USAGE);
-    return;
-  }
+    const server = await createServer({
+      ...flags,
+      port: parseInt(flags.port),
+    });
 
-  const server = createServer({
-    ...flags,
-    port: parseInt(flags.port),
-  });
+    function exit() {
+      server.stop();
+      Deno.exit();
+    }
 
-  function exit() {
-    server.stop();
-    Deno.exit();
-  }
+    Deno.addSignalListener("SIGINT", () => exit());
+    Deno.addSignalListener("SIGTERM", () => exit());
 
-  Deno.addSignalListener("SIGINT", () => exit());
-  Deno.addSignalListener("SIGTERM", () => exit());
-
-  await server.start();
-}
+    await server.start();
+  },
+};

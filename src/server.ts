@@ -1,8 +1,9 @@
-import { app, Router } from "../deps.ts";
+import { app, connectToRedis, parseRedisUrl, Router } from "../deps.ts";
 import {
   AuthService,
   AuthzError,
   EndpointResult,
+  getCollectionKey,
   getEnv,
   runAllEndpoints,
   syncRepos,
@@ -11,14 +12,13 @@ import {
 } from "./lib/mod.ts";
 
 import { getSystemsEndpoints } from "./endpoints/systems.ts";
-import { getCoffeeClubRepo } from "./repos/coffee_club.ts";
-import { getOpenlabRepo } from "./repos/openlab_ncl_ac_uk.ts";
 import { uptimeRobotTweet } from "./uptimerobot.ts";
+import { getAllRepos } from "./repos/all.ts";
 
 interface ServerOptions {
   port: number;
-  syncRepos: boolean;
-  verboseSync: boolean;
+  // syncRepos: boolean;
+  // verboseSync: boolean;
 }
 
 interface NavTree {
@@ -27,7 +27,7 @@ interface NavTree {
 
 const SYNC_INTERVAL = 2 * 60 * 1000;
 
-export function createServer(options: ServerOptions) {
+export async function createServer(options: ServerOptions) {
   const router = new Router();
 
   const env = getEnv(
@@ -36,6 +36,7 @@ export function createServer(options: ServerOptions) {
     "TWITTER_CLIENT_SECRET",
     "JWT_SECRET",
     "UPTIME_ROBOT_SECRET",
+    "REDIS_URL",
   );
 
   const auth = new AuthService(env.JWT_SECRET, app.jwtIssuer);
@@ -47,6 +48,10 @@ export function createServer(options: ServerOptions) {
   const twitterOAuth = new TwitterOAuth2(
     twitter,
     new URL("twitter/oauth2/callback", env.SELF_URL),
+  );
+
+  const redis = await connectToRedis(
+    parseRedisUrl(env.REDIS_URL),
   );
 
   const nav: NavTree = {
@@ -153,19 +158,18 @@ export function createServer(options: ServerOptions) {
   //
   // Repos routes
   //
-  const repos = [getOpenlabRepo(), getCoffeeClubRepo()];
+  const repos = getAllRepos();
 
   const reposNav: NavTree = {};
   nav["/repos"] = reposNav;
   for (const repo of repos) {
-    for (const [id, collection] of Object.entries(repo.collections)) {
-      router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
-        await auth.authenticate(ctx, [
-          "repos",
-          `repos:${repo.name}`,
-          `repos:${repo.name}:${id}`,
-        ]);
-        return collection();
+    for (const id of Object.keys(repo.collections)) {
+      const key = getCollectionKey(repo.name, id);
+      router.get(`/repos/${repo.name}/${id}`, async () => {
+        const data = await redis.get(key);
+        return data
+          ? new Response(data)
+          : new Response("Internal server error", { status: 500 });
       });
     }
 
@@ -194,13 +198,13 @@ export function createServer(options: ServerOptions) {
   //
   // Repos sync
   //
-  if (options.syncRepos) {
-    syncRepos(options.verboseSync);
-    setInterval(
-      async () => await syncRepos(options.verboseSync),
-      SYNC_INTERVAL,
-    );
-  }
+  // if (options.syncRepos) {
+  //   syncRepos(options.verboseSync);
+  //   setInterval(
+  //     async () => await syncRepos(options.verboseSync),
+  //     SYNC_INTERVAL,
+  //   );
+  // }
 
   return {
     async start() {

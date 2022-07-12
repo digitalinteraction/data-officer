@@ -1,44 +1,48 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh
 
-import { app } from "./deps.ts";
+import { app, loadDotenv } from "./deps.ts";
 import { serveCommand } from "./src/commands/serve.ts";
+import { syncReposCommand } from "./src/commands/sync_repos.ts";
 import { tweetCommand } from "./src/commands/tweet.ts";
 
-interface Command {
+export interface Command {
+  name: string;
   info: string;
   fn(args: string[]): void | Promise<void>;
 }
 
-const commands: Record<string, Command> = {
-  serve: {
-    info: "Run the http server",
-    fn: serveCommand,
-  },
-  tweet: {
-    info: "Tweet one of the scheduled messages",
-    fn: tweetCommand,
-  },
-  version: {
-    info: "Show the app version",
-    fn: () => console.log(app.version),
-  },
-  help: {
-    info: "Show this help message",
-    fn: () => console.log(CLI_USAGE),
-  },
+const helpCommand: Command = {
+  name: "help",
+  info: "Show this help message",
+  fn: () => console.log(CLI_USAGE),
 };
 
-const cmdIndent = Object.keys(commands).reduce<number>(
-  (longest, str) => (longest > str.length ? longest : str.length),
+const versionCommand: Command = {
+  name: "version",
+  info: "Show the app version",
+  fn: () => console.log(app.version),
+};
+
+const commands: Command[] = [
+  serveCommand,
+  syncReposCommand,
+  tweetCommand,
+  helpCommand,
+  versionCommand,
+];
+
+const cmdIndent = commands.map((c) => c.name.length).reduce<number>(
+  (longest, strlen) => (longest > strlen ? longest : strlen),
   0,
 );
 
-const CLI_USAGE = `./src/cli.ts <command> [options]
+const CLI_USAGE = `./cli.ts <command> [options]
 
 commands:
   ${
-  Object.entries(commands)
-    .map(([key, cmd]) => key.padEnd(cmdIndent + 2, " ") + cmd.info)
+  commands
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((cmd) => cmd.name.padEnd(cmdIndent + 2, " ") + cmd.info)
     .join("\n  ")
 }
 
@@ -47,11 +51,13 @@ global options:
   --version Show the app version
 
 examples:
-  ./src/cli.ts serve --port 8080
+  ./cli.ts serve --port 8080
 `;
 
 let [commandName, ...args] = Deno.args;
-if (commandName?.startsWith("--")) commandName = commandName.replace(/^--/, "");
+if (commandName?.startsWith("--")) {
+  commandName = commandName.replace(/^--/, "");
+}
 
 if (!commandName) {
   console.error("Error: no command\n");
@@ -59,11 +65,13 @@ if (!commandName) {
   Deno.exit(1);
 }
 
-const command = commands[commandName];
+const command = commands.find((c) => c.name === commandName);
 
 if (!command) {
   console.error("Error: command not found", commandName);
   Deno.exit(1);
 }
+
+await loadDotenv({ export: true });
 
 await command.fn(args);
