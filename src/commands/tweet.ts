@@ -1,5 +1,5 @@
 import { Command } from "../../cli.ts";
-import { loadDotenv, parseFlags } from "../../deps.ts";
+import { parseFlags } from "../../deps.ts";
 import { TwitterClient } from "../lib/mod.ts";
 import { getScheduledTweets } from "../tweets.ts";
 

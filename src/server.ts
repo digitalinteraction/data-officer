@@ -6,7 +6,6 @@ import {
   getCollectionKey,
   getEnv,
   runAllEndpoints,
-  syncRepos,
   TwitterClient,
   TwitterOAuth2,
 } from "./lib/mod.ts";
@@ -25,7 +24,7 @@ interface NavTree {
   [key: string]: string | string[] | NavTree;
 }
 
-const SYNC_INTERVAL = 2 * 60 * 1000;
+// const SYNC_INTERVAL = 2 * 60 * 1000;
 
 export async function createServer(options: ServerOptions) {
   const router = new Router();
