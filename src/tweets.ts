@@ -75,17 +75,18 @@ export function _commitsTweet(changes: CodeChanges) {
   ].join(" ");
 }
 
-export function getTweets() {
-  const tweets: Record<string, ScheduledTweet> = {};
+export function getScheduledTweets() {
+  // const tweets: Record<string, ScheduledTweet> = {};
+  const tweets = new Map<string, ScheduledTweet>();
 
-  tweets.morning_coffee = async () => {
+  tweets.set("morning_coffee", async () => {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     const cups = await getLatestConsumption(startOfDay);
     return "☕️ " + _amCoffeeMessage(cups);
-  };
+  });
 
-  tweets.afternoon_coffee = async () => {
+  tweets.set("afternoon_coffee", async () => {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -96,12 +97,12 @@ export function getTweets() {
       await getLatestConsumption(startOfDay),
       await getLatestConsumption(afternoon),
     );
-  };
+  });
 
-  // tweets.daily_commits = () => {
+  // tweets.set('daily_commits', () => {
   //   // TODO: fetch commits using GitHub API
   //   throw new Error("Not implemented");
-  // };
+  // });
 
   return tweets;
 }

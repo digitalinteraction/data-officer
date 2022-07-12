@@ -2,6 +2,7 @@
 
 import { app } from "./deps.ts";
 import { serveCommand } from "./src/commands/serve.ts";
+import { tweetCommand } from "./src/commands/tweet.ts";
 
 interface Command {
   info: string;
@@ -12,6 +13,10 @@ const commands: Record<string, Command> = {
   serve: {
     info: "Run the http server",
     fn: serveCommand,
+  },
+  tweet: {
+    info: "Tweet one of the scheduled messages",
+    fn: tweetCommand,
   },
   version: {
     info: "Show the app version",

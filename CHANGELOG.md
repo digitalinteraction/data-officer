@@ -2,9 +2,10 @@
 
 This file lists notable changes to the project.
 
-## next
+## 0.8.0
 
 - Add `repo:{repo}` intermediate scope to access an entire repo
+- Add cli command to run the scheduled tweets
 
 ## 0.7.5
 
