@@ -38,7 +38,7 @@ export async function tweetCommand(args: string[]) {
   const result = await tweetFn();
 
   if (flags.dryRun) {
-    console.log(result);
+    console.log(new Date(), result);
     return;
   }
 

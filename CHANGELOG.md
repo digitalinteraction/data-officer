@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## next
+
+- `--dryRun`-ing a tweet outputs the time the tweet was run first
+
 ## 0.8.0
 
 - Add `repo:{repo}` intermediate scope to access an entire repo
