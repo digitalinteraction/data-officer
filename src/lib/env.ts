@@ -1,4 +1,4 @@
-import { connectToRedis, parseRedisUrl } from "../../deps.ts";
+import { connectToRedis, LevelName, log, parseRedisUrl } from "../../deps.ts";
 import { TwitterClient } from "./twitter.ts";
 
 export interface EnvRecord {
@@ -50,5 +50,19 @@ export function twitterClientFromEnv(
   return new TwitterClient({
     clientId: env.TWITTER_CLIENT_ID,
     clientSecret: env.TWITTER_CLIENT_SECRET,
+  });
+}
+
+export async function setupLogsFromEnv() {
+  await log.setup({
+    handlers: {
+      console: new log.handlers.ConsoleHandler("DEBUG"),
+    },
+    loggers: {
+      default: {
+        level: ((Deno.env.get("LOG_LEVEL") ?? "INFO").toUpperCase() as any),
+        handlers: ["console"],
+      },
+    },
   });
 }

@@ -1,9 +1,10 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh
 
-import { app, loadDotenv } from "./deps.ts";
+import { app, loadDotenv, log } from "./deps.ts";
 import { serveCommand } from "./src/commands/serve.ts";
 import { syncReposCommand } from "./src/commands/sync_repos.ts";
 import { tweetCommand } from "./src/commands/tweet.ts";
+import { setupLogsFromEnv } from "./src/lib/mod.ts";
 
 export interface Command {
   name: string;
@@ -73,5 +74,6 @@ if (!command) {
 }
 
 await loadDotenv({ export: true });
+await setupLogsFromEnv();
 
 await command.fn(args);
