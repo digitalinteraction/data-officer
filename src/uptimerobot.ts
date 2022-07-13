@@ -46,8 +46,6 @@ export async function uptimeRobotTweet(
     return null;
   });
 
-  if (creds === "already_running") throw new Error("TODO: add tokens retry");
-
   if (!creds) return HttpResponse.internalServerError("No twitter auth");
 
   try {

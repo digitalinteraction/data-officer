@@ -1,4 +1,5 @@
 import { base64, log, RedisClient } from "../../deps.ts";
+import { getLockOrWait, randomBetween } from "./semaphore.ts";
 
 const TWITTER_URL = new URL("https://api.twitter.com/2/");
 const TOKEN_AUTH_KEY = "twitter/auth";
@@ -89,8 +90,6 @@ export class TwitterClient {
   }
 
   async refreshToken(creds: TwitterCredentials, redis: RedisClient) {
-    if (_isValid(creds)) return creds;
-
     const response = await fetch(new URL("oauth2/token", TWITTER_URL), {
       method: "POST",
       headers: {
@@ -134,7 +133,6 @@ export class TwitterClient {
         return null;
       },
     );
-    if (creds === "already_running") return true;
     return creds ? _isValid(creds) : false;
   }
 
@@ -166,28 +164,42 @@ export class TwitterClient {
   }
   async getUpdatedCredentials(
     redis: RedisClient,
-  ): Promise<TwitterCredentials | "already_running"> {
+  ): Promise<TwitterCredentials> {
+    const initial = await this.grabCredentials(redis);
+    if (!initial) throw new Error("No credentials loaded");
+    if (_isValid(initial)) return initial;
+
+    const id = crypto.randomUUID();
+
     try {
-      const initial = await this.grabCredentials(redis);
-      if (!initial) throw new Error("No credentials loaded");
-      log.debug(`#getUpdatedCredentials expires=${initial.expires_at}`);
-      if (_isValid(initial)) return initial;
+      const lockStatus = await getLockOrWait(
+        async () => {
+          const result = await redis.setnx(TOKEN_LOCK_KEY, id);
+          log.debug(`#getUpdatedCredentials id=${id} lock=${result}`);
+          return result === 1;
+        },
+        { maxRetries: 10, retryInterval: randomBetween(1000, 2000) },
+      );
 
-      const id = crypto.randomUUID();
-      const lock = await redis.setnx(TOKEN_LOCK_KEY, id);
-      await redis.expire(TOKEN_LOCK_KEY, 60);
+      if (lockStatus === "failed") {
+        throw new Error("Failed to wait for lock");
+      }
 
-      log.debug(`#getUpdatedCredentials id=${id} lock=${lock}`);
-      if (lock !== 1) return "already_running";
+      if (lockStatus === "waited") {
+        console.debug("#getUpdatedCredentials waited");
+        const creds = await this.grabCredentials(redis);
+        if (!creds) throw new Error("Failed to wait for refresh");
+        return creds;
+      }
+
+      await redis.expire(TOKEN_LOCK_KEY, 5 * 60);
 
       const updated = await this.refreshToken(initial, redis);
-
-      await redis.del(TOKEN_LOCK_KEY);
-
-      if (updated !== initial) this.stashCredentials(redis, updated);
+      await this.stashCredentials(redis, updated);
 
       return updated;
     } finally {
+      log.debug("#getUpdatedCredentials clear lock");
       await redis.del(TOKEN_LOCK_KEY);
     }
   }

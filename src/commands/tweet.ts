@@ -61,8 +61,6 @@ export const tweetCommand: Command = {
       Deno.exit(1);
     });
 
-    if (creds === "already_running") throw new Error("TODO: retry here ...");
-
     await twitter.tweet(result, creds);
 
     redis.close();
