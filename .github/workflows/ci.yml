@@ -19,7 +19,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - run: |
-          deno check cli.ts
-          deno lint
-          ./scripts/test.sh
+      - run: deno check cli.ts
+      - run: deno lint
+      - name: deno test
+        run: ./scripts/test.sh
