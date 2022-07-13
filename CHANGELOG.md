@@ -2,9 +2,33 @@
 
 This file lists notable changes to the project.
 
-## next
+## 0.9.0
 
+- Major restructure to make the app stateless w/ redis
+  - repos/collections should run seperately and puts collection data into redis.
+    Which has a new command to run it.
+  - twitter credentials and a semaphore-type lock are in redis too
+  - twitter oauth2's state is in redis too
 - `--dryRun`-ing a tweet outputs the time the tweet was run first
+- New required `REDIS_URL` environment variable
+- Document `UPTIME_ROBOT_SECRET` in [.env.example](/.env.example)
+- `data` is no-longer git-ignored
+- Twitter re-auth is run in isolation and tries to wait if another process is
+  already trying to refresh the tokens.
+- Health endpoint now fails if the redis connection has gone
+- Tweek coffee tweet messages
+
+internal changes
+
+- Add automated tests
+- Run lint & check pre-commit
+- Refactor commands to a data-driven architecture
+- Add [docker-compose.yml](/docker-compose.yml) to run a development redis db
+- Simplify env loading with new `setupEnv` method and centralise loading clients
+  from the env
+- Explore parsing cron expressions
+- Add `HttpResponse` to return well-known http responses
+- Use deno `log` module for logging and configure with `LOG_LEVEL` env var
 
 ## 0.8.0
 

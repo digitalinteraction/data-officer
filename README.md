@@ -26,6 +26,13 @@ These are the commands you'll regularly run to develop the API, in no particular
 order.
 
 ```sh
+# cd to/this/folder
+
+# Run the docker stack
+# -> starts a redis container on localhost:6379
+# -> Make sure to stop after development with 'docker-compose stop'
+docker-compose up -d
+
 # Run the server locally
 # -> Set --port if you like (default: 3000)
 # -> Reads in environment variables from .env
