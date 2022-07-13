@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ["deps.ts", "app.json", "/app/"]
 RUN deno cache deps.ts
 COPY . .
-RUN deno compile --output data-officer --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh cli.ts
+RUN deno compile --output data-officer --allow-net --allow-env --allow-read --allow-run=scripts/clone_repos.sh cli.ts
 
 # 
 # Copy the new binary into an alpine container
@@ -20,7 +20,7 @@ RUN addgroup --gid 1000 deno \
   && apk add --no-cache git openssh-client
 USER deno
 WORKDIR /app
-RUN mkdir /app/data /app/repos
+RUN mkdir /app/repos
 COPY --from=builder ["/app/data-officer", "/app/"]
 COPY ["scripts/clone_repos.sh", "/app/scripts/"]
 ENTRYPOINT ["/app/data-officer"]
