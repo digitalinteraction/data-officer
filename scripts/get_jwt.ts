@@ -1,9 +1,9 @@
 #!/usr/bin/env -S deno run --allow-read --allow-env
 
-import { app, loadDotenv, parseFlags, SignJWT } from "../deps.ts";
-import { getEnv } from "../src/lib/mod.ts";
+import { app, parseFlags, SignJWT } from "../deps.ts";
+import { getEnv, setupEnv } from "../src/lib/mod.ts";
 
-await loadDotenv({ export: true });
+await setupEnv();
 
 const CLI_USAGE = `
 ./scripts/get_jwt.ts

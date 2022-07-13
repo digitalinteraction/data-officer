@@ -8,7 +8,6 @@ const CLI_USAGE = `
 
 options:
   --help    Show this help message
-  --verbose Output debug information to stdout
 `;
 
 export const syncReposCommand: Command = {
@@ -16,7 +15,7 @@ export const syncReposCommand: Command = {
   info: "Run the repo sync script and load collections into redis",
   async fn(args) {
     const flags = parseFlags(args, {
-      boolean: ["verbose", "help"],
+      boolean: ["help"],
     });
 
     if (flags.help) {
@@ -28,6 +27,6 @@ export const syncReposCommand: Command = {
 
     const redis = await redisClientFromEnv(env);
 
-    await syncRepos(redis, getAllRepos(), flags.verbose);
+    await syncRepos(redis, getAllRepos());
   },
 };

@@ -1,9 +1,10 @@
-#!/usr/bin/env -S deno run --allow-read=. --allow-env --allow-net --allow-write=data/twitter_auth.json
+#!/usr/bin/env -S deno run --allow-read=. --allow-env --allow-net
 
-import { loadDotenv, parseFlags, Router } from "../deps.ts";
+import { parseFlags, Router } from "../deps.ts";
 import {
   getEnv,
   redisClientFromEnv,
+  setupEnv,
   twitterClientFromEnv,
   TwitterCredentials,
   TwitterOAuth2,
@@ -18,7 +19,7 @@ options:
   --help  Show this help message
 `;
 
-await loadDotenv({ export: true });
+await setupEnv();
 
 interface Flags {
   help?: boolean;

@@ -1,4 +1,4 @@
-import { connectToRedis, log, parseRedisUrl } from "../../deps.ts";
+import { connectToRedis, loadDotenv, log, parseRedisUrl } from "../../deps.ts";
 import { TwitterClient } from "./twitter.ts";
 
 export interface EnvRecord {
@@ -66,4 +66,9 @@ export async function setupLogsFromEnv() {
       },
     },
   });
+}
+
+export async function setupEnv() {
+  await loadDotenv({ export: true });
+  await setupLogsFromEnv();
 }
