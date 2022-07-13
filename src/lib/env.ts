@@ -1,4 +1,4 @@
-import { connectToRedis, LevelName, log, parseRedisUrl } from "../../deps.ts";
+import { connectToRedis, log, parseRedisUrl } from "../../deps.ts";
 import { TwitterClient } from "./twitter.ts";
 
 export interface EnvRecord {
@@ -60,7 +60,8 @@ export async function setupLogsFromEnv() {
     },
     loggers: {
       default: {
-        level: ((Deno.env.get("LOG_LEVEL") ?? "INFO").toUpperCase() as any),
+        level:
+          (Deno.env.get("LOG_LEVEL") ?? "INFO") as keyof typeof log.LogLevels,
         handlers: ["console"],
       },
     },
