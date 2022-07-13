@@ -14,6 +14,10 @@ repo checked out and are on macOS.
 ```sh
 # Create an .env then fill in the values
 cp .env.example .env
+
+# Setup git hooks
+# -> Reset with 'git config --unset core.hooksPath'
+git config --replace-all core.hooksPath .git_hooks
 ```
 
 ### Regular use
