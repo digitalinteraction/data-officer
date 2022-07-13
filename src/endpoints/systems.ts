@@ -69,7 +69,7 @@ export function getSystemsEndpoints() {
         link: null,
       },
       state: {
-        ok: Boolean(dokku && gateway),
+        ok: Boolean(dokku.ok && gateway.ok),
         messages,
       },
     };

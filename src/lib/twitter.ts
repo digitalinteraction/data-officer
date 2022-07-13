@@ -1,8 +1,6 @@
 import { base64, RedisClient } from "../../deps.ts";
-import { getEnv } from "./env.ts";
 
 const TWITTER_URL = new URL("https://api.twitter.com/2/");
-// const TOKEN_PATH = "data/twitter_auth.json";
 const TOKEN_AUTH_KEY = "twitter/auth";
 const TOKEN_LOCK_KEY = "twitter/lock";
 const OAUTH2_STATE_KEY = "twitter/state";
@@ -44,14 +42,6 @@ export function _isValid(creds: TwitterCredentials, now = Date.now()): boolean {
 }
 
 export class TwitterClient {
-  static fromEnv() {
-    const env = getEnv("TWITTER_CLIENT_ID", "TWITTER_CLIENT_SECRET");
-    return new TwitterClient({
-      clientId: env.TWITTER_CLIENT_ID,
-      clientSecret: env.TWITTER_CLIENT_SECRET,
-    });
-  }
-
   constructor(public options: TwitterClientOptions) {}
 
   getAuthorizeUrl({ redirectUri, scope, state }: TwitterAuthorizeOptions) {
@@ -97,20 +87,6 @@ export class TwitterClient {
     credentials.expires_at = _getExpiresAt(credentials);
     return credentials;
   }
-
-  // async stashCredentials(credentials: TwitterCredentials) {
-  //   const { dir } = path.parse(TOKEN_PATH);
-  //   if (dir) await Deno.mkdir(dir, { recursive: true });
-  //   await Deno.writeTextFile(TOKEN_PATH, JSON.stringify(credentials, null, 2));
-  // }
-
-  // async grabCredentials(): Promise<TwitterCredentials | null> {
-  //   try {
-  //     return JSON.parse(await Deno.readTextFile(TOKEN_PATH));
-  //   } catch (_error) {
-  //     return null;
-  //   }
-  // }
 
   async refreshToken(creds: TwitterCredentials, redis: RedisClient) {
     if (_isValid(creds)) return creds;

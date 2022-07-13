@@ -2,7 +2,9 @@
 
 import { loadDotenv, parseFlags, Router } from "../deps.ts";
 import {
-  TwitterClient,
+  getEnv,
+  redisClientFromEnv,
+  twitterClientFromEnv,
   TwitterCredentials,
   TwitterOAuth2,
 } from "../src/lib/mod.ts";
@@ -44,9 +46,14 @@ if (flags.help) {
   Deno.exit(0);
 }
 
+const env = getEnv("TWITTER_CLIENT_ID", "TWITTER_CLIENT_SECRET", "REDIS_URL");
+
+const redis = await redisClientFromEnv(env);
+
 const twitterOAuth = new TwitterOAuth2(
-  TwitterClient.fromEnv(),
+  twitterClientFromEnv(env),
   new URL(`http://localhost:${flags.port}/twitter/oauth2/callback`),
+  redis,
 );
 
 const authUrl = await twitterOAuth.startLogin({ force: true });
@@ -100,3 +107,5 @@ if (!creds) {
 //
 console.log("Your token:");
 console.log(JSON.stringify(creds, null, 2));
+
+redis.close();

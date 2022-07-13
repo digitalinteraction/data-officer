@@ -1,12 +1,14 @@
-import { app, connectToRedis, parseRedisUrl, Router } from "../deps.ts";
+import { app, Router } from "../deps.ts";
 import {
   AuthService,
   AuthzError,
   EndpointResult,
   getCollectionKey,
   getEnv,
+  HttpResponse,
+  redisClientFromEnv,
   runAllEndpoints,
-  TwitterClient,
+  twitterClientFromEnv,
   TwitterOAuth2,
 } from "./lib/mod.ts";
 
@@ -16,15 +18,11 @@ import { getAllRepos } from "./repos/all.ts";
 
 interface ServerOptions {
   port: number;
-  // syncRepos: boolean;
-  // verboseSync: boolean;
 }
 
 interface NavTree {
   [key: string]: string | string[] | NavTree;
 }
-
-// const SYNC_INTERVAL = 2 * 60 * 1000;
 
 export async function createServer(options: ServerOptions) {
   const router = new Router();
@@ -38,16 +36,11 @@ export async function createServer(options: ServerOptions) {
     "REDIS_URL",
   );
 
-  const redis = await connectToRedis(
-    parseRedisUrl(env.REDIS_URL),
-  );
-
   const auth = new AuthService(env.JWT_SECRET, app.jwtIssuer);
 
-  const twitter = new TwitterClient({
-    clientId: env.TWITTER_CLIENT_ID,
-    clientSecret: env.TWITTER_CLIENT_SECRET,
-  });
+  const redis = await redisClientFromEnv(env);
+
+  const twitter = twitterClientFromEnv(env);
   const twitterOAuth = new TwitterOAuth2(
     twitter,
     new URL("twitter/oauth2/callback", env.SELF_URL),
@@ -74,7 +67,12 @@ export async function createServer(options: ServerOptions) {
   router.get("/", () => index(nav));
   router.get("/repos{/}?", () => index(nav["/repos"]));
   router.get("/ping{/}?", () => index(nav["/ping"]));
-  router.get("/healthz", () => ({ message: "ok" }));
+  router.get("/healthz{/}?", async () => {
+    if (await redis.ping().then((m) => m !== "PONG")) {
+      return HttpResponse.badRequest("Bad redis connection");
+    }
+    return "ok";
+  });
 
   //
   // Tweet endpoint
@@ -88,23 +86,21 @@ export async function createServer(options: ServerOptions) {
   //
   router.get("/twitter/oauth2/health", async () => {
     const creds = await twitter.getHealth(redis);
-    return creds
-      ? new Response("Ok")
-      : new Response("Bad credentials", { status: 400 });
+    return creds ? "Ok" : HttpResponse.badRequest("Bad credentials");
   });
   router.get("/twitter/oauth2/login", async (ctx) => {
     await auth.authenticate(ctx, "twitter:oauth2");
     const url = await twitterOAuth.startLogin();
     return url
       ? Response.redirect(url.toString())
-      : new Response("Already authorized");
+      : HttpResponse.badRequest("Already authorized");
   });
   router.get("/twitter/oauth2/callback", async (ctx) => {
     const { code, state } = ctx.searchParams;
     const success = await twitterOAuth.finishLogin(state, code);
     return success
-      ? new Response("Successfully authorized")
-      : new Response("Authorization failed", { status: 400 });
+      ? "Successfully authorized"
+      : HttpResponse.badRequest("Authorization failed");
   });
 
   //
@@ -113,9 +109,7 @@ export async function createServer(options: ServerOptions) {
   router.post("/admin/token", async (ctx) => {
     await auth.authenticate(ctx, "admin");
     const token = await auth.signFromRequest(await ctx.body());
-    return token
-      ? new Response(token)
-      : new Response("Bad request", { status: 400 });
+    return token ? token : HttpResponse.badRequest();
   });
 
   //
@@ -165,11 +159,13 @@ export async function createServer(options: ServerOptions) {
   for (const repo of repos) {
     for (const id of Object.keys(repo.collections)) {
       const key = getCollectionKey(repo.name, id);
-      router.get(`/repos/${repo.name}/${id}`, async () => {
-        const data = await redis.get(key);
-        return data
-          ? new Response(data)
-          : new Response("Internal server error", { status: 500 });
+      router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
+        await auth.authenticate(ctx, [
+          "repos",
+          `repos:${repo.name}`,
+          `repos:${repo.name}:${id}`,
+        ]);
+        return (await redis.get(key)) ?? HttpResponse.serviceUnavailable();
       });
     }
 
@@ -183,28 +179,12 @@ export async function createServer(options: ServerOptions) {
   //
   router.addEventListener("error", (event) => {
     if (event.error instanceof AuthzError) {
-      event.response = new Response(event.error.message, {
-        status: 401,
-        statusText: "Unauthorized",
-      });
+      event.response = HttpResponse.unauthorized(event.error.message);
     } else {
       console.error(event.error);
-      event.response = new Response("Internal Server Error", {
-        status: 500,
-      });
+      event.response = HttpResponse.internalServerError();
     }
   });
-
-  //
-  // Repos sync
-  //
-  // if (options.syncRepos) {
-  //   syncRepos(options.verboseSync);
-  //   setInterval(
-  //     async () => await syncRepos(options.verboseSync),
-  //     SYNC_INTERVAL,
-  //   );
-  // }
 
   return {
     async start() {
@@ -212,7 +192,7 @@ export async function createServer(options: ServerOptions) {
       await router.listen({ port: options.port });
     },
     stop() {
-      // ...
+      redis.close();
     },
   };
 }

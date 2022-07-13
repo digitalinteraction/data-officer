@@ -6,10 +6,8 @@ const CLI_USAGE = `
 ./cli.ts serve
 
 options:
-  --port        The port to run on (default: 8080)
-  --syncRepos   Whether to sync repos in the background
-  --verboseSync Whether to log repo sync to data/repos.log
-  --help        Show this help message
+  --port The port to run on (default: 8080)
+  --help Show this help message
 `;
 
 export const serveCommand: Command = {
@@ -17,7 +15,7 @@ export const serveCommand: Command = {
   info: "Run the http server",
   async fn(args) {
     const flags = parseFlags(args, {
-      boolean: ["syncRepos", "verboseSync", "help"],
+      boolean: ["help"],
       string: ["port"],
       default: {
         port: "8080",

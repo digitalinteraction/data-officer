@@ -39,7 +39,6 @@ export function getCollectionKey(repo: string, collection: string) {
   return `repos/${repo}/${collection}`;
 }
 
-// https://deno.land/manual/examples/subprocess
 export async function syncRepos(
   redis: RedisClient,
   repos: GitRepository[],
@@ -49,6 +48,7 @@ export async function syncRepos(
     verbose ? console.log(...args) : undefined;
 
   try {
+    // https://deno.land/manual/examples/subprocess
     const process = Deno.run({
       cmd: ["scripts/clone_repos.sh"],
       stdout: verbose ? "inherit" : "null",
@@ -60,11 +60,10 @@ export async function syncRepos(
     if (!status.success) {
       throw new Error("Failed to run scripts/clone_repos.sh");
     }
-    log("\n");
 
     const results = new Map<string, unknown>();
 
-    log("Running collections");
+    log("\nRunning collections");
     for (const repo of repos) {
       for (const [id, collection] of Object.entries(repo.collections)) {
         log(`  ${repo.name} ${id}`);
@@ -72,13 +71,13 @@ export async function syncRepos(
       }
     }
 
-    log("Writing data");
+    log("\nWriting data");
     for (const [key, data] of results) {
       log(`  ${key}`);
       await redis.set(key, JSON.stringify(data));
     }
 
-    log("Done");
+    log("\nDone");
 
     return true;
   } catch (error) {

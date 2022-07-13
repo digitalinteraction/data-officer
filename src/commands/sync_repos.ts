@@ -1,13 +1,14 @@
 import type { Command } from "../../cli.ts";
-import { connectToRedis, parseFlags, parseRedisUrl } from "../../deps.ts";
-import { getEnv, syncRepos } from "../lib/mod.ts";
+import { parseFlags } from "../../deps.ts";
+import { getEnv, redisClientFromEnv, syncRepos } from "../lib/mod.ts";
 import { getAllRepos } from "../repos/all.ts";
 
 const CLI_USAGE = `
 ./cli.ts sync_repos
 
 options:
-  --help Show this help message
+  --help    Show this help message
+  --verbose Output debug information to stdout
 `;
 
 export const syncReposCommand: Command = {
@@ -25,7 +26,7 @@ export const syncReposCommand: Command = {
 
     const env = getEnv("REDIS_URL");
 
-    const redis = await connectToRedis(parseRedisUrl(env.REDIS_URL));
+    const redis = await redisClientFromEnv(env);
 
     await syncRepos(redis, getAllRepos(), flags.verbose);
   },

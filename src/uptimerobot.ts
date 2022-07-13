@@ -1,5 +1,5 @@
 import { AcornContext, RedisClient } from "../deps.ts";
-import { formatDuration, TwitterClient } from "./lib/mod.ts";
+import { formatDuration, HttpResponse, TwitterClient } from "./lib/mod.ts";
 
 /** https://uptimerobot.com/dashboard#mySettings */
 export interface UpDownAlert {
@@ -37,7 +37,7 @@ export async function uptimeRobotTweet(
 ) {
   const body = await ctx.body() as Record<string, unknown>;
   if (typeof body !== "object" || body?.secret !== sharedSecret) {
-    return new Response("Unauthorized", { status: 401 });
+    return HttpResponse.unauthorized();
   }
 
   const creds = await twitter.getUpdatedCredentials(redis).catch((error) => {
@@ -48,7 +48,7 @@ export async function uptimeRobotTweet(
 
   if (creds === "already_running") throw new Error("TODO: add tokens retry");
 
-  if (!creds) return new Response("Not authorized to tweet", { status: 500 });
+  if (!creds) return HttpResponse.internalServerError("No twitter auth");
 
   try {
     // deno-lint-ignore no-explicit-any

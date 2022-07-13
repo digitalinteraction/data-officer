@@ -1,6 +1,10 @@
 import { Command } from "../../cli.ts";
-import { connectToRedis, parseFlags, parseRedisUrl } from "../../deps.ts";
-import { getEnv, TwitterClient } from "../lib/mod.ts";
+import { parseFlags } from "../../deps.ts";
+import {
+  getEnv,
+  redisClientFromEnv,
+  twitterClientFromEnv,
+} from "../lib/mod.ts";
 import { getScheduledTweets } from "../tweets.ts";
 
 const CLI_USAGE = (tweets: string[]) => `
@@ -24,11 +28,8 @@ export const tweetCommand: Command = {
       "REDIS_URL",
     );
 
-    const redis = await connectToRedis(parseRedisUrl(env.REDIS_URL));
-    const twitter = new TwitterClient({
-      clientId: env.TWITTER_CLIENT_ID,
-      clientSecret: env.TWITTER_CLIENT_SECRET,
-    });
+    const redis = await redisClientFromEnv(env);
+    const twitter = twitterClientFromEnv(env);
     const tweets = getScheduledTweets();
 
     const flags = parseFlags(args, {
@@ -64,6 +65,6 @@ export const tweetCommand: Command = {
 
     await twitter.tweet(result, creds);
 
-    await redis.close();
+    redis.close();
   },
 };

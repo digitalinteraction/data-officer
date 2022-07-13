@@ -1,3 +1,6 @@
+import { connectToRedis, parseRedisUrl } from "../../deps.ts";
+import { TwitterClient } from "./twitter.ts";
+
 export interface EnvRecord {
   REDIS_URL: string;
   JWT_SECRET: string;
@@ -33,4 +36,19 @@ export function getEnv<K extends keyof EnvRecord>(
   }
 
   return output;
+}
+
+export function redisClientFromEnv(env: Pick<EnvRecord, "REDIS_URL">) {
+  return connectToRedis({
+    ...parseRedisUrl(env.REDIS_URL),
+  });
+}
+
+export function twitterClientFromEnv(
+  env: Pick<EnvRecord, "TWITTER_CLIENT_ID" | "TWITTER_CLIENT_SECRET">,
+) {
+  return new TwitterClient({
+    clientId: env.TWITTER_CLIENT_ID,
+    clientSecret: env.TWITTER_CLIENT_SECRET,
+  });
 }

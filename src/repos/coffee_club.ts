@@ -30,8 +30,6 @@ export async function getLatestConsumption(since: Date) {
 }
 
 export function getCoffeeClubRepo(): GitRepository {
-  // const base = "repos/coffee-club";
-
   const repo: GitRepository = {
     name: "coffee-club",
     collections: {},
