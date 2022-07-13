@@ -1,9 +1,7 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh
 
 import { app } from "./deps.ts";
-import { serveCommand } from "./src/commands/serve.ts";
-import { syncReposCommand } from "./src/commands/sync_repos.ts";
-import { tweetCommand } from "./src/commands/tweet.ts";
+import { allCommands } from "./src/commands/all.ts";
 import { setupEnv } from "./src/lib/mod.ts";
 
 export interface Command {
@@ -25,9 +23,7 @@ const versionCommand: Command = {
 };
 
 const commands: Command[] = [
-  serveCommand,
-  syncReposCommand,
-  tweetCommand,
+  ...allCommands,
   helpCommand,
   versionCommand,
 ];
@@ -42,7 +38,6 @@ const CLI_USAGE = `./cli.ts <command> [options]
 commands:
   ${
   commands
-    .sort((a, b) => a.name.localeCompare(b.name))
     .map((cmd) => cmd.name.padEnd(cmdIndent + 2, " ") + cmd.info)
     .join("\n  ")
 }
