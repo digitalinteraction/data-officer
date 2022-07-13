@@ -1,6 +1,6 @@
 import { Command } from "../../cli.ts";
-import { parseFlags } from "../../deps.ts";
-import { TwitterClient } from "../lib/mod.ts";
+import { connectToRedis, parseFlags, parseRedisUrl } from "../../deps.ts";
+import { getEnv, TwitterClient } from "../lib/mod.ts";
 import { getScheduledTweets } from "../tweets.ts";
 
 const CLI_USAGE = (tweets: string[]) => `
@@ -18,7 +18,17 @@ export const tweetCommand: Command = {
   name: "tweet",
   info: "Tweet one of the scheduled messages",
   async fn(args) {
-    const twitter = TwitterClient.fromEnv();
+    const env = getEnv(
+      "TWITTER_CLIENT_ID",
+      "TWITTER_CLIENT_SECRET",
+      "REDIS_URL",
+    );
+
+    const redis = await connectToRedis(parseRedisUrl(env.REDIS_URL));
+    const twitter = new TwitterClient({
+      clientId: env.TWITTER_CLIENT_ID,
+      clientSecret: env.TWITTER_CLIENT_SECRET,
+    });
     const tweets = getScheduledTweets();
 
     const flags = parseFlags(args, {
@@ -44,12 +54,16 @@ export const tweetCommand: Command = {
       return;
     }
 
-    const creds = await twitter.getUpdatedCredentials().catch((error) => {
+    const creds = await twitter.getUpdatedCredentials(redis).catch((error) => {
       console.error("No Twitter authentication");
       console.error(error);
       Deno.exit(1);
     });
 
+    if (creds === "already_running") throw new Error("TODO: retry here ...");
+
     await twitter.tweet(result, creds);
+
+    await redis.close();
   },
 };

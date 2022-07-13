@@ -38,6 +38,10 @@ export async function createServer(options: ServerOptions) {
     "REDIS_URL",
   );
 
+  const redis = await connectToRedis(
+    parseRedisUrl(env.REDIS_URL),
+  );
+
   const auth = new AuthService(env.JWT_SECRET, app.jwtIssuer);
 
   const twitter = new TwitterClient({
@@ -47,10 +51,7 @@ export async function createServer(options: ServerOptions) {
   const twitterOAuth = new TwitterOAuth2(
     twitter,
     new URL("twitter/oauth2/callback", env.SELF_URL),
-  );
-
-  const redis = await connectToRedis(
-    parseRedisUrl(env.REDIS_URL),
+    redis,
   );
 
   const nav: NavTree = {
@@ -79,14 +80,14 @@ export async function createServer(options: ServerOptions) {
   // Tweet endpoint
   //
   router.post("/tweet/uptimerobot", (ctx) => {
-    return uptimeRobotTweet(ctx, twitter, env.UPTIME_ROBOT_SECRET);
+    return uptimeRobotTweet(ctx, twitter, env.UPTIME_ROBOT_SECRET, redis);
   });
 
   //
   // Twitter OAuth2
   //
   router.get("/twitter/oauth2/health", async () => {
-    const creds = await twitter.getHealth();
+    const creds = await twitter.getHealth(redis);
     return creds
       ? new Response("Ok")
       : new Response("Bad credentials", { status: 400 });

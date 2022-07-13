@@ -1,8 +1,11 @@
-import { base64, path } from "../../deps.ts";
+import { base64, RedisClient } from "../../deps.ts";
 import { getEnv } from "./env.ts";
 
 const TWITTER_URL = new URL("https://api.twitter.com/2/");
-const TOKEN_PATH = "data/twitter_auth.json";
+// const TOKEN_PATH = "data/twitter_auth.json";
+const TOKEN_AUTH_KEY = "twitter/auth";
+const TOKEN_LOCK_KEY = "twitter/lock";
+const OAUTH2_STATE_KEY = "twitter/state";
 
 export interface TwitterClientOptions {
   clientId: string;
@@ -95,21 +98,21 @@ export class TwitterClient {
     return credentials;
   }
 
-  async stashCredentials(credentials: TwitterCredentials) {
-    const { dir } = path.parse(TOKEN_PATH);
-    if (dir) await Deno.mkdir(dir, { recursive: true });
-    await Deno.writeTextFile(TOKEN_PATH, JSON.stringify(credentials, null, 2));
-  }
+  // async stashCredentials(credentials: TwitterCredentials) {
+  //   const { dir } = path.parse(TOKEN_PATH);
+  //   if (dir) await Deno.mkdir(dir, { recursive: true });
+  //   await Deno.writeTextFile(TOKEN_PATH, JSON.stringify(credentials, null, 2));
+  // }
 
-  async grabCredentials(): Promise<TwitterCredentials | null> {
-    try {
-      return JSON.parse(await Deno.readTextFile(TOKEN_PATH));
-    } catch (_error) {
-      return null;
-    }
-  }
+  // async grabCredentials(): Promise<TwitterCredentials | null> {
+  //   try {
+  //     return JSON.parse(await Deno.readTextFile(TOKEN_PATH));
+  //   } catch (_error) {
+  //     return null;
+  //   }
+  // }
 
-  async refreshToken(creds: TwitterCredentials) {
+  async refreshToken(creds: TwitterCredentials, redis: RedisClient) {
     if (_isValid(creds)) return creds;
 
     const response = await fetch(new URL("oauth2/token", TWITTER_URL), {
@@ -131,7 +134,10 @@ export class TwitterClient {
     });
 
     if (!response || !response.ok) {
-      await Deno.remove(TOKEN_PATH);
+      // await Deno.remove(TOKEN_PATH);
+      if (response?.status === 400) {
+        await redis.del(TOKEN_AUTH_KEY);
+      }
       throw new Error("Failed to refresh credentials");
     }
 
@@ -140,20 +146,23 @@ export class TwitterClient {
     return newCreds;
   }
 
-  async getUpdatedCredentials(): Promise<TwitterCredentials> {
-    const initial = await this.grabCredentials();
-    if (!initial) throw new Error("No credentials loaded");
-    const updated = await this.refreshToken(initial);
-    if (updated !== initial) this.stashCredentials(updated);
-    return updated;
-  }
+  // async getUpdatedCredentials(): Promise<TwitterCredentials> {
+  //   const initial = await this.grabCredentials();
+  //   if (!initial) throw new Error("No credentials loaded");
+  //   const updated = await this.refreshToken(initial);
+  //   if (updated !== initial) this.stashCredentials(updated);
+  //   return updated;
+  // }
 
-  async getHealth(): Promise<boolean> {
-    const creds = await this.getUpdatedCredentials().catch((error) => {
-      console.error("twitter#getUpdatedCredentials error");
-      console.error(error);
-      return null;
-    });
+  async getHealth(redis: RedisClient): Promise<boolean> {
+    const creds = await this.getUpdatedCredentials(redis).catch(
+      (error) => {
+        console.error("twitter#getUpdatedCredentials error");
+        console.error(error);
+        return null;
+      },
+    );
+    if (creds === "already_running") return true;
     return creds ? _isValid(creds) : false;
   }
 
@@ -168,14 +177,52 @@ export class TwitterClient {
       body: JSON.stringify({ text }),
     });
   }
+
+  async grabCredentials(
+    redis: RedisClient,
+  ): Promise<TwitterCredentials | null> {
+    try {
+      const result = await redis.get(TOKEN_AUTH_KEY) as string;
+      if (typeof result !== "string") return null;
+      return JSON.parse(result);
+    } catch (_error) {
+      return null;
+    }
+  }
+  async stashCredentials(redis: RedisClient, creds: TwitterCredentials) {
+    await redis.set(TOKEN_AUTH_KEY, JSON.stringify(creds));
+  }
+  async getUpdatedCredentials(
+    redis: RedisClient,
+  ): Promise<TwitterCredentials | "already_running"> {
+    const initial = await this.grabCredentials(redis);
+    if (!initial) throw new Error("No credentials loaded");
+    if (_isValid(initial)) return initial;
+
+    const id = crypto.randomUUID();
+    const lock = await redis.setnx(TOKEN_LOCK_KEY, id);
+    if (lock !== 1) return "already_running";
+
+    const updated = await this.refreshToken(initial, redis);
+
+    await redis.del(TOKEN_LOCK_KEY);
+
+    if (updated !== initial) this.stashCredentials(redis, updated);
+
+    return updated;
+  }
 }
 
 export class TwitterOAuth2 {
   state: string | null = null;
-  constructor(protected client: TwitterClient, protected redirectUri: URL) {}
+  constructor(
+    protected client: TwitterClient,
+    protected redirectUri: URL,
+    protected redis: RedisClient,
+  ) {}
 
   async startLogin({ force = false, now = Date.now() } = {}) {
-    const credentials = await this.client.grabCredentials();
+    const credentials = await this.client.grabCredentials(this.redis);
     if (
       !force &&
       credentials?.expires_at &&
@@ -184,10 +231,11 @@ export class TwitterOAuth2 {
       return null;
     }
 
-    this.state = crypto.randomUUID();
+    const state = crypto.randomUUID();
+    await this.redis.set(OAUTH2_STATE_KEY, state);
     return this.client.getAuthorizeUrl({
       redirectUri: this.redirectUri,
-      state: this.state,
+      state: state,
       scope: ["tweet.read", "tweet.write", "users.read", "offline.access"],
     });
   }
@@ -196,12 +244,17 @@ export class TwitterOAuth2 {
     state?: string,
     code?: string,
   ): Promise<TwitterCredentials | null> {
-    if (!this.state || typeof code !== "string" || state !== this.state) {
+    const storedState = await this.redis.get(OAUTH2_STATE_KEY);
+    if (
+      typeof storedState !== "string" || !storedState ||
+      typeof code !== "string" ||
+      state !== this.state
+    ) {
       return null;
     }
 
     const creds = await this.client.getTokenFromCode(code, this.redirectUri);
-    await this.client.stashCredentials(creds);
+    await this.client.stashCredentials(this.redis, creds);
     this.state = null;
 
     return creds;
