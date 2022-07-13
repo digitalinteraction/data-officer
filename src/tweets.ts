@@ -20,7 +20,7 @@ export function _amCoffeeMessage(cups: number) {
   return [
     _cupsMessage(cups),
     verb(cups),
-    "drank this morning",
+    "drunk this morning",
   ].join(" ");
 }
 
@@ -28,7 +28,7 @@ export function _pmCoffeeMessage(allCups: number, pmCups: number) {
   const verb = (c: number) => c > 1 ? "were" : "was";
 
   if (allCups === 0) {
-    return "No coffee was drank today";
+    return "No coffee was drunk today";
   }
 
   const allMessage = allCups === 1
@@ -38,7 +38,7 @@ export function _pmCoffeeMessage(allCups: number, pmCups: number) {
   return [
     _cupsMessage(pmCups),
     verb(pmCups),
-    "drank this afternoon, making it",
+    "drunk this afternoon, making it",
     allMessage,
     "today",
   ].join(" ");
