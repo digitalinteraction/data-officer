@@ -2,6 +2,11 @@
 
 This file lists notable changes to the project.
 
+## 0.9.1
+
+- Fix coffee tweets, the use the new collection data from redis now
+- Add coffee-club repo for the current day's consumption
+
 ## 0.9.0
 
 - Major restructure to make the app stateless w/ redis

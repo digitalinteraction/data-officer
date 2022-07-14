@@ -1,4 +1,5 @@
-import { getLatestConsumption } from "./repos/coffee_club.ts";
+import { RedisClient } from "../deps.ts";
+import { getTodaysConsumption } from "./repos/coffee_club.ts";
 
 export interface ScheduledTweet {
   (): Promise<string>;
@@ -75,14 +76,13 @@ export function _commitsTweet(changes: CodeChanges) {
   ].join(" ");
 }
 
-export function getScheduledTweets() {
-  // const tweets: Record<string, ScheduledTweet> = {};
+export function getScheduledTweets(redis: RedisClient) {
   const tweets = new Map<string, ScheduledTweet>();
 
   tweets.set("morning_coffee", async () => {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-    const cups = await getLatestConsumption(startOfDay);
+    const cups = await getTodaysConsumption(redis, startOfDay);
     return "☕️ " + _amCoffeeMessage(cups);
   });
 
@@ -94,8 +94,8 @@ export function getScheduledTweets() {
     afternoon.setHours(12, 0, 0, 0);
 
     return "☕️ " + _pmCoffeeMessage(
-      await getLatestConsumption(startOfDay),
-      await getLatestConsumption(afternoon),
+      await getTodaysConsumption(redis, startOfDay),
+      await getTodaysConsumption(redis, afternoon),
     );
   });
 

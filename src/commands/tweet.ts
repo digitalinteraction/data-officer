@@ -1,5 +1,5 @@
 import { Command } from "../../cli.ts";
-import { parseFlags } from "../../deps.ts";
+import { log, parseFlags } from "../../deps.ts";
 import {
   getEnv,
   redisClientFromEnv,
@@ -30,21 +30,23 @@ export const tweetCommand: Command = {
 
     const redis = await redisClientFromEnv(env);
     const twitter = twitterClientFromEnv(env);
-    const tweets = getScheduledTweets();
+    const tweets = getScheduledTweets(redis);
 
     const flags = parseFlags(args, {
       boolean: ["dryRun", "help"],
     });
+    const tweetName = flags._[0];
 
-    if (flags.help) {
+    if (flags.help || !tweetName) {
+      if (!tweetName) log.error("Tweet name not provided");
       console.log(CLI_USAGE(Array.from(tweets.keys())));
       return;
     }
 
-    const tweetFn = tweets.get(flags._[0] as string);
+    const tweetFn = tweets.get(tweetName as string);
 
     if (!tweetFn) {
-      console.error("Unknown tweet", flags._[0]);
+      log.error("Unknown tweet", tweetName);
       Deno.exit(1);
     }
 
@@ -56,8 +58,8 @@ export const tweetCommand: Command = {
     }
 
     const creds = await twitter.getUpdatedCredentials(redis).catch((error) => {
-      console.error("No Twitter authentication");
-      console.error(error);
+      log.error("No Twitter authentication");
+      log.error(error);
       Deno.exit(1);
     });
 

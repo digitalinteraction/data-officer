@@ -1,39 +1,33 @@
-import { expandGlob, parseCsv, path } from "../../deps.ts";
-import { GitRepository } from "../lib/mod.ts";
+import { expandGlob, log, parseCsv, path, RedisClient } from "../../deps.ts";
+import { getCollectionKey, GitRepository } from "../lib/mod.ts";
 
 export const COFFEE_CLUB_REPO_BASE = "repos/coffee-club";
 
 export interface ConsumptionJson {
-  date: string;
+  timestamp: number;
   user: string;
   resource: string;
   quantity: number;
 }
 
-export async function getLatestConsumption(since: Date) {
-  const files = expandGlob(`${COFFEE_CLUB_REPO_BASE}/users/*/use-*.csv`);
-  let count = 0;
-  for await (const file of files) {
-    if (!file.isFile) continue;
-    const data = await parseCsv(await Deno.readTextFile(file.path), {
-      columns: ["date", "resource", "quantity"],
-    });
+export async function getTodaysConsumption(redis: RedisClient, after: Date) {
+  try {
+    const data = await redis.get(getCollectionKey("coffee-club", "today"));
 
-    for (const row of data.reverse()) {
-      const date = new Date(row.date as string);
-      const amount = parseInt(row.quantity as string);
-      if (
-        Number.isNaN(date.getTime()) || row.resource !== "cup" ||
-        Number.isNaN(amount)
-      ) {
-        continue;
-      }
-      if (date.getTime() < since.getTime()) break;
+    if (typeof data !== "string") throw new Error("Data not synchronised");
+    const records: ConsumptionJson[] = JSON.parse(data);
 
-      count += amount;
+    let count = 0;
+    for (const r of records.reverse()) {
+      if (r.resource !== "cup") continue;
+      if (r.timestamp < after.getTime()) break;
+      count += r.quantity;
     }
+    return count;
+  } catch (error) {
+    log.error("#getTodaysConsumption", error);
+    throw new Error("Failed to load consumption");
   }
-  return count;
 }
 
 export function getCoffeeClubRepo(): GitRepository {
@@ -86,14 +80,14 @@ export function getCoffeeClubRepo(): GitRepository {
         if (date.getTime() < startOfDay.getTime()) break;
 
         output.push({
-          date: row.date as string,
+          timestamp: date.getTime(),
           quantity,
           resource: row.resource as string,
           user: user ?? "unknown",
         });
       }
     }
-    output.sort((a, b) => a.date.localeCompare(b.date));
+    output.sort((a, b) => a.timestamp - b.timestamp);
     return output;
   };
 
