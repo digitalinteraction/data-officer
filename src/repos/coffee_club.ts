@@ -3,11 +3,68 @@ import { getCollectionKey, GitRepository } from "../lib/mod.ts";
 
 export const COFFEE_CLUB_REPO_BASE = "repos/coffee-club";
 
+export interface Consumption {
+  timestamp: number;
+  resource: string;
+  quantity: number;
+}
+export interface RawContribution {
+  timestamp: number;
+  resource: string;
+  quantity: number;
+  label: string;
+}
+
 export interface ConsumptionJson {
   timestamp: number;
   user: string;
   resource: string;
   quantity: number;
+}
+
+export async function* _userConsumption(
+  base: string,
+): AsyncGenerator<[string, Consumption[]]> {
+  const files = expandGlob(`${base}/users/*/use-*.csv`);
+  for await (const file of files) {
+    if (!file.isFile) continue;
+
+    const [user] = path.parse(file.path).dir.split(path.sep).slice(-1);
+
+    const data = await parseCsv(await Deno.readTextFile(file.path), {
+      columns: ["date", "resource", "quantity"],
+    });
+    const parsed = data.map((d) => ({
+      timestamp: new Date(d.date as string).getTime(),
+      resource: d.resource as string,
+      quantity: parseInt(d.quantity as string),
+    }));
+
+    yield [user, parsed];
+  }
+}
+
+export async function* _userContribution(
+  base: string,
+): AsyncGenerator<[string, RawContribution[]]> {
+  const files = expandGlob(`${base}/users/*/contribution.csv`);
+  for await (const file of files) {
+    if (!file.isFile) continue;
+
+    const [user] = path.parse(file.path).dir.split(path.sep).slice(-1);
+
+    const data = await parseCsv(await Deno.readTextFile(file.path), {
+      columns: ["date", "resource", "quantity", "label"],
+    });
+    const parsed = data.map((d) => ({
+      timestamp: new Date(d.date as string).getTime(),
+      resource: d.resource as string,
+      quantity: parseInt(d.quantity as string),
+      label: d.label as string,
+    }));
+
+    yield [user, parsed];
+  }
 }
 
 export async function getTodaysConsumption(redis: RedisClient, after: Date) {
@@ -59,29 +116,17 @@ export function getCoffeeClubRepo(): GitRepository {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    const files = expandGlob(`${COFFEE_CLUB_REPO_BASE}/users/*/use-*.csv`);
     const output: ConsumptionJson[] = [];
-    for await (const file of files) {
-      if (!file.isFile) continue;
-
-      const [user] = path.parse(file.path).dir.split(path.sep).slice(-1);
-
-      const data = await parseCsv(await Deno.readTextFile(file.path), {
-        columns: ["date", "resource", "quantity"],
-      });
-
+    for await (const [user, data] of _userConsumption(COFFEE_CLUB_REPO_BASE)) {
       for (const row of data.reverse()) {
-        const date = new Date(row.date as string);
-        const quantity = parseInt(row.quantity as string);
-
-        if (Number.isNaN(date.getTime()) || Number.isNaN(quantity)) {
+        if (Number.isNaN(row.timestamp) || Number.isNaN(row.quantity)) {
           continue;
         }
-        if (date.getTime() < startOfDay.getTime()) break;
+        if (row.timestamp < startOfDay.getTime()) break;
 
         output.push({
-          timestamp: date.getTime(),
-          quantity,
+          timestamp: row.timestamp,
+          quantity: row.quantity,
           resource: row.resource as string,
           user: user ?? "unknown",
         });
@@ -89,6 +134,24 @@ export function getCoffeeClubRepo(): GitRepository {
     }
     output.sort((a, b) => a.timestamp - b.timestamp);
     return output;
+  };
+
+  repo.collections.all = async () => {
+    const result = new Map<string, Consumption[]>();
+
+    const upsertUser = (id: string) => {
+      const user = result.get(id) ?? [];
+      if (!result.has(id)) result.set(id, user);
+      return user;
+    };
+
+    for await (
+      const [id, consumption] of _userConsumption(COFFEE_CLUB_REPO_BASE)
+    ) {
+      upsertUser(id).push(...consumption);
+    }
+
+    return Object.fromEntries(result.entries());
   };
 
   return repo;

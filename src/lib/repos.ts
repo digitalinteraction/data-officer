@@ -4,6 +4,7 @@ import {
   log,
   RedisClient,
 } from "../../deps.ts";
+import { HttpResponse } from "./http.ts";
 
 export interface GitRepository {
   name: string;
@@ -14,6 +15,21 @@ export interface MarkdownPage<T> {
   path: string;
   attrs: T;
   body: string;
+}
+
+export function redisJsonEndpoint(
+  redis: RedisClient,
+  repo: string,
+  collection: string,
+) {
+  const key = getCollectionKey(repo, collection);
+
+  return async () => {
+    const data = await redis.get(key);
+    return data
+      ? new Response(data, { headers: { "content-type": "application/json" } })
+      : HttpResponse.serviceUnavailable();
+  };
 }
 
 export async function getMarkdownCollection<T = unknown>(

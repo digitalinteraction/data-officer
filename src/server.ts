@@ -1,4 +1,4 @@
-import { app, Router } from "../deps.ts";
+import { app, log, Router } from "../deps.ts";
 import {
   AuthService,
   AuthzError,
@@ -7,6 +7,7 @@ import {
   getEnv,
   HttpResponse,
   redisClientFromEnv,
+  redisJsonEndpoint,
   runAllEndpoints,
   twitterClientFromEnv,
   TwitterOAuth2,
@@ -158,14 +159,15 @@ export async function createServer(options: ServerOptions) {
   nav["/repos"] = reposNav;
   for (const repo of repos) {
     for (const id of Object.keys(repo.collections)) {
-      const key = getCollectionKey(repo.name, id);
+      const endpoint = redisJsonEndpoint(redis, repo.name, id);
+
       router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
         await auth.authenticate(ctx, [
           "repos",
           `repos:${repo.name}`,
           `repos:${repo.name}:${id}`,
         ]);
-        return (await redis.get(key)) ?? HttpResponse.serviceUnavailable();
+        return endpoint();
       });
     }
 
@@ -173,6 +175,24 @@ export async function createServer(options: ServerOptions) {
       (collection) => "/" + collection,
     );
   }
+
+  //
+  // Custom repo endpoints
+  //
+
+  /** EXPERIMENTAL */
+  router.get("/repos/coffee-club/members/:member", async (ctx) => {
+    await auth.authenticate(ctx, [
+      "repos",
+      "repos:coffee-club",
+      `repos:coffee-club:members:${ctx.params.member}`,
+    ]);
+    const data = JSON.parse(
+      await redis.get(getCollectionKey("coffee-club", "all")) as string,
+    );
+    if (!data?.[ctx.params.member]) return HttpResponse.serviceUnavailable();
+    return data[ctx.params.member];
+  });
 
   //
   // Error handler
@@ -188,7 +208,7 @@ export async function createServer(options: ServerOptions) {
 
   return {
     async start() {
-      console.log("starting server on :" + options.port);
+      log.info("starting server on :" + options.port);
       await router.listen({ port: options.port });
     },
     stop() {
