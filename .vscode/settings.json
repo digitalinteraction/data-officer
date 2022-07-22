@@ -1,7 +1,8 @@
 {
   "deno.enable": true,
   "prettier.enable": false,
-  "[typescript][typescriptreact][javascript][javascriptreact][css][html][json][jsonc][yaml][markdown]": {
+  // https://deno.land/manual/tools/formatter#code-formatter
+  "[typescript][typescriptreact][javascript][javascriptreact][json][jsonc][markdown]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
   }
 }

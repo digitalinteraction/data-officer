@@ -6,6 +6,7 @@ import {
   getCollectionKey,
   getEnv,
   HttpResponse,
+  loadAuthTokens,
   redisClientFromEnv,
   redisJsonEndpoint,
   runAllEndpoints,
@@ -37,7 +38,12 @@ export async function createServer(options: ServerOptions) {
     "REDIS_URL",
   );
 
-  const auth = new AuthService(env.JWT_SECRET, app.jwtIssuer);
+  const staticAuth = await loadAuthTokens("auth.yml");
+  const auth = new AuthService(
+    env.JWT_SECRET,
+    app.jwtIssuer,
+    staticAuth?.tokens ?? [],
+  );
 
   const redis = await redisClientFromEnv(env);
 
@@ -51,6 +57,9 @@ export async function createServer(options: ServerOptions) {
   const nav: NavTree = {
     "/": "This endpoint",
     "/healthz": "Get the health of the server",
+    "/auth": {
+      "/me": "Get info about your authentication",
+    },
     "/ping": {
       "/all": "Get the status of all services",
       "/down": "Get the services which are down",
@@ -73,6 +82,9 @@ export async function createServer(options: ServerOptions) {
       return HttpResponse.badRequest("Bad redis connection");
     }
     return "ok";
+  });
+  router.get("/auth/me", async (ctx) => {
+    return { scopes: Array.from(await auth.authenticate(ctx, [])) };
   });
 
   //

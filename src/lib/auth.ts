@@ -1,4 +1,4 @@
-import { AcornContext, jwtVerify, SignJWT } from "../../deps.ts";
+import { AcornContext, jwtVerify, parseYaml, SignJWT } from "../../deps.ts";
 
 export class AuthzError extends Error {}
 
@@ -23,9 +23,16 @@ export interface JwtSignOptions {
 export class AuthService {
   #secret: Uint8Array;
   #jwtIssuer: string;
-  constructor(secret: string, jwtIssuer: string) {
+  #staticTokens: Map<string, StaticAuthToken>;
+
+  constructor(
+    secret: string,
+    jwtIssuer: string,
+    staticTokens: StaticAuthToken[],
+  ) {
     this.#secret = new TextEncoder().encode(secret);
     this.#jwtIssuer = jwtIssuer;
+    this.#staticTokens = new Map(staticTokens.map((s) => [s.secret, s]));
   }
 
   async authenticate(ctx: AcornContext, scope: string | string[]) {
@@ -33,22 +40,35 @@ export class AuthService {
       ctx.searchParams["token"];
     if (!auth) throw new AuthzError("No authorization present");
 
-    const result = await jwtVerify(
+    const userScopes = new Set((await this.getScopes(auth)) ?? []);
+    if (userScopes.size === 0) throw new AuthzError("Bad authorization");
+
+    const requiredScopes = _toArray(scope);
+    if (
+      requiredScopes.length > 0 &&
+      requiredScopes.every((s) => !userScopes.has(s)) &&
+      !userScopes.has("admin")
+    ) {
+      throw new AuthzError("Not authorized for: " + requiredScopes);
+    }
+
+    return userScopes;
+  }
+
+  async getScopes(auth: string): Promise<string[] | null> {
+    const jwt = await jwtVerify(
       auth,
       this.#secret,
       { issuer: this.#jwtIssuer },
     ).catch(() => null);
 
-    if (!result) throw new AuthzError("Bad authorization");
+    if (jwt) return _toArray(jwt.payload.aud);
 
-    // Check the audience manually, to add an "admin" check
-    const aud = new Set(_toArray(result.payload.aud));
-    const scopes = _toArray(scope);
-    if (scopes.every((s) => !aud.has(s)) && !aud.has("admin")) {
-      throw new AuthzError("Not authorized for: " + scopes);
-    }
+    const staticToken = this.#staticTokens.get(auth);
 
-    return result;
+    if (staticToken) return staticToken.scopes;
+
+    return null;
   }
 
   sign(subject: string, options: JwtSignOptions) {
@@ -75,4 +95,56 @@ export class AuthService {
 
     return this.sign(subject, { audience, expiresIn });
   }
+}
+
+export interface StaticAuthToken {
+  name: string;
+  secret: string;
+  scopes: string[];
+}
+
+export interface AuthTokenFile {
+  tokens: StaticAuthToken[];
+}
+
+export async function loadAuthTokens(filename: string) {
+  const content = await Deno.readTextFile(filename).catch(() => null);
+  if (!content) return null;
+  return parseTokensFile(parseYaml(content));
+}
+
+/** I wish deno.land/x/superstruct worked ... */
+export function parseTokensFile(
+  input: unknown,
+): AuthTokenFile {
+  if (typeof input !== "object" || input === null) {
+    throw new Error("Malformed file");
+  }
+  const { tokens } = input as Record<"tokens", unknown[]>;
+
+  if (!Array.isArray(tokens)) throw new Error("Missing tokens[]");
+
+  const output: AuthTokenFile = {
+    tokens: [],
+  };
+
+  for (const [i, token] of tokens.entries()) {
+    if (
+      typeof token !== "object" ||
+      token === null ||
+      typeof token.name !== "string" ||
+      typeof token.secret !== "string" ||
+      !Array.isArray(token.scopes) ||
+      token.scopes.some((s: unknown) => typeof s !== "string")
+    ) {
+      throw new Error(`tokens[${i}] is invalid`);
+    }
+    output.tokens.push({
+      name: token.name,
+      secret: token.secret,
+      scopes: Array.from(token.scopes),
+    });
+  }
+
+  return output;
 }

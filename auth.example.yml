@@ -1,0 +1,5 @@
+tokens:
+  - name: geoff-testington
+    secret: abcdef123456789
+    scopes:
+      - repos:openlab:people

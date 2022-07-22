@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --allow-read --allow-env
 
-import { app, parseFlags, SignJWT } from "../deps.ts";
+import { app, log, parseFlags, SignJWT } from "../deps.ts";
 import { getEnv, setupEnv } from "../src/lib/mod.ts";
 
 await setupEnv();
@@ -47,6 +47,11 @@ if (flags.scope && flags.scope.length > 0) {
 
 if (flags.expire) {
   jwt.setExpirationTime(flags.expire);
+} else {
+  log.warning("No expiry set");
+  if (globalThis.confirm("Are you sure?") === false) {
+    Deno.exit(1);
+  }
 }
 
 const key = new TextEncoder().encode(env.JWT_SECRET);
