@@ -191,6 +191,7 @@ export async function createServer(options: ServerOptions) {
   //
   // Custom repo endpoints
   //
+  reposNav["/coffee-club/members/:member"] = "Get a member's consumption";
 
   router.get("/repos/coffee-club/members/:member", async (ctx) => {
     await auth.authenticate(ctx, [
