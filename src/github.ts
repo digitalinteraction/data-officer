@@ -122,7 +122,7 @@ export async function getRecentCommits(since: Date): Promise<CodeChanges> {
 
       stats.total += details.stats.total;
       stats.additions += details.stats.additions;
-      stats.deletions += details.stats.total;
+      stats.deletions += details.stats.deletions;
     }
   }
 
