@@ -6,3 +6,6 @@
 *.env
 /repos
 auth.yml
+
+!/example/**/*.env
+!/example/**/auth.yml

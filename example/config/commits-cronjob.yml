@@ -1,0 +1,32 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: commits
+spec:
+  # https://crontab.guru/#30_17_*_*_1-5
+  # But in UTC
+  schedule: '30 16 * * 1-5'
+  successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: commits
+              image: ghcr.io/digitalinteraction/data-officer
+              envFrom:
+                - secretRef: { name: app-env }
+              resources:
+                requests: { memory: 64Mi, cpu: 50m }
+                limits: { memory: 128Mi, cpu: 200m }
+              args:
+                - tweet
+                - daily_commits
+
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000

@@ -1,0 +1,32 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: coffee-pm
+spec:
+  # https://crontab.guru/#30_17_*_*_1-5
+  # But in UTC
+  schedule: '45 15 * * 1-5'
+  successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: coffee-pm
+              image: ghcr.io/digitalinteraction/data-officer
+              envFrom:
+                - secretRef: { name: app-env }
+              resources:
+                requests: { memory: 64Mi, cpu: 50m }
+                limits: { memory: 128Mi, cpu: 200m }
+              args:
+                - tweet
+                - afternoon_coffee
+
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000

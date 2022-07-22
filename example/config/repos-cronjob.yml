@@ -1,0 +1,56 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: repos
+spec:
+  # https://crontab.guru/#*/2_*_*_*_*
+  schedule: '*/2 * * * *'
+  successfulJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 30
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: repos
+              image: ghcr.io/digitalinteraction/data-officer
+              envFrom:
+                - secretRef: { name: app-env }
+              volumeMounts:
+                - mountPath: /home/deno/.ssh/id_ed25519
+                  name: ssh
+                  subPath: bot_id
+                - mountPath: /home/deno/.ssh/id_ed25519.pub
+                  name: ssh
+                  subPath: bot_id.pub
+                - mountPath: /home/deno/.ssh/known_hosts
+                  name: resources
+                  subPath: known_hosts
+                - mountPath: /app/repos
+                  name: repos
+              resources:
+                requests: { memory: 64Mi, cpu: 50m }
+                limits: { memory: 128Mi, cpu: 200m }
+              args:
+                - sync_repos
+
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+
+          volumes:
+            - name: ssh
+              secret:
+                secretName: bot-ssh
+                defaultMode: 0440
+            - name: resources
+              configMap:
+                name: app-resources
+                defaultMode: 0660
+            - name: repos
+              persistentVolumeClaim:
+                claimName: repos
