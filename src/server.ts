@@ -192,7 +192,6 @@ export async function createServer(options: ServerOptions) {
   // Custom repo endpoints
   //
 
-  /** EXPERIMENTAL */
   router.get("/repos/coffee-club/members/:member", async (ctx) => {
     await auth.authenticate(ctx, [
       "repos",
