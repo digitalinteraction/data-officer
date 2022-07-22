@@ -34,7 +34,10 @@ interface CommitDetails {
   stats: CodeChanges;
 }
 
-/** Parse a HTTP link header, returns a map of "rel"ation to URL */
+/**
+ * Parse a HTTP link header, returns a map of "rel"ation to URL.
+ * https://datatracker.ietf.org/doc/html/rfc8288#section-3.5
+ */
 export function _parseLinkHeader(header: string): Map<string, string> {
   return new Map(
     header.split(/\s*,\s/)
