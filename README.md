@@ -73,8 +73,8 @@ This repo uses GitHub actions to build a container when you push a git tag like
 `v1.2.3`.
 
 1. Make sure all code is committed on `main`
-2. Update the [CHANGELOG.md](/CHANGELOG.md)
-3. Run `./script/version X.Y.Z`
+2. Update the [CHANGELOG.md](/CHANGELOG.md) to describe new features and bug fixes
+3. Run `./script/version X.Y.Z` with the newly documented version
 4. Push to main
 
 ## Environment variables
