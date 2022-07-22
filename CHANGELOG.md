@@ -2,6 +2,15 @@
 
 This file lists notable changes to the project.
 
+## 1.0.0
+
+- First stable version
+- Add `daily_commits` tweet that tweets additions/removals
+- Add `auth.yml` file for static revokable tokens to be used instead of
+  non-expiring JWTs
+- Add `repos/coffee-club/members/:member` endpoint to retrieve a member's
+  coffee-consumption
+
 ## 0.9.1
 
 - Fix coffee tweets, the use the new collection data from redis now
