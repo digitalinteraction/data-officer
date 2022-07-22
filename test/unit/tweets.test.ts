@@ -76,9 +76,9 @@ Deno.test("_pmCoffeeMessage", async (t) => {
 Deno.test("_commitsTweet", async (t) => {
   await t.step("format code changes", () => {
     const msg = _commitsTweet({
-      modified: 13,
+      total: 13,
       additions: 12,
-      removals: 1,
+      deletions: 1,
     });
     assertMatch(msg, /13 lines of code were modified/i);
     assertMatch(msg, /12 lines were added/i);
@@ -87,9 +87,9 @@ Deno.test("_commitsTweet", async (t) => {
 
   await t.step("format no changes", () => {
     const msg = _commitsTweet({
-      modified: 0,
+      total: 0,
       additions: 0,
-      removals: 0,
+      deletions: 0,
     });
     assertMatch(msg, /no code was committed today/i);
   });

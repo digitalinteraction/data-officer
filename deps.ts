@@ -44,3 +44,12 @@ export {
   parseURL as parseRedisUrl,
 } from "https://deno.land/x/redis@v0.26.0/mod.ts";
 export type { Redis as RedisClient } from "https://deno.land/x/redis@v0.26.0/mod.ts";
+
+//
+// Octokit
+//
+// I wanted to use octokit but:
+// - I couldn't use a pinned version from skypack and use types
+// - It hangs the process for some reason
+//   https://github.com/octokit/octokit.js/issues/2079
+// export { Octokit } from "https://cdn.skypack.dev/octokit@2.0.4?dts";

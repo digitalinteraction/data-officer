@@ -1,4 +1,6 @@
 import { RedisClient } from "../deps.ts";
+import { CodeChanges, getRecentCommits } from "./github.ts";
+
 import { getTodaysConsumption } from "./repos/coffee_club.ts";
 
 export interface ScheduledTweet {
@@ -45,33 +47,27 @@ export function _pmCoffeeMessage(allCups: number, pmCups: number) {
   ].join(" ");
 }
 
-interface CodeChanges {
-  modified: number;
-  additions: number;
-  removals: number;
-}
-
 export function _commitsTweet(changes: CodeChanges) {
   const verb = (n: number) => n === 1 ? "was" : "were";
   const lines = (l: number) => `${l} ${l === 1 ? "line" : "lines"}`;
 
   if (
-    changes.modified === 0 && changes.additions === 0 && changes.removals === 0
+    changes.total === 0 && changes.additions === 0 && changes.deletions === 0
   ) {
     return "🧑‍💻 no code was committed today";
   }
 
   return [
     "🧑‍💻",
-    lines(changes.modified),
+    lines(changes.total),
     "of code",
-    verb(changes.modified),
+    verb(changes.total),
     "modified today,",
     lines(changes.additions),
     verb(changes.additions),
     "added and",
-    lines(changes.removals),
-    verb(changes.removals),
+    lines(changes.deletions),
+    verb(changes.deletions),
     "removed",
   ].join(" ");
 }
@@ -99,10 +95,13 @@ export function getScheduledTweets(redis: RedisClient) {
     );
   });
 
-  // tweets.set('daily_commits', () => {
-  //   // TODO: fetch commits using GitHub API
-  //   throw new Error("Not implemented");
-  // });
+  tweets.set("daily_commits", async () => {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const commits = await getRecentCommits(startOfDay);
+    return _commitsTweet(commits);
+  });
 
   return tweets;
 }
