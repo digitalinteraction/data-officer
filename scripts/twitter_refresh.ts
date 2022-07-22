@@ -7,6 +7,22 @@ import {
   twitterClientFromEnv,
 } from "../src/lib/mod.ts";
 
+const CLI_USAGE = `
+./scripts/twitter_refresh.ts [options]
+
+info:
+  Run the OAuth2 refresh process with the access and refresh token that is
+  in redis.
+
+options:
+  --help  Show this help message
+`;
+
+if (Deno.args.includes("--help")) {
+  console.log(CLI_USAGE);
+  Deno.exit();
+}
+
 await setupEnv();
 
 const env = getEnv("TWITTER_CLIENT_ID", "TWITTER_CLIENT_SECRET", "REDIS_URL");

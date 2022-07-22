@@ -1,25 +1,42 @@
 import { AcornContext, jwtVerify, parseYaml, SignJWT } from "../../deps.ts";
 
+/** An auth token loaded from an `auth.yml` type file */
+export interface StaticAuthToken {
+  name: string;
+  secret: string;
+  scopes: string[];
+}
+
+/** The contents of an `auth.yml` type file */
+export interface AuthTokenFile {
+  tokens: StaticAuthToken[];
+}
+
+/** An authorization error, for Acorn to catch and return a http/401 response */
 export class AuthzError extends Error {}
 
 const bearerRegex = /^bearer /i;
 
+/** Get the token part of a bearer-type authentication header (case insensitive) */
 export function getBearerHeader(headers: Headers) {
   const header = headers.get("authorization");
   if (!header || !bearerRegex.test(header)) return null;
   return header.replace(bearerRegex, "");
 }
 
+/** Consistently convert a string or strings or no strings into a string array */
 export const _toArray = (input: string | string[] | undefined) => {
   if (input === undefined) return [];
   return typeof input === "string" ? [input] : input;
 };
 
+/** Options for signing a JWT */
 export interface JwtSignOptions {
   audience?: string[];
   expiresIn?: string;
 }
 
+/** A service for authenticating server requests based on JWT and/or a static set of tokens */
 export class AuthService {
   #secret: Uint8Array;
   #jwtIssuer: string;
@@ -35,6 +52,7 @@ export class AuthService {
     this.#staticTokens = new Map(staticTokens.map((s) => [s.secret, s]));
   }
 
+  /** Assert an Acorn context has access to certain scopes or throw an `AuthzError` */
   async authenticate(ctx: AcornContext, scope: string | string[]) {
     const auth = getBearerHeader(ctx.request.headers) ??
       ctx.searchParams["token"];
@@ -55,6 +73,10 @@ export class AuthService {
     return userScopes;
   }
 
+  /**
+   * Find the scopes an authentication token is allowed to access, checking
+   * a jwt's `aud` claim or a static token's `scopes` option, or null otherwise.
+   */
   async getScopes(auth: string): Promise<string[] | null> {
     const jwt = await jwtVerify(
       auth,
@@ -71,6 +93,7 @@ export class AuthService {
     return null;
   }
 
+  /** Sign a JWT for later consumption by the http server */
   sign(subject: string, options: JwtSignOptions) {
     const jwt = new SignJWT({ sub: subject, iss: this.#jwtIssuer })
       .setIssuedAt()
@@ -80,6 +103,17 @@ export class AuthService {
     return jwt.sign(this.#secret);
   }
 
+  /**
+   * Sign a JWT from a http request, first validating the body then using it to
+   * construct a JWT based on the options set and returns the signed JWT. e.g.
+   *
+   * ```sh
+   * http $URL \
+   *    subject="geoff@example.com" \
+   *    scope="ping repos:coffee-club" \
+   *    expiresIn="1y"
+   * ```
+   */
   signFromRequest(body: unknown) {
     if (typeof body !== "object") return null;
     const { subject, scope, expiresIn } = body as Record<string, unknown>;
@@ -97,23 +131,18 @@ export class AuthService {
   }
 }
 
-export interface StaticAuthToken {
-  name: string;
-  secret: string;
-  scopes: string[];
-}
-
-export interface AuthTokenFile {
-  tokens: StaticAuthToken[];
-}
-
+/** Load an `auth.yml` file, validate it and return the contents */
 export async function loadAuthTokens(filename: string) {
   const content = await Deno.readTextFile(filename).catch(() => null);
   if (!content) return null;
   return parseTokensFile(parseYaml(content));
 }
 
-/** I wish deno.land/x/superstruct worked ... */
+/**
+ * Parse and validate an `auth.yml` file
+ *
+ * I wish deno.land/x/superstruct worked ...
+ */
 export function parseTokensFile(
   input: unknown,
 ): AuthTokenFile {

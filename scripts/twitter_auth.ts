@@ -11,7 +11,16 @@ import {
 } from "../src/lib/mod.ts";
 
 const CLI_USAGE = `
-./scripts/twitter_auth.ts - Generate twitter access credentials
+./scripts/twitter_auth.ts [options]
+
+info:
+  Generate twitter access credentials by running a local server
+  that redirects the user to the twitter authentication page.
+  Upon completion, it redirects them back to finish the OAuth2 flow
+  and outputs the new token. 
+  
+  Make sure http://localhost:8080/twitter/oauth2/callback is added to the
+  Twitter App's redirect_uri configuration.
 
 options:
   --scope The scopes you want access to (you can pass multiple times)
@@ -44,7 +53,7 @@ if (!flags.scope) {
 
 if (flags.help) {
   console.log(CLI_USAGE);
-  Deno.exit(0);
+  Deno.exit();
 }
 
 const env = getEnv("TWITTER_CLIENT_ID", "TWITTER_CLIENT_SECRET", "REDIS_URL");

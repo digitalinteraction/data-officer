@@ -6,10 +6,12 @@ import {
   mysqlEndpoint,
 } from "../lib/mod.ts";
 
+/** Endpoints for Open Lab Systems' internal services */
 export function getSystemsEndpoints() {
   const env: Partial<EnvRecord> = Deno.env.toObject();
   const endpoints: Record<string, Endpoint> = {};
 
+  // Optionally add mysql endpoints if they are configured
   if (env.MAIN_MYSQL_URL) {
     endpoints.mysql_main = mysqlEndpoint(env.MAIN_MYSQL_URL, {
       name: "Mysql ~ Main",
@@ -17,7 +19,6 @@ export function getSystemsEndpoints() {
       link: null,
     });
   }
-
   if (env.SHARED_MYSQL_URL) {
     endpoints.mysql_shared = mysqlEndpoint(env.SHARED_MYSQL_URL, {
       name: "Mysql ~ Shared",
@@ -44,6 +45,7 @@ export function getSystemsEndpoints() {
     link: "https://digitalcivics.io",
   });
 
+  // A custom dokku endpoint that checks the two components are both working
   endpoints.dokku = async () => {
     const [dokku, gateway] = await Promise.all([
       fetchWithTimeout("http://dig-civics.ncl.ac.uk:8083/"),
@@ -75,12 +77,12 @@ export function getSystemsEndpoints() {
     };
   };
 
+  // A custom SVN endpoint that is "ok" when a 401 is returned.
   const _svn = httpEndpoint("https://openlab.ncl.ac.uk/svn/repos/", {
     name: "svn",
     info: "Svn projects repository",
     link: "https://openlab.ncl.ac.uk/svn/repos/",
   });
-
   endpoints.svn = async () => {
     const r = await _svn();
     r.state.ok = r.state.httpStatus === 401;

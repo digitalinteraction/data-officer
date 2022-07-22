@@ -13,6 +13,7 @@ export interface UpDownAlert {
   monitorAlertContacts: string;
 }
 
+/** The message when a service went down */
 export function _monitorDownMessage(alert: UpDownAlert) {
   return [
     "💔 Looks like",
@@ -20,6 +21,8 @@ export function _monitorDownMessage(alert: UpDownAlert) {
     "is down 😓, I'll let you know when it's back up.",
   ].join(" ");
 }
+
+/** The message when a service came back up */
 export function _monitorUpMessage(alert: UpDownAlert) {
   return [
     "💚",
@@ -29,6 +32,7 @@ export function _monitorUpMessage(alert: UpDownAlert) {
   ].join(" ");
 }
 
+/** A server endpoint to process Uptime Robot webhooks and tweet out */
 export async function uptimeRobotTweet(
   ctx: AcornContext,
   twitter: TwitterClient,

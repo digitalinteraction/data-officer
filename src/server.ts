@@ -8,7 +8,7 @@ import {
   HttpResponse,
   loadAuthTokens,
   redisClientFromEnv,
-  redisJsonEndpoint,
+  redisJsonRoute,
   runAllEndpoints,
   twitterClientFromEnv,
   TwitterOAuth2,
@@ -18,15 +18,13 @@ import { getSystemsEndpoints } from "./endpoints/systems.ts";
 import { uptimeRobotTweet } from "./uptimerobot.ts";
 import { getAllRepos } from "./repos/all.ts";
 
-interface ServerOptions {
-  port: number;
-}
-
+/** A tree to show the available routes to the user */
 interface NavTree {
   [key: string]: string | string[] | NavTree;
 }
 
-export async function createServer(options: ServerOptions) {
+/** Create the http server */
+export async function createServer(port: number) {
   const router = new Router();
 
   const env = getEnv(
@@ -171,7 +169,7 @@ export async function createServer(options: ServerOptions) {
   nav["/repos"] = reposNav;
   for (const repo of repos) {
     for (const id of Object.keys(repo.collections)) {
-      const endpoint = redisJsonEndpoint(redis, repo.name, id);
+      const endpoint = redisJsonRoute(redis, repo.name, id);
 
       router.get(`/repos/${repo.name}/${id}`, async (ctx) => {
         await auth.authenticate(ctx, [
@@ -220,8 +218,8 @@ export async function createServer(options: ServerOptions) {
 
   return {
     async start() {
-      log.info("starting server on :" + options.port);
-      await router.listen({ port: options.port });
+      log.info("starting server on :" + port);
+      await router.listen({ port: port });
     },
     stop() {
       redis.close();

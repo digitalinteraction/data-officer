@@ -6,11 +6,13 @@ const TOKEN_AUTH_KEY = "twitter/auth";
 const TOKEN_LOCK_KEY = "twitter/lock";
 const OAUTH2_STATE_KEY = "twitter/state";
 
+/** Options for creating a `TwitterClient` */
 export interface TwitterClientOptions {
   clientId: string;
   clientSecret: string;
 }
 
+/** Credientials for accessing twitter, to be stored in Redis */
 export interface TwitterCredentials {
   token_type: string;
   expires_in: number;
@@ -20,12 +22,14 @@ export interface TwitterCredentials {
   refresh_token: string;
 }
 
+/** Options for creating a new Twitter authorization */
 export interface TwitterAuthorizeOptions {
   redirectUri: string | URL;
   scope: string[];
   state: string;
 }
 
+/** Calculate the custom `expires_at` field for `TwitterCredentials` */
 export function _getExpiresAt(
   creds: TwitterCredentials,
   now = Date.now(),
@@ -33,18 +37,25 @@ export function _getExpiresAt(
   return now + creds.expires_in * 1000;
 }
 
+/** Create a http basic auth for talking to Twitter */
 export function _getClientBasicAuthz(id: string, secret: string) {
   return `Basic ${base64.encode([id, secret].join(":"))}`;
 }
 
+/** Whether a `TwitterCredential` has not expired based on a timestamp */
 export function _isValid(creds: TwitterCredentials, now = Date.now()): boolean {
   if (creds.expires_at === undefined) return true;
   return creds.expires_at > now;
 }
 
+/**
+ * A client for talking to the Twitter v2 API, only supports authentication
+ * and tweeting so far.
+ */
 export class TwitterClient {
   constructor(public options: TwitterClientOptions) {}
 
+  /** Get a URL to start an OAuth2 flow */
   getAuthorizeUrl({ redirectUri, scope, state }: TwitterAuthorizeOptions) {
     const url = new URL("https://twitter.com/i/oauth2/authorize");
     url.searchParams.set("response_type", "code");
@@ -53,8 +64,8 @@ export class TwitterClient {
     url.searchParams.set("state", state);
     url.searchParams.set("code_challenge", "challenge");
     url.searchParams.set("code_challenge_method", "plain");
-    // url.searchParams.set("scope", scope.join(" "));
 
+    // url.searchParams.set("scope", scope.join(" "));
     // NOTE: the twitter API doesn't like the way URLSearchParams converts
     // spaces to '+' characters
     return (
@@ -62,6 +73,7 @@ export class TwitterClient {
     );
   }
 
+  /** From an OAuth2 code, request a token from Twitter using the client credentials */
   async getTokenFromCode(
     code: string,
     redirectUri: string | URL,
@@ -84,11 +96,13 @@ export class TwitterClient {
       }).toString(),
     });
 
+    // Inject the `expired_at` ket to know when its expired
     const credentials: TwitterCredentials = await response.json();
     credentials.expires_at = _getExpiresAt(credentials);
     return credentials;
   }
 
+  /** From a previous `TwitterCredential`, refresh it to get a new access token  */
   async refreshToken(creds: TwitterCredentials, redis: RedisClient) {
     const response = await fetch(new URL("oauth2/token", TWITTER_URL), {
       method: "POST",
@@ -110,8 +124,8 @@ export class TwitterClient {
 
     log.debug("#refreshToken refresh token %O", response);
 
+    // If it went wrong and it is an app-level layer, unstore the creds
     if (!response || !response.ok) {
-      // await Deno.remove(TOKEN_PATH);
       if (response?.status === 400) {
         log.debug("#refreshToken remove token");
         await redis.del(TOKEN_AUTH_KEY);
@@ -125,6 +139,7 @@ export class TwitterClient {
     return newCreds;
   }
 
+  /** Get the health of the client, i.e. if the token is not expired */
   async getHealth(redis: RedisClient): Promise<boolean> {
     const creds = await this.getUpdatedCredentials(redis).catch(
       (error) => {
@@ -136,7 +151,10 @@ export class TwitterClient {
     return creds ? _isValid(creds) : false;
   }
 
-  /** https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets */
+  /**
+   * Post a tweet using some TwitterCredentials
+   * https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+   */
   tweet(text: string, creds: TwitterCredentials) {
     return fetch(new URL("tweets", TWITTER_URL), {
       method: "POST",
@@ -148,6 +166,7 @@ export class TwitterClient {
     });
   }
 
+  /** Get credentials from Redis */
   async grabCredentials(
     redis: RedisClient,
   ): Promise<TwitterCredentials | null> {
@@ -159,9 +178,16 @@ export class TwitterClient {
       return null;
     }
   }
+
+  /** Store Twitter credentials in Redis */
   async stashCredentials(redis: RedisClient, creds: TwitterCredentials) {
     await redis.set(TOKEN_AUTH_KEY, JSON.stringify(creds));
   }
+
+  /**
+   * Get the Twitter credentials from Redis and refresh them if needed.
+   * It uses a lock to ensure the no concurrency.
+   */
   async getUpdatedCredentials(
     redis: RedisClient,
   ): Promise<TwitterCredentials> {
@@ -172,6 +198,7 @@ export class TwitterClient {
     const id = crypto.randomUUID();
 
     try {
+      // Request a lock before refreshing the token
       const lockStatus = await getLockOrWait(
         async () => {
           const result = await redis.setnx(TOKEN_LOCK_KEY, id);
@@ -181,10 +208,12 @@ export class TwitterClient {
         { maxRetries: 10, retryInterval: randomBetween(1000, 2000) },
       );
 
+      // Fail if the lock wasn't aquired or couldn't be waited for
       if (lockStatus === "failed") {
         throw new Error("Failed to wait for lock");
       }
 
+      // If the lock was waited for, return the credentials the other process got
       if (lockStatus === "waited") {
         console.debug("#getUpdatedCredentials waited");
         const creds = await this.grabCredentials(redis);
@@ -192,6 +221,9 @@ export class TwitterClient {
         return creds;
       }
 
+      // If the lock was aquired, proceed to refresh the credentials
+
+      // Remove the lock after a hot minute
       await redis.expire(TOKEN_LOCK_KEY, 5 * 60);
 
       const updated = await this.refreshToken(initial, redis);
@@ -205,6 +237,7 @@ export class TwitterClient {
   }
 }
 
+/** A client for facilitating an OAuth2 flow */
 export class TwitterOAuth2 {
   constructor(
     protected client: TwitterClient,
@@ -212,6 +245,7 @@ export class TwitterOAuth2 {
     protected redis: RedisClient,
   ) {}
 
+  /** Start a login and generate a state that needs to be matched to finish */
   async startLogin({ force = false, now = Date.now() } = {}) {
     const credentials = await this.client.grabCredentials(this.redis);
     if (
@@ -222,6 +256,7 @@ export class TwitterOAuth2 {
       return null;
     }
 
+    // Get an authorization URL for the twitter bot
     const state = crypto.randomUUID();
     await this.redis.set(OAUTH2_STATE_KEY, state, { ex: 60 * 60 });
     return this.client.getAuthorizeUrl({
@@ -231,6 +266,7 @@ export class TwitterOAuth2 {
     });
   }
 
+  /** Finish the OAuth2 login from a callback url, failing if the state doesn't match */
   async finishLogin(
     state?: string,
     code?: string,

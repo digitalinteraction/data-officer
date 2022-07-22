@@ -7,6 +7,7 @@ const allUnits = [
   { max: 60, durationMs: datetime.SECOND, suffix: "s" },
 ];
 
+/** Get a human-friendly consice duration of time like `5h 4m 3s` */
 export function formatDuration(ms: number): string {
   if (ms === 0) return "0s";
 

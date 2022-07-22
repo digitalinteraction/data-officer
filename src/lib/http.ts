@@ -1,3 +1,4 @@
+/** A utility to easily return well-known HTTP responses for acorn */
 export class HttpResponse {
   static badRequest(message = "Bad request") {
     return new Response(message, { status: 400 });

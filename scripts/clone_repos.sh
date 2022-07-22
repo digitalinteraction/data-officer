@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
 
+# 
+# This script clones the data-officer repos or updates them if they already exist
+# If something goes wrong it will do a fresh clone to catch it
+# 
+
 set -e
 
 mkdir -p repos

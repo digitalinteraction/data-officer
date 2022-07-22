@@ -3,20 +3,24 @@ import { CodeChanges, getRecentCommits } from "./github.ts";
 
 import { getTodaysConsumption } from "./repos/coffee_club.ts";
 
+/** A function to generate a tweet to be sent */
 export interface ScheduledTweet {
   (): Promise<string>;
 }
 
+/** A formatter for cups of coffee */
 const cupsFormat = new Intl.NumberFormat("en-GB", {
   notation: "compact",
 });
 
+/** A human-friendlt message for a number of coffees */
 export function _cupsMessage(cups: number) {
   if (cups === 0) return `No coffee`;
   if (cups === 1) return `1 cup of coffee`;
   return `${cupsFormat.format(cups)} cups of coffee`;
 }
 
+/** The morning message about coffee consumption */
 export function _amCoffeeMessage(cups: number) {
   const verb = (c: number) => c > 1 ? "were" : "was";
 
@@ -27,6 +31,7 @@ export function _amCoffeeMessage(cups: number) {
   ].join(" ");
 }
 
+/** The afternoon message about coffee consumption */
 export function _pmCoffeeMessage(allCups: number, pmCups: number) {
   const verb = (c: number) => c > 1 ? "were" : "was";
 
@@ -47,6 +52,7 @@ export function _pmCoffeeMessage(allCups: number, pmCups: number) {
   ].join(" ");
 }
 
+/** A message about how much code was contributed */
 export function _commitsTweet(changes: CodeChanges) {
   const verb = (n: number) => n === 1 ? "was" : "were";
   const lines = (l: number) => `${l} ${l === 1 ? "line" : "lines"}`;
@@ -72,6 +78,7 @@ export function _commitsTweet(changes: CodeChanges) {
   ].join(" ");
 }
 
+/** Get the tweets that can be sent */
 export function getScheduledTweets(redis: RedisClient) {
   const tweets = new Map<string, ScheduledTweet>();
 
@@ -99,7 +106,7 @@ export function getScheduledTweets(redis: RedisClient) {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
-    const commits = await getRecentCommits(startOfDay);
+    const commits = await getRecentCommits("digitalinteraction", startOfDay);
     return _commitsTweet(commits);
   });
 

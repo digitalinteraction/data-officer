@@ -13,12 +13,14 @@ export function _resolveImage(url: string, size: string) {
   );
 }
 
+/** Map the openlab.ncl.ac.uk website repository */
 export function getOpenlabRepo(): GitRepository {
   const repo: GitRepository = {
     name: "openlab.ncl.ac.uk",
     collections: {},
   };
 
+  // Website people
   repo.collections.people = async () => {
     const people = await getMarkdownCollection<any>(
       `${OPENLAB_WEB_BASE}/people/*.md`,
@@ -42,6 +44,7 @@ export function getOpenlabRepo(): GitRepository {
       }));
   };
 
+  // Website projects
   repo.collections.projects = async () => {
     const projects = await getMarkdownCollection<any>(
       `${OPENLAB_WEB_BASE}/projects/*.md`,
@@ -65,6 +68,7 @@ export function getOpenlabRepo(): GitRepository {
       }));
   };
 
+  // Website news posts
   repo.collections.posts = async () => {
     const posts = await getMarkdownCollection<any>(
       `${OPENLAB_WEB_BASE}/posts/*.md`,
@@ -87,6 +91,7 @@ export function getOpenlabRepo(): GitRepository {
       }));
   };
 
+  // Website roles
   repo.collections.roles = async () => {
     const roles = await getMarkdownCollection<any>(
       `${OPENLAB_WEB_BASE}/roles/*.md`,
@@ -105,6 +110,7 @@ export function getOpenlabRepo(): GitRepository {
       }));
   };
 
+  // Website topics
   repo.collections.topics = async () => {
     const topics = await getMarkdownCollection<any>(
       `${OPENLAB_WEB_BASE}/topics/*.md`,
@@ -123,6 +129,7 @@ export function getOpenlabRepo(): GitRepository {
       }));
   };
 
+  // Website publications
   repo.collections.publications = async () => {
     return JSON.parse(
       await Deno.readTextFile(`${OPENLAB_WEB_BASE}/_data/publications.json`),

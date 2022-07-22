@@ -7,18 +7,21 @@ const repoBlockList = new Set([
   "digitalinteraction/beancounter-data",
 ]);
 
+/** Bare GitHub repo */
 export interface Repo {
   name: string;
   full_name: string;
   pushed_at: string;
 }
 
+/** The sum of code changes */
 export interface CodeChanges {
   total: number;
   additions: number;
   deletions: number;
 }
 
+/** Bare GitHub commit */
 export interface Commit {
   sha: string;
   commit: {
@@ -26,10 +29,12 @@ export interface Commit {
   };
 }
 
+/** Bare detailed commit */
 interface CommitDetails {
   stats: CodeChanges;
 }
 
+/** Parse a HTTP link header, returns a map of "rel"ation to URL */
 export function _parseLinkHeader(header: string): Map<string, string> {
   return new Map(
     header.split(/\s*,\s/)
@@ -69,8 +74,11 @@ export async function* _iterate<T = unknown>(
   } while (url);
 }
 
-export async function getRecentCommits(since: Date): Promise<CodeChanges> {
-  const owner = "digitalinteraction";
+/** Get recent commits to the `digitalinteraction` GitHub organisation */
+export async function getRecentCommits(
+  owner: string,
+  since: Date,
+): Promise<CodeChanges> {
   const { GITHUB_TOKEN } = getEnv("GITHUB_TOKEN");
 
   const request = {

@@ -1,3 +1,8 @@
+//
+// The "main" file for the library sub-module,
+// this should be imported from code outside this folder.
+//
+
 export * from "./auth.ts";
 export * from "./duration.ts";
 export * from "./endpoints.ts";

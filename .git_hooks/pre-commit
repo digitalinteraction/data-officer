@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
+# 
+# This is run before every commit to stop bad code entering the build
+# 
+
 set -e
 
 deno lint

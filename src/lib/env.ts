@@ -1,6 +1,7 @@
 import { connectToRedis, loadDotenv, log, parseRedisUrl } from "../../deps.ts";
 import { TwitterClient } from "./twitter.ts";
 
+/** All known environment variables */
 export interface EnvRecord {
   REDIS_URL: string;
   JWT_SECRET: string;
@@ -19,6 +20,7 @@ export interface EnvRecord {
   GITHUB_TOKEN: string;
 }
 
+/** Load a subset of the `EnvRecord`, hard-failing if a variable is unset */
 export function getEnv<K extends keyof EnvRecord>(
   ...keys: K[]
 ): Pick<EnvRecord, K> {
@@ -40,12 +42,14 @@ export function getEnv<K extends keyof EnvRecord>(
   return output;
 }
 
+/** Create a redis client from an `EnvRecord` and parse the URL */
 export function redisClientFromEnv(env: Pick<EnvRecord, "REDIS_URL">) {
   return connectToRedis({
     ...parseRedisUrl(env.REDIS_URL),
   });
 }
 
+/** Create a twitter client from an `EnvRecord` */
 export function twitterClientFromEnv(
   env: Pick<EnvRecord, "TWITTER_CLIENT_ID" | "TWITTER_CLIENT_SECRET">,
 ) {
@@ -55,6 +59,9 @@ export function twitterClientFromEnv(
   });
 }
 
+/**
+ * Configure Deno's `log` module based on the `LOG_LEVEL` environment variable
+ */
 export async function setupLogsFromEnv() {
   await log.setup({
     handlers: {
@@ -70,6 +77,10 @@ export async function setupLogsFromEnv() {
   });
 }
 
+/**
+ * Load in environment variables from the `.env` and setup the logs. A useful
+ * one-liner for the top of scripts
+ */
 export async function setupEnv() {
   await loadDotenv({ export: true });
   await setupLogsFromEnv();

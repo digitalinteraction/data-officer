@@ -3,7 +3,10 @@ import { parseFlags } from "../../deps.ts";
 import { createServer } from "../../src/server.ts";
 
 const CLI_USAGE = `
-./cli.ts serve
+./cli.ts serve [options]
+
+info:
+  Run the http server.
 
 options:
   --port The port to run on (default: 8080)
@@ -27,10 +30,7 @@ export const serveCommand: Command = {
       return;
     }
 
-    const server = await createServer({
-      ...flags,
-      port: parseInt(flags.port),
-    });
+    const server = await createServer(parseInt(flags.port));
 
     function exit() {
       server.stop();

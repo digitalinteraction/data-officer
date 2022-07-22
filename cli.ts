@@ -1,9 +1,14 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env --allow-read --allow-write=data --allow-run=scripts/clone_repos.sh
 
+//
+// This is the entry point to the main app
+//
+
 import { app } from "./deps.ts";
 import { allCommands } from "./src/commands/all.ts";
 import { setupEnv } from "./src/lib/mod.ts";
 
+/** A CLI command */
 export interface Command {
   name: string;
   info: string;
@@ -33,7 +38,8 @@ const cmdIndent = commands.map((c) => c.name.length).reduce<number>(
   0,
 );
 
-const CLI_USAGE = `./cli.ts <command> [options]
+const CLI_USAGE = `
+./cli.ts <command> [options]
 
 commands:
   ${
@@ -61,8 +67,8 @@ if (!commandName) {
   Deno.exit(1);
 }
 
+// Find the command to run, setup the env and run it
 const command = commands.find((c) => c.name === commandName);
-
 if (!command) {
   console.error("Error: command not found", commandName);
   Deno.exit(1);

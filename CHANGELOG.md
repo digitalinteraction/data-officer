@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## 1.0.1
+
+- Fix git commits tweet incorrect "deletions"
+
 ## 1.0.0
 
 - First stable version

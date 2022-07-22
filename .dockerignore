@@ -1,2 +1,11 @@
-data
+#
+# Files to ignore from the docker daemon
+#
+
+.DS_Store
+.git_hooks
+.github
+.vscode
 repos
+auth.yml
+*.env

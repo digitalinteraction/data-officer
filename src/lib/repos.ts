@@ -6,24 +6,34 @@ import {
 } from "../../deps.ts";
 import { HttpResponse } from "./http.ts";
 
+/** A git repository definition */
 export interface GitRepository {
+  /** The internal name of the repository, must be unique */
   name: string;
+
+  /** Collections are functions that fetch data from a local clone of the repo in question */
   collections: Record<string, () => unknown>;
 }
 
+/** A page of markdown with the frontmatter parsed out */
 export interface MarkdownPage<T> {
   path: string;
   attrs: T;
   body: string;
 }
 
-export function redisJsonEndpoint(
+/** A helper to create a http route that fetches some JSON from a key in Redis. */
+export function redisJsonRoute(
   redis: RedisClient,
   repo: string,
   collection: string,
 ) {
+  // Pre-compute the key to collect from
   const key = getCollectionKey(repo, collection);
 
+  // Return a function that fetches and parses JSON from that key,
+  // that in turn returns a `Response` with the json data or an error.
+  // It assumes JSON is stores and bypasses the parsing part to make it quicker.
   return async () => {
     const data = await redis.get(key);
     return data
@@ -32,15 +42,16 @@ export function redisJsonEndpoint(
   };
 }
 
+/** Load markdown files and their frontmatter that match a glob pattern */
 export async function getMarkdownCollection<T = unknown>(
   pattern: string,
 ): Promise<MarkdownPage<T>[]> {
   const result: MarkdownPage<T>[] = [];
 
-  const files = expandGlob(pattern, {
-    includeDirs: false,
-  });
+  // Create an iterator to exapand the glob and loop through matches
+  const files = expandGlob(pattern, { includeDirs: false });
 
+  // Load each file and parse the frontmatter
   for await (const file of files) {
     const contents = await Deno.readTextFile(file.path);
 
@@ -56,10 +67,15 @@ export async function getMarkdownCollection<T = unknown>(
   return result;
 }
 
+/** Get the key to store a repo's collection */
 export function getCollectionKey(repo: string, collection: string) {
   return `repos/${repo}/${collection}`;
 }
 
+/**
+ * Run the `sync_repos.sh` script, then run all collections and cache results
+ * in Redis
+ */
 export async function syncRepos(
   redis: RedisClient,
   repos: GitRepository[],

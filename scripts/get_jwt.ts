@@ -6,7 +6,10 @@ import { getEnv, setupEnv } from "../src/lib/mod.ts";
 await setupEnv();
 
 const CLI_USAGE = `
-./scripts/get_jwt.ts
+./scripts/get_jwt.ts [options]
+
+info:
+  Sign a JWT for development purposes
 
 options:
   --subject Set the "sub" claim
@@ -16,10 +19,10 @@ options:
 `;
 
 interface Flags {
-  help?: boolean;
   subject?: string;
   scope?: string[];
   expire: string;
+  help?: boolean;
 }
 
 const flags: Flags = parseFlags(Deno.args, {
