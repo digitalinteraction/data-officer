@@ -129,3 +129,75 @@ These scopes are available for tokens
   twitter bot.
 - `repos:coffee-club:members:{member}` — Access consumption for a specific
   coffee-club member.
+
+---
+
+```ts
+import * as cli from "robs-fancy-cli";
+
+interface ServeOptions {
+  port: number;
+  migrate: boolean;
+}
+const serve = cli.command<ServeOptions>({
+  name: "serve",
+  info: "Run the http server",
+  options: {
+    numbers: {
+      port: { info: "The port to run on", default: 8080 },
+    },
+    booleans: {
+      migrate: { info: 'Run database migrations', default: false }
+    }
+  },
+  fn(options) {
+    console.log('Run server on %o', options.port)
+  }
+});
+
+const tweet = cli.composite({
+  name: 'tweet',
+  info: 'Post a tweet to the bot',
+  options: {
+    boolean: {
+      dryRun: { default: false }
+    }
+  }
+  commands: [
+    cli.command({
+      name: 'am-coffee',
+      fn(options) {
+        console.log('am-coffee dryRun=%o', options.dryRun)
+      }
+    }),
+    cli.command({
+      name: 'pm-coffee',
+      fn(options) {
+        console.log('pm-coffee dryRun=%o', options.dryRun)
+      }
+    }),
+  ]
+})
+
+const app = cli.app({
+  name: "my-cli",
+  info: "Some information about the CLI...",
+  version: "1.2.3",
+  commands: [serve, tweet],
+});
+```
+
+```sh
+cli
+
+cli help
+cli --help
+cli version
+cli --version
+
+# Help goes to root command
+cli --help serve
+
+# Help goes to root serve command
+cli serve --help
+```
