@@ -1,6 +1,7 @@
 # Data officer
 
 This repo is a hub for Open Lab information and service status, written in Deno.
+The service provides API access to Open Lab information and tweets out fun status messages to [@ol_status](https://twitter.com/ol_status).
 
 ## Development
 
