@@ -129,6 +129,7 @@ export class TwitterClient {
       if (response?.status === 400) {
         log.debug("#refreshToken remove token");
         await redis.del(TOKEN_AUTH_KEY);
+        log.error(response.statusText + " " + await response.text());
       }
       throw new Error("Failed to refresh credentials");
     }
