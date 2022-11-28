@@ -77,11 +77,15 @@ export async function* _iterate<T = unknown>(
   } while (url);
 }
 
+export type RecentStats = CodeChanges & {
+  repos: Map<string, CodeChanges>;
+};
+
 /** Get recent commits to the `digitalinteraction` GitHub organisation */
 export async function getRecentCommits(
   owner: string,
   since: Date,
-): Promise<CodeChanges> {
+): Promise<RecentStats> {
   const { GITHUB_TOKEN } = getEnv("GITHUB_TOKEN");
 
   const request = {
@@ -106,7 +110,8 @@ export async function getRecentCommits(
     todaysRepos.push(repo);
   }
 
-  const stats = { total: 0, additions: 0, deletions: 0 };
+  const sum: CodeChanges = { total: 0, additions: 0, deletions: 0 };
+  const repoStats = new Map<string, CodeChanges>();
 
   // Go through each recent repo and find the commits that were pushed to them
   for (const repo of todaysRepos) {
@@ -115,6 +120,8 @@ export async function getRecentCommits(
       GITHUB_API_URL,
     );
     commits.searchParams.set("since", since.toISOString());
+
+    const stats: CodeChanges = { total: 0, additions: 0, deletions: 0 };
 
     // Loop through the commits that happened since the start of the day
     for await (const commit of _iterate<Commit>(commits, request)) {
@@ -135,7 +142,13 @@ export async function getRecentCommits(
       stats.additions += details.stats.additions;
       stats.deletions += details.stats.deletions;
     }
+
+    repoStats.set(repo.full_name, stats);
+
+    sum.total += stats.total;
+    sum.additions += stats.additions;
+    sum.deletions += stats.deletions;
   }
 
-  return stats;
+  return { ...sum, repos: repoStats };
 }
