@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## 1.0.2
+
+- The `sync_repos` command properly exits with `1` if it failed
+
 ## 1.0.1
 
 - Fix git commits tweet incorrect "deletions"
