@@ -2,6 +2,10 @@
 
 This file lists notable changes to the project.
 
+## 1.0.3
+
+- Upgrade mysql to fix broken dependency
+
 ## 1.0.2
 
 - The `sync_repos` command properly exits with `1` if it failed

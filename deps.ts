@@ -34,7 +34,7 @@ export { default as app } from "./app.json" assert { type: "json" };
 export {
   Client as MysqlClient,
   configLogger as configMysqlLogger,
-} from "https://deno.land/x/mysql@v2.10.2/mod.ts";
+} from "https://deno.land/x/mysql@v2.11.0/mod.ts";
 
 //
 // Jose / JWT
