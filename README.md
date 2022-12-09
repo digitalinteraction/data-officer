@@ -1,7 +1,8 @@
 # Data officer
 
 This repo is a hub for Open Lab information and service status, written in Deno.
-The service provides API access to Open Lab information and tweets out fun status messages to [@ol_status](https://twitter.com/ol_status).
+The service provides API access to Open Lab information and tweets out fun
+status messages to [@ol_status](https://twitter.com/ol_status).
 
 ## Development
 
@@ -81,12 +82,13 @@ You can run `deno fmt` if you like instead.
 This repo uses GitHub actions to build a container when you push a git tag like
 `v1.2.3`.
 
-1. Make sure all code is committed on `main`
-2. Make sure `example/config` is up-to-date
-3. Update the [CHANGELOG.md](/CHANGELOG.md) to describe new features and bug
+1. Make sure you are on `main`
+1. Make sure all code is committed
+1. Make sure `example/config` is up-to-date
+1. Update the [CHANGELOG.md](/CHANGELOG.md) to describe new features and bug
    fixes
-4. Run `./script/version X.Y.Z` with the newly documented version
-5. Push to main
+1. Run `./script/version X.Y.Z` with the newly documented version
+1. Push to main
 
 ## Deployment
 
