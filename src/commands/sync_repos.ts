@@ -26,6 +26,7 @@ export const syncReposCommand: Command = {
 
     const redis = await redisClientFromEnv(env);
 
-    await syncRepos(redis, getAllRepos());
+    const success = await syncRepos(redis, getAllRepos());
+    if (!success) Deno.exit(1);
   },
 };
